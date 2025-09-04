@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+// SCSS Variables
+$primary-color: #3b82f6;
+$secondary-color: #6366f1;
+$accent-color: #f59e0b;
+$background-light: #ffffff;
+$background-dark: #0a0a0a;
+$foreground-light: #171717;
+$foreground-dark: #ededed;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin transition($properties: all, $duration: 0.3s, $timing: ease) {
+  transition: $properties $duration $timing;
+}
+
+:root {
+  --background: #{$background-light};
+  --foreground: #{$foreground-light};
+  --primary: #{$primary-color};
+  --secondary: #{$secondary-color};
+  --accent: #{$accent-color};
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #{$background-dark};
+    --foreground: #{$foreground-dark};
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  @include transition();
+}
+
+// Utility classes
+.flex-center {
+  @include flex-center;
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-secondary {
+  color: var(--secondary);
+}
+
+.text-accent {
+  color: var(--accent);
+}
