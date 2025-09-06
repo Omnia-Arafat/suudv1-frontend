@@ -1,274 +1,398 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { DashboardSkeleton } from '@/components/shared';
 import { useAuth, useI18n } from '@/contexts';
-import { useRouter } from 'next/navigation';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { DashboardLayout } from '@/components/dashboard';
-
-function DashboardContent() {
-  const { user, isLoading } = useAuth();
-  const { language } = useI18n();
-  const router = useRouter();
-
-  // Show loading state while user data is being fetched
-  if (isLoading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
-        />
-        <span className="ml-4 text-lg text-gray-700">
-          {language === 'en' ? 'Loading dashboard...' : 'تحميل لوحة التحكم...'}
-        </span>
-      </div>
-    );
-  }
-
-  const quickActions = [
-    {
-      icon: '🚀',
-      title: language === 'en' ? 'Quick Start' : 'بداية سريعة',
-      description: user?.role === 'employer' 
-        ? (language === 'en' ? 'Post your first job listing' : 'انشر أول إعلان وظيفي')
-        : (language === 'en' ? 'Complete your profile' : 'أكمل ملفك الشخصي'),
-      action: () => router.push(user?.role === 'employer' ? '/dashboard/jobs/create' : '/dashboard/profile'),
-      buttonText: language === 'en' ? 'Get Started' : 'ابدأ الآن',
-    },
-    {
-      icon: user?.role === 'employer' ? '📊' : '🔍',
-      title: user?.role === 'employer' 
-        ? (language === 'en' ? 'View Analytics' : 'عرض التحليلات')
-        : (language === 'en' ? 'Find Jobs' : 'البحث عن الوظائف'),
-      description: user?.role === 'employer'
-        ? (language === 'en' ? 'Check your hiring metrics' : 'تحقق من مقاييس التوظيف')
-        : (language === 'en' ? 'Browse available positions' : 'تصفح المناصب المتاحة'),
-      action: () => router.push(user?.role === 'employer' ? '/dashboard/analytics' : '/dashboard/jobs'),
-      buttonText: language === 'en' ? 'View Now' : 'عرض الآن',
-    },
-    {
-      icon: user?.role === 'employer' ? '👥' : '📋',
-      title: user?.role === 'employer'
-        ? (language === 'en' ? 'Recent Applications' : 'الطلبات الحديثة')
-        : (language === 'en' ? 'Application Status' : 'حالة الطلبات'),
-      description: user?.role === 'employer'
-        ? (language === 'en' ? 'Review candidate applications' : 'مراجعة طلبات المرشحين')
-        : (language === 'en' ? 'Track your applications' : 'تتبع طلباتك'),
-      action: () => router.push('/dashboard/applications'),
-      buttonText: language === 'en' ? 'Review' : 'مراجعة',
-    },
-  ];
-
-  const stats = user?.role === 'employer' ? [
-    { label: language === 'en' ? 'Active Jobs' : 'الوظائف النشطة', value: '5', icon: '📝' },
-    { label: language === 'en' ? 'Applications' : 'الطلبات', value: '23', icon: '📨' },
-    { label: language === 'en' ? 'Views This Month' : 'المشاهدات هذا الشهر', value: '156', icon: '👁️' },
-    { label: language === 'en' ? 'Response Rate' : 'معدل الاستجابة', value: '78%', icon: '📈' },
-  ] : [
-    { label: language === 'en' ? 'Applications Sent' : 'الطلبات المرسلة', value: '8', icon: '📤' },
-    { label: language === 'en' ? 'Interviews' : 'المقابلات', value: '3', icon: '🎯' },
-    { label: language === 'en' ? 'Saved Jobs' : 'الوظائف المحفوظة', value: '12', icon: '🔖' },
-    { label: language === 'en' ? 'Profile Views' : 'مشاهدات الملف', value: '34', icon: '👁️' },
-  ];
-
-  return (
-    <DashboardLayout
-      title={language === 'en' ? 'Dashboard' : 'لوحة التحكم'}
-      subtitle={language === 'en' ? 
-        `Welcome back, ${user?.name}!` : 
-        `مرحباً بعودتك، ${user?.name}!`
-      }
-      actions={
-        <Button 
-          variant="primary" 
-          onClick={() => router.push(user?.role === 'employer' ? '/dashboard/jobs/create' : '/dashboard/jobs')}
-        >
-          {user?.role === 'employer'
-            ? (language === 'en' ? 'Post Job' : 'نشر وظيفة')
-            : (language === 'en' ? 'Find Jobs' : 'البحث عن وظائف')
-          }
-        </Button>
-      }
-    >
-      <div className="space-y-6">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="hover:shadow-lg transition-shadow duration-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                      <p className="text-3xl font-bold text-gray-900 mt-2">{stat.value}</p>
-                    </div>
-                    <div className="text-3xl">{stat.icon}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Quick Actions */}
-        <div>
-          <h3 className="text-xl font-bold text-gray-900 mb-6">
-            {language === 'en' ? 'Quick Actions' : 'إجراءات سريعة'}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {quickActions.map((action, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
-              >
-                <Card className="hover:shadow-lg transition-all duration-200 group cursor-pointer" onClick={action.action}>
-                  <CardContent className="p-6 text-center">
-                    <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">
-                      {action.icon}
-                    </div>
-                    <h4 className="font-bold text-lg text-gray-900 mb-2">
-                      {action.title}
-                    </h4>
-                    <p className="text-gray-600 mb-4">
-                      {action.description}
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      className="w-full group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors"
-                    >
-                      {action.buttonText}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity or Account Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Account Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {language === 'en' ? 'Account Information' : 'معلومات الحساب'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg">{user?.name}</h4>
-                  <p className="text-gray-600">{user?.email}</p>
-                  <p className="text-sm text-blue-600 font-medium">
-                    {user?.role === 'employee' 
-                      ? (language === 'en' ? 'Job Seeker' : 'باحث عن عمل')
-                      : (language === 'en' ? 'Employer' : 'صاحب عمل')
-                    }
-                  </p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-3 text-sm">
-                {user?.university && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">{language === 'en' ? 'University:' : 'الجامعة:'}</span>
-                    <span className="font-medium">{user.university}</span>
-                  </div>
-                )}
-                {user?.specialization && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">{language === 'en' ? 'Specialization:' : 'التخصص:'}</span>
-                    <span className="font-medium">{user.specialization}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-gray-600">{language === 'en' ? 'Member since:' : 'عضو منذ:'}</span>
-                  <span className="font-medium">{new Date(user?.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => router.push('/dashboard/profile')}
-              >
-                {language === 'en' ? 'Edit Profile' : 'تعديل الملف الشخصي'}
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {language === 'en' ? 'Recent Activity' : 'النشاط الأخير'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  {
-                    icon: user?.role === 'employer' ? '📝' : '👁️',
-                    title: user?.role === 'employer' 
-                      ? (language === 'en' ? 'Job posted' : 'تم نشر وظيفة')
-                      : (language === 'en' ? 'Job viewed' : 'تم عرض وظيفة'),
-                    description: user?.role === 'employer'
-                      ? (language === 'en' ? 'Software Developer position' : 'منصب مطور برمجيات')
-                      : (language === 'en' ? 'Marketing Manager at Tech Co' : 'مدير تسويق في شركة تقنية'),
-                    time: language === 'en' ? '2 hours ago' : 'منذ ساعتين'
-                  },
-                  {
-                    icon: user?.role === 'employer' ? '👥' : '📤',
-                    title: user?.role === 'employer'
-                      ? (language === 'en' ? 'New application' : 'طلب جديد')
-                      : (language === 'en' ? 'Application sent' : 'تم إرسال طلب'),
-                    description: user?.role === 'employer'
-                      ? (language === 'en' ? 'From Ahmad Al-Rashid' : 'من أحمد الراشد')
-                      : (language === 'en' ? 'To Innovative Solutions' : 'إلى الحلول المبتكرة'),
-                    time: language === 'en' ? '1 day ago' : 'منذ يوم واحد'
-                  },
-                  {
-                    icon: '🔔',
-                    title: language === 'en' ? 'Profile updated' : 'تم تحديث الملف الشخصي',
-                    description: language === 'en' ? 'Added new skills' : 'تمت إضافة مهارات جديدة',
-                    time: language === 'en' ? '3 days ago' : 'منذ 3 أيام'
-                  },
-                ].map((activity, index) => (
-                  <div key={index} className="flex items-start gap-4 p-3 bg-gray-50 rounded-lg">
-                    <span className="text-2xl">{activity.icon}</span>
-                    <div className="flex-1">
-                      <h5 className="font-medium text-gray-900">{activity.title}</h5>
-                      <p className="text-sm text-gray-600">{activity.description}</p>
-                      <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </DashboardLayout>
-  );
-}
 
 export default function DashboardPage() {
+  const { user, isLoading } = useAuth();
+  const { language } = useI18n();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const greeting = () => {
+    const hour = currentTime.getHours();
+    if (language === 'en') {
+      if (hour < 12) return 'Good morning';
+      if (hour < 17) return 'Good afternoon';
+      return 'Good evening';
+    } else {
+      if (hour < 12) return 'صباح الخير';
+      if (hour < 17) return 'مساء الخير';
+      return 'مساء الخير';
+    }
+  };
+
+  const formatDateRange = () => {
+    const today = new Date();
+    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    if (language === 'en') {
+      return `${lastWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    } else {
+      return `${lastWeek.toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })} - ${today.toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })}`;
+    }
+  };
+
+  // Mock data based on user role
+  const isEmployer = user.role === 'employer';
+  
+  const statsData = isEmployer ? [
+    {
+      title: language === 'en' ? 'Company Visitors' : 'زوار الشركة',
+      value: '21,457',
+      subtitle: language === 'en' ? `Visitors from ${formatDateRange()}` : `زوار من ${formatDateRange()}`,
+      trend: '+12%',
+      color: 'indigo'
+    },
+    {
+      title: language === 'en' ? 'Job Applications' : 'طلبات العمل',
+      value: '158',
+      subtitle: language === 'en' ? 'Applicants' : 'متقدم',
+      trend: '+8%',
+      color: 'green'
+    },
+    {
+      title: language === 'en' ? 'Active Jobs' : 'الوظائف النشطة',
+      value: '24',
+      subtitle: language === 'en' ? 'Job Postings' : 'وظيفة منشورة',
+      trend: '+3',
+      color: 'blue'
+    },
+    {
+      title: language === 'en' ? 'Response Rate' : 'معدل الاستجابة',
+      value: '89%',
+      subtitle: language === 'en' ? 'This month' : 'هذا الشهر',
+      trend: '+5%',
+      color: 'purple'
+    }
+  ] : [
+    {
+      title: language === 'en' ? 'Profile Views' : 'مشاهدات الملف',
+      value: '1,247',
+      subtitle: language === 'en' ? `Views from ${formatDateRange()}` : `مشاهدة من ${formatDateRange()}`,
+      trend: '+18%',
+      color: 'indigo'
+    },
+    {
+      title: language === 'en' ? 'Applications Sent' : 'الطلبات المرسلة',
+      value: '23',
+      subtitle: language === 'en' ? 'Applications' : 'طلب',
+      trend: '+4',
+      color: 'green'
+    },
+    {
+      title: language === 'en' ? 'Interview Invites' : 'دعوات المقابلة',
+      value: '8',
+      subtitle: language === 'en' ? 'This month' : 'هذا الشهر',
+      trend: '+2',
+      color: 'blue'
+    },
+    {
+      title: language === 'en' ? 'Response Rate' : 'معدل الاستجابة',
+      value: '34%',
+      subtitle: language === 'en' ? 'Success rate' : 'معدل النجاح',
+      trend: '+12%',
+      color: 'purple'
+    }
+  ];
+
+  const recentData = isEmployer ? [
+    {
+      id: 1,
+      name: 'Jake Gyll',
+      position: language === 'en' ? 'Social Media Specialist' : 'أخصائي وسائل التواصل',
+      email: 'jakegyll@email.com',
+      appliedDate: language === 'en' ? '2 days ago' : 'منذ يومين',
+      avatar: '👨‍💼'
+    },
+    {
+      id: 2,
+      name: 'Sarah Ahmed',
+      position: language === 'en' ? 'UI/UX Designer' : 'مصمم واجهات',
+      email: 'sarah.ahmed@email.com',
+      appliedDate: language === 'en' ? '3 days ago' : 'منذ 3 أيام',
+      avatar: '👩‍💻'
+    },
+    {
+      id: 3,
+      name: 'Ahmed Hassan',
+      position: language === 'en' ? 'Frontend Developer' : 'مطور واجهات أمامية',
+      email: 'ahmed.hassan@email.com',
+      appliedDate: language === 'en' ? '5 days ago' : 'منذ 5 أيام',
+      avatar: '👨‍💻'
+    }
+  ] : [
+    {
+      id: 1,
+      name: 'TechCorp',
+      position: language === 'en' ? 'Frontend Developer' : 'مطور واجهات أمامية',
+      status: language === 'en' ? 'Interview Scheduled' : 'مقابلة مجدولة',
+      appliedDate: language === 'en' ? '2 days ago' : 'منذ يومين',
+      avatar: '🏢'
+    },
+    {
+      id: 2,
+      name: 'StartupXYZ',
+      position: language === 'en' ? 'UI Designer' : 'مصمم واجهات',
+      status: language === 'en' ? 'Under Review' : 'قيد المراجعة',
+      appliedDate: language === 'en' ? '4 days ago' : 'منذ 4 أيام',
+      avatar: '🚀'
+    },
+    {
+      id: 3,
+      name: 'Digital Agency',
+      position: language === 'en' ? 'Marketing Specialist' : 'أخصائي تسويق',
+      status: language === 'en' ? 'Application Sent' : 'تم إرسال الطلب',
+      appliedDate: language === 'en' ? '1 week ago' : 'منذ أسبوع',
+      avatar: '🎯'
+    }
+  ];
+
   return (
-    <ProtectedRoute>
-      <DashboardContent />
-    </ProtectedRoute>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between"
+        >
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {greeting()}, {user.name}!
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {language === 'en' 
+                ? `Here is what's happening with your ${isEmployer ? 'job listings' : 'applications'} from ${formatDateRange()}.`
+                : `إليك ما يحدث مع ${isEmployer ? 'إعلانات الوظائف' : 'طلباتك'} من ${formatDateRange()}.`
+              }
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm">
+              <span className="mr-2">📊</span>
+              {language === 'en' ? 'View All Jobs' : 'عرض جميع الوظائف'}
+            </Button>
+            <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <span className="mr-2">➕</span>
+              {isEmployer 
+                ? (language === 'en' ? 'Post Job' : 'نشر وظيفة')
+                : (language === 'en' ? 'Apply to Jobs' : 'التقدم للوظائف')
+              }
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {statsData.map((stat, index) => (
+            <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
+                  <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                  <p className="text-xs text-gray-500">{stat.subtitle}</p>
+                </div>
+                <div className="ml-4">
+                  <div className={`w-12 h-12 rounded-lg bg-${stat.color}-100 flex items-center justify-center`}>
+                    <div className={`w-6 h-6 rounded bg-${stat.color}-500`}></div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 flex items-center">
+                <span className="text-green-600 text-sm font-medium">{stat.trend}</span>
+                <span className="text-gray-500 text-sm ml-2">
+                  {language === 'en' ? 'vs last week' : 'مقارنة بالأسبوع الماضي'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Chart Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {isEmployer 
+                  ? (language === 'en' ? 'Company Visitors' : 'زوار الشركة')
+                  : (language === 'en' ? 'Application Activity' : 'نشاط الطلبات')
+                }
+              </h3>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
+                  <span className="text-sm text-gray-600">
+                    {language === 'en' ? 'Visitors' : 'زوار'}
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">5,879</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Mock Chart - Simple Bar Visualization */}
+            <div className="h-64 flex items-end justify-between gap-2">
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => {
+                const height = Math.random() * 200 + 50;
+                return (
+                  <div key={day} className="flex flex-col items-center flex-1">
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: height }}
+                      transition={{ delay: 0.5 + index * 0.1 }}
+                      className={`w-full rounded-t-md ${
+                        index === 5 ? 'bg-indigo-600' : 'bg-gray-200'
+                      }`}
+                    />
+                    <p className="text-xs text-gray-500 mt-2">{day}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Applicants Statistics */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {isEmployer 
+                  ? (language === 'en' ? 'Applicants Statistic' : 'إحصائيات المتقدمين')
+                  : (language === 'en' ? 'Application Status' : 'حالة الطلبات')
+                }
+              </h3>
+              <Button variant="outline" size="sm">
+                {language === 'en' ? 'View All Jobs' : 'عرض الكل'}
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { role: language === 'en' ? 'Social Media Specialist' : 'أخصائي وسائل تواصل', count: 67, color: 'indigo' },
+                { role: language === 'en' ? 'Senior Engineer' : 'مهندس أول', count: 21, color: 'gray' },
+                { role: language === 'en' ? 'UI/UX Designer' : 'مصمم واجهات', count: 38, color: 'blue' },
+                { role: language === 'en' ? 'Other' : 'أخرى', count: 54, color: 'gray' }
+              ].map((item, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full bg-${item.color}-500`}></div>
+                    <span className="text-sm text-gray-700">{item.role}</span>
+                  </div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {item.count} {language === 'en' ? 'Applicants' : 'متقدم'}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-gray-100">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">158</div>
+                <div className="text-sm text-gray-500">
+                  {language === 'en' ? 'Applicants' : 'متقدم'}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-xl shadow-sm border border-gray-100"
+        >
+          <div className="p-6 border-b border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {isEmployer 
+                ? (language === 'en' ? 'Recent Applicants' : 'المتقدمون الحديثون')
+                : (language === 'en' ? 'Recent Applications' : 'الطلبات الحديثة')
+              }
+            </h3>
+          </div>
+
+          <div className="divide-y divide-gray-100">
+            {recentData.map((item) => (
+              <div key={item.id} className="p-6 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-lg">
+                      {item.avatar}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{item.name}</h4>
+                      <p className="text-sm text-gray-600">{item.position}</p>
+                      {isEmployer ? (
+                        <p className="text-sm text-gray-500">
+                          {language === 'en' ? 'Email' : 'البريد الإلكتروني'}: {item.email}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          {language === 'en' ? 'Status' : 'الحالة'}: {item.status}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">
+                        {language === 'en' ? 'Date Applied' : 'تاريخ التقدم'}
+                      </p>
+                      <p className="text-sm font-medium text-gray-900">{item.appliedDate}</p>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      {isEmployer 
+                        ? (language === 'en' ? 'See Application' : 'عرض الطلب')
+                        : (language === 'en' ? 'View Details' : 'عرض التفاصيل')
+                      }
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-6 border-t border-gray-100 text-center">
+            <Button variant="outline">
+              {language === 'en' ? 'View All' : 'عرض الكل'}
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
 }

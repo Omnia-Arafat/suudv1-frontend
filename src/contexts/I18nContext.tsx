@@ -93,6 +93,7 @@ interface I18nContextType {
   locale: LocaleConfig;
   t: TranslationFunction;
   changeLanguage: (lang: Language) => void;
+  toggleLanguage: () => void;
   availableLanguages: LocaleConfig[];
 }
 
@@ -121,6 +122,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('language', lang);
   };
 
+  const toggleLanguage = () => {
+    const newLang = language === 'en' ? 'ar' : 'en';
+    changeLanguage(newLang);
+  };
+
   const t: TranslationFunction = (key, params) => {
     let translation = translations[language][key] || key;
     
@@ -139,6 +145,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     locale: locales[language],
     t,
     changeLanguage,
+    toggleLanguage,
     availableLanguages: Object.values(locales),
   };
 

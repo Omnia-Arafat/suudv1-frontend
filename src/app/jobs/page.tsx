@@ -97,7 +97,7 @@ export default function JobsPage() {
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold text-blue-600">
-            SU'UD - سعود
+            SU'UD - صعود
           </h1>
         </div>
       </header>

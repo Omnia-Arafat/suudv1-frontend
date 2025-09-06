@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import { Navbar, Footer } from '@/components/shared';
 import { useAuth, useI18n } from '@/contexts';
 import type { RegisterRequest, UserRole } from '@/types';
 
@@ -50,23 +51,26 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
-      >
-        <Card>
-          <CardHeader className="text-center">
-            <motion.h1
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              className="text-3xl font-bold text-blue-600 mb-2"
-            >
-              SU'UD - سعود
-            </motion.h1>
-            <CardTitle>{t('auth.register')}</CardTitle>
-          </CardHeader>
+    <div className="min-h-screen bg-white">
+      <Navbar />
+      
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 py-24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <Card>
+            <CardHeader className="text-center">
+              <motion.h1
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                className="text-3xl font-bold text-indigo-600 mb-2"
+              >
+                SU'UD - صعود
+              </motion.h1>
+              <CardTitle>{t('auth.register')}</CardTitle>
+            </CardHeader>
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -271,6 +275,9 @@ export default function RegisterPage() {
           </CardContent>
         </Card>
       </motion.div>
+      </div>
+      
+      <Footer />
     </div>
   );
 }

@@ -3,424 +3,331 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Button, Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Navbar, Footer, PageSkeleton } from '@/components/shared';
 import { useAuth, useI18n } from '@/contexts';
 
 export default function Home() {
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const { t, changeLanguage, language, direction } = useI18n();
+  const { isLoading } = useAuth();
+  const { language } = useI18n();
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<'employee' | 'employer' | null>(null);
-
-  const toggleLanguage = () => {
-    changeLanguage(language === 'en' ? 'ar' : 'en');
-  };
-
-  const roleCards = [
-    {
-      role: 'employee' as const,
-      title: language === 'en' ? 'I am a Student/Job Seeker' : 'أنا طالب/باحث عن عمل',
-      description: language === 'en' 
-        ? 'Find your dream job and connect with top employers'
-        : 'اعثر على وظيفة أحلامك وتواصل مع أفضل أصحاب العمل',
-      icon: '🎓',
-    },
-    {
-      role: 'employer' as const,
-      title: language === 'en' ? 'I am an Employer' : 'أنا صاحب عمل',
-      description: language === 'en'
-        ? 'Post jobs and find the best talent for your company'
-        : 'انشر الوظائف واعثر على أفضل المواهب لشركتك',
-      icon: '🏢',
-    },
-  ];
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('Florence, Italy');
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"
-        />
-        <span className="ml-3 text-lg">{t('common.loading')}</span>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
+  const handleSearch = () => {
+    const searchParams = new URLSearchParams();
+    if (searchTerm) searchParams.append('search', searchTerm);
+    if (selectedLocation && selectedLocation !== 'Florence, Italy') {
+      searchParams.append('location', selectedLocation);
+    }
+    router.push(`/jobs?${searchParams.toString()}`);
+  };
+
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800`}>
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm shadow-sm border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <motion.div
-            initial={{ opacity: 0, x: direction === 'rtl' ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-              S
-            </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              SU'UD - سعود
-            </h1>
-          </motion.div>
-          
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={toggleLanguage}
-              size="sm"
-            >
-              {language === 'en' ? 'العربية' : 'English'}
-            </Button>
-            
-            {isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">
-                  {t('dashboard.welcome')}, {user?.name}
-                </span>
-                <Button variant="primary" size="sm" onClick={() => router.push('/dashboard')}>
-                  {t('dashboard.profile')}
-                </Button>
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => router.push('/auth/login')}
-                >
-                  {t('auth.login')}
-                </Button>
-                <Button 
-                  variant="primary" 
-                  size="sm"
-                  onClick={() => router.push('/auth/register')}
-                >
-                  {t('auth.register')}
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <Navbar />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5" />
-        <div className="container mx-auto px-4 py-20 lg:py-32">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-16"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-6 py-3 rounded-full text-sm font-medium mb-6"
-            >
-              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              {language === 'en' ? 'Now Live - Connect & Grow' : 'مباشر الآن - اتصل وانمُ'}
-            </motion.div>
-            
-            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              {language === 'en' ? (
-                <>
-                  Your <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Dream Career</span><br />
-                  Starts Here
-                </>
-              ) : (
-                <>
-                  مسيرتك <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">الحلم</span><br />
-                  تبدأ من هنا
-                </>
-              )}
-            </h1>
-            
-            <p className="text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-              {language === 'en'
-                ? 'Connect talented students with innovative employers. Discover opportunities that match your ambitions and skills in Saudi Arabia\'s growing job market.'
-                : 'نربط الطلاب الموهوبين بأصحاب العمل المبدعين. اكتشف الفرص التي تناسب طموحاتك ومهاراتك في سوق العمل السعودي النامي.'
-              }
-            </p>
-            
+      <section className="relative bg-gray-50 pt-16 pb-20 overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 via-white to-indigo-50" />
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              transition={{ duration: 0.6 }}
+              className="text-left"
             >
-              <Button size="lg" onClick={() => router.push('/auth/register')} className="text-lg px-8 py-4">
-                {language === 'en' ? 'Get Started Free' : 'ابدأ مجاناً'}
-                <span className="ml-2">→</span>
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => router.push('/auth/login')} className="text-lg px-8 py-4">
-                {language === 'en' ? 'Sign In' : 'تسجيل الدخول'}
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                {language === 'en' ? (
+                  <>
+                    Discover<br />
+                    more than<br />
+                    <span className="text-indigo-600">5000+ Jobs</span>
+                  </>
+                ) : (
+                  <>
+                    اكتشف<br />
+                    أكثر من<br />
+                    <span className="text-indigo-600">5000+ وظيفة</span>
+                  </>
+                )}
+              </h1>
+              
+              <div className="mb-8">
+                <div className="h-1 w-24 bg-indigo-600 rounded-full mb-4" />
+                <p className="text-lg text-gray-600 max-w-lg">
+                  {language === 'en' 
+                    ? 'Great platform for the job seeker that searching for new career heights and passionate about startups.'
+                    : 'منصة رائعة للباحث عن عمل الذي يبحث عن آفاق مهنية جديدة ومتحمس للشركات الناشئة.'
+                  }
+                </p>
+              </div>
 
-      {/* Role Selection Cards */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              {language === 'en' ? 'Choose Your Path' : 'اختر مسارك'}
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {language === 'en'
-                ? 'Whether you\'re seeking opportunities or talent, we have the perfect platform for you'
-                : 'سواء كنت تبحث عن الفرص أو المواهب، لدينا المنصة المثالية لك'
-              }
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {roleCards.map((card, index) => (
-              <motion.div
-                key={card.role}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
-              >
-                <Card
-                  hover
-                  className={`text-center relative overflow-hidden group transition-all duration-300 h-full ${
-                    selectedRole === card.role 
-                      ? 'ring-2 ring-blue-500 bg-gradient-to-br from-blue-50 to-purple-50' 
-                      : 'hover:shadow-xl'
-                  }`}
-                  onClick={() => {
-                    setSelectedRole(card.role);
-                    router.push('/auth/register');
-                  }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-blue-50/30 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardContent className="relative z-10 p-8">
-                    <div className="text-7xl mb-6 transform group-hover:scale-110 transition-transform">{card.icon}</div>
-                    <CardTitle className="mb-4 text-2xl">{card.title}</CardTitle>
-                    <p className="text-gray-600 text-lg leading-relaxed mb-6">{card.description}</p>
-                    
-                    <div className="space-y-3 text-left">
-                      {card.role === 'employee' ? [
-                        language === 'en' ? '• Browse thousands of job opportunities' : '• تصفح آلاف الفرص الوظيفية',
-                        language === 'en' ? '• Build your professional profile' : '• اصنع ملفك المهني',
-                        language === 'en' ? '• Connect with top employers' : '• تواصل مع كبار أصحاب العمل'
-                      ] : [
-                        language === 'en' ? '• Post jobs and reach qualified candidates' : '• انشر الوظائف واوصل للمرشحين المؤهلين',
-                        language === 'en' ? '• Manage applications efficiently' : '• أدر التطبيقات بكفاءة',
-                        language === 'en' ? '• Build your company brand' : '• اصنع علامة شركتك التجارية'
-                      ].map((feature, i) => (
-                        <p key={i} className="text-sm text-gray-600">{feature}</p>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="relative z-10">
-                    <Button
-                      variant={selectedRole === card.role ? 'primary' : 'outline'}
-                      className="w-full text-lg py-3 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors"
-                      size="lg"
+              {/* Job Search Bar */}
+              <div className="bg-white rounded-xl shadow-lg p-4 mb-8">
+                <div className="flex flex-col md:flex-row gap-3">
+                  {/* Job Title Input */}
+                  <div className="flex items-center flex-1 bg-gray-50 rounded-lg px-4 py-3">
+                    <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder={language === 'en' ? 'Job title or keyword' : 'المسمى الوظيفي أو الكلمة المفتاحية'}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="bg-transparent border-0 outline-none flex-1 text-gray-700 placeholder-gray-400"
+                    />
+                  </div>
+                  
+                  {/* Location Input */}
+                  <div className="flex items-center flex-1 bg-gray-50 rounded-lg px-4 py-3">
+                    <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <select
+                      value={selectedLocation}
+                      onChange={(e) => setSelectedLocation(e.target.value)}
+                      className="bg-transparent border-0 outline-none flex-1 text-gray-700 cursor-pointer"
                     >
-                      {language === 'en' ? 'Get Started' : 'ابدأ الآن'}
-                      <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-            ))}
+                      <option value="Florence, Italy">{language === 'en' ? 'Florence, Italy' : 'الرياض، السعودية'}</option>
+                      <option value="Riyadh, Saudi Arabia">{language === 'en' ? 'Riyadh, Saudi Arabia' : 'الرياض، السعودية'}</option>
+                      <option value="Jeddah, Saudi Arabia">{language === 'en' ? 'Jeddah, Saudi Arabia' : 'جدة، السعودية'}</option>
+                      <option value="Dubai, UAE">{language === 'en' ? 'Dubai, UAE' : 'دبي، الإمارات'}</option>
+                    </select>
+                  </div>
+                  
+                  {/* Search Button */}
+                  <Button 
+                    onClick={handleSearch}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-medium"
+                  >
+                    {language === 'en' ? 'Search my job' : 'ابحث عن وظيفتي'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Popular Tags */}
+              <div className="mb-8">
+                <p className="text-sm text-gray-500 mb-2">
+                  {language === 'en' ? 'Popular :' : 'شائع :'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    language === 'en' ? 'UI Designer' : 'مصمم واجهات',
+                    language === 'en' ? 'UX Researcher' : 'باحث تجربة المستخدم',
+                    language === 'en' ? 'Android' : 'أندرويد',
+                    language === 'en' ? 'Admin' : 'إداري'
+                  ].map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full cursor-pointer hover:bg-indigo-100 transition-colors"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right Image */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative hidden lg:block"
+            >
+              <div className="relative">
+                {/* Decorative elements */}
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-100 rounded-full opacity-50" />
+                <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-purple-100 rounded-full opacity-50" />
+                
+                {/* Main image placeholder - would be replaced with actual image */}
+                <div className="relative bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-8 text-white">
+                  <div className="w-96 h-96 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-32 h-32 bg-white/20 rounded-full mb-6 mx-auto flex items-center justify-center">
+                        <span className="text-4xl">👨‍💼</span>
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">Professional Growth</h3>
+                      <p className="text-indigo-100">Find your dream career today</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
+
+          {/* Featured Companies */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-20"
+          >
+            <p className="text-center text-gray-500 mb-8">
+              {language === 'en' ? 'Companies we helped grow' : 'الشركات التي ساعدناها على النمو'}
+            </p>
+            <div className="flex items-center justify-center space-x-12 opacity-60">
+              {[
+                { name: 'Vodafone', logo: '📱' },
+                { name: 'Intel', logo: '🔧' },
+                { name: 'Tesla', logo: '⚡' },
+                { name: 'AMD', logo: '🔥' },
+                { name: 'Talkit', logo: '💬' },
+              ].map((company, index) => (
+                <div key={index} className="flex items-center space-x-2 text-gray-400">
+                  <span className="text-2xl">{company.logo}</span>
+                  <span className="font-medium text-lg">{company.name}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-gradient-to-r from-gray-50 to-blue-50">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              {language === 'en' ? 'Why Choose SU\'UD?' : 'لماذا تختار سعود؟'}
-            </h3>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {language === 'en'
-                ? 'Discover what makes our platform the preferred choice for job seekers and employers'
-                : 'اكتشف ما يجعل منصتنا الخيار المفضل للباحثين عن عمل وأصحاب العمل'
+      {/* Recent Jobs Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {language === 'en' ? 'Recent Jobs Available' : 'الوظائف المتاحة حديثاً'}
+            </h2>
+            <p className="text-gray-600">
+              {language === 'en' 
+                ? 'At et rebus premium liberiect amet locus et element eleginit'
+                : 'في موقع وعنصر متميز للحرية والمكان والعنصر'
               }
             </p>
-          </motion.div>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {[
-              {
-                icon: '🚀',
-                title: language === 'en' ? 'Lightning Fast' : 'سريع كالبرق',
-                desc: language === 'en' ? 'Apply to jobs in seconds with our streamlined application process' : 'تقدم للوظائف في ثواني مع عملية التقديم المبسطة',
-              },
-              {
-                icon: '🎯',
-                title: language === 'en' ? 'Smart Matching' : 'مطابقة ذكية',
-                desc: language === 'en' ? 'AI-powered algorithms match you with the perfect opportunities' : 'خوارزميات الذكاء الاصطناعي تطابقك مع الفرص المثالية',
-              },
-              {
-                icon: '🔒',
-                title: language === 'en' ? 'Secure & Trusted' : 'آمن وموثوق',
-                desc: language === 'en' ? 'Your data is protected with enterprise-grade security' : 'بياناتك محمية بأمان على مستوى المؤسسات',
-              },
-              {
-                icon: '📊',
-                title: language === 'en' ? 'Real-time Analytics' : 'تحليلات فورية',
-                desc: language === 'en' ? 'Track your application progress and get insights' : 'تتبع تقدم طلباتك واحصل على رؤى',
-              },
-              {
-                icon: '🤝',
-                title: language === 'en' ? 'Quality Network' : 'شبكة عالية الجودة',
-                desc: language === 'en' ? 'Connect with verified employers and top talent' : 'تواصل مع أصحاب عمل موثقين ومواهب متميزة',
-              },
-              {
-                icon: '🌟',
-                title: language === 'en' ? '24/7 Support' : 'دعم على مدار الساعة',
-                desc: language === 'en' ? 'Get help whenever you need it with our dedicated support team' : 'احصل على المساعدة عند الحاجة مع فريق الدعم المخصص',
-              },
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
-              >
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
-                <h4 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h4>
-                <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
-              </motion.div>
-            ))}
+            <Button variant="outline">
+              {language === 'en' ? 'View all' : 'عرض الكل'}
+            </Button>
           </div>
-        </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h3 className="text-4xl font-bold mb-4">
-              {language === 'en' ? 'Join Thousands of Success Stories' : 'انضم لآلاف قصص النجاح'}
-            </h3>
-          </motion.div>
-          
-          <div className="grid md:grid-cols-4 gap-8 text-center">
+          {/* Job Cards */}
+          <div className="space-y-4">
             {[
-              { number: '10,000+', label: language === 'en' ? 'Job Seekers' : 'باحث عن عمل' },
-              { number: '500+', label: language === 'en' ? 'Companies' : 'شركة' },
-              { number: '5,000+', label: language === 'en' ? 'Jobs Posted' : 'وظيفة منشورة' },
-              { number: '95%', label: language === 'en' ? 'Success Rate' : 'معدل نجاح' },
-            ].map((stat, index) => (
+              {
+                id: 1,
+                title: language === 'en' ? 'Forward Security Director' : 'مدير الأمن المتقدم',
+                company: 'Seven, Snabble and Snablist Co',
+                location: 'New York, USA',
+                type: 'Full time',
+                salary: '$40000-$44000',
+                tags: ['Hacker & Tourism'],
+                logo: '🛡️',
+                featured: true
+              },
+              {
+                id: 2,
+                title: language === 'en' ? 'Regional Creative Facilitator' : 'ميسر الإبداع الإقليمي',
+                company: 'Wibble - Backer Co',
+                location: 'Los Angeles, USA',
+                type: 'Part time',
+                salary: '$30000-$32000',
+                tags: ['Media'],
+                logo: '🎨',
+                featured: false
+              },
+              {
+                id: 3,
+                title: language === 'en' ? 'Internal Integration Planner' : 'مخطط التكامل الداخلي',
+                company: 'Man, Groups and Fant Inc',
+                location: 'Texas, USA',
+                type: 'Full time',
+                salary: '$40000-$50000',
+                tags: ['Construction'],
+                logo: '🏗️',
+                featured: false
+              },
+              {
+                id: 4,
+                title: language === 'en' ? 'District Intranet Director' : 'مدير الشبكة الداخلية للمقاطعة',
+                company: 'VorlicDruin - Wales Co',
+                location: 'Florida, USA',
+                type: 'Full time',
+                salary: '$60000-$68000',
+                tags: ['Commerce'],
+                logo: '🌐',
+                featured: false
+              },
+            ].map((job) => (
               <motion.div
-                key={index}
+                key={job.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                className={`group bg-white border rounded-xl p-6 hover:border-indigo-200 hover:shadow-lg transition-all duration-200 cursor-pointer ${
+                  job.featured ? 'border-indigo-200 bg-indigo-50/30' : 'border-gray-200'
+                }`}
               >
-                <div className="text-4xl font-bold mb-2">{stat.number}</div>
-                <div className="text-blue-100 text-lg">{stat.label}</div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-xl">
+                      {job.logo}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
+                        {job.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-2">{job.company}</p>
+                      <div className="flex items-center space-x-6 text-sm text-gray-500">
+                        <span className="flex items-center space-x-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z" />
+                          </svg>
+                          <span>{job.tags[0]}</span>
+                        </span>
+                        <span className="flex items-center space-x-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>{job.type}</span>
+                        </span>
+                        <span className="flex items-center space-x-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                          </svg>
+                          <span>{job.salary}</span>
+                        </span>
+                        <span className="flex items-center space-x-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          </svg>
+                          <span>{job.location}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Button variant="outline" size="sm" className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white">
+                      {language === 'en' ? 'Job Details' : 'تفاصيل الوظيفة'}
+                    </Button>
+                    <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h3 className="text-4xl font-bold text-gray-900 mb-6">
-              {language === 'en' ? 'Ready to Start Your Journey?' : 'مستعد لبدء رحلتك؟'}
-            </h3>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              {language === 'en'
-                ? 'Join SU\'UD today and take the first step towards your dream career'
-                : 'انضم لسعود اليوم واتخذ الخطوة الأولى نحو مسيرتك المهنية الحلم'
-              }
-            </p>
-            <Button size="lg" onClick={() => router.push('/auth/register')} className="text-lg px-12 py-4">
-              {language === 'en' ? 'Join SU\'UD Now' : 'انضم لسعود الآن'}
-              <span className="ml-2">🚀</span>
-            </Button>
-          </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-lg flex items-center justify-center text-white font-bold">
-                  S
-                </div>
-                <h4 className="text-xl font-bold">SU'UD - سعود</h4>
-              </div>
-              <p className="text-gray-400">
-                {language === 'en'
-                  ? 'Connecting talent with opportunity in Saudi Arabia'
-                  : 'نربط المواهب بالفرص في المملكة العربية السعودية'
-                }
-              </p>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-4">{language === 'en' ? 'For Job Seekers' : 'للباحثين عن عمل'}</h5>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Browse Jobs' : 'تصفح الوظائف'}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Career Resources' : 'موارد المسيرة المهنية'}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Resume Builder' : 'بناء السيرة الذاتية'}</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-4">{language === 'en' ? 'For Employers' : 'لأصحاب العمل'}</h5>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Post Jobs' : 'نشر الوظائف'}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Search Talent' : 'البحث عن المواهب'}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Employer Resources' : 'موارد أصحاب العمل'}</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-4">{language === 'en' ? 'Support' : 'الدعم'}</h5>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Help Center' : 'مركز المساعدة'}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Contact Us' : 'اتصل بنا'}</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">{language === 'en' ? 'Privacy Policy' : 'سياسة الخصوصية'}</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 SU'UD. {language === 'en' ? 'All rights reserved.' : 'جميع الحقوق محفوظة.'}</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

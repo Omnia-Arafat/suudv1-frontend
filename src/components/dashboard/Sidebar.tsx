@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth, useI18n } from '@/contexts';
@@ -148,22 +149,22 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           x: isOpen ? 0 : direction === 'rtl' ? 280 : -280,
         }}
         className={cn(
-          'fixed top-0 h-full w-70 bg-white shadow-xl z-50 lg:static lg:translate-x-0 lg:shadow-none lg:border-r',
+          'fixed top-0 h-full w-72 bg-white shadow-xl z-50 lg:static lg:translate-x-0 lg:shadow-none lg:border-r',
           direction === 'rtl' ? 'right-0' : 'left-0'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                S
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                ص
               </div>
               <div>
                 <h2 className="font-bold text-gray-900">SU'UD</h2>
-                <p className="text-sm text-gray-500">سعود</p>
+                <p className="text-sm text-gray-500">صعود</p>
               </div>
-            </div>
+            </Link>
             <Button
               variant="ghost"
               size="sm"
