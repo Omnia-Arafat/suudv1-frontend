@@ -240,35 +240,100 @@ export default function Home() {
       </section>
 
       {/* Featured Companies */}
-      <section className="pt-32 pb-20 bg-white">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-20"
+            className="text-center"
           >
-            <p className="text-center text-gray-500 mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               {language === "en"
-                ? "Companies we helped grow"
-                : "الشركات التي ساعدناها على النمو"}
+                ? "Trusted by Leading Companies"
+                : "موثوق من قبل الشركات الرائدة"}
+            </h2>
+            <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+              {language === "en"
+                ? "Join thousands of companies that trust our platform to find the best talent"
+                : "انضم إلى آلاف الشركات التي تثق في منصتنا للعثور على أفضل المواهب"}
             </p>
-            <div className="flex items-center justify-center space-x-12 opacity-60">
+
+            {/* Companies Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 items-center">
               {[
-                { name: "Vodafone", logo: "📱" },
-                { name: "Intel", logo: "🔧" },
-                { name: "Tesla", logo: "⚡" },
-                { name: "AMD", logo: "🔥" },
-                { name: "Talkit", logo: "💬" },
+                {
+                  name: "Vodafone",
+                  logo: "📱",
+                  description: "Telecommunications",
+                },
+                {
+                  name: "Intel",
+                  logo: "🔧",
+                  description: "Technology",
+                },
+                {
+                  name: "Tesla",
+                  logo: "⚡",
+                  description: "Automotive",
+                },
+                {
+                  name: "AMD",
+                  logo: "🔥",
+                  description: "Semiconductors",
+                },
+                {
+                  name: "Talkit",
+                  logo: "💬",
+                  description: "Communication",
+                },
               ].map((company, index) => (
-                <div
+                <motion.div
                   key={index}
-                  className="flex items-center space-x-2 text-gray-400"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 * index }}
+                  className="group flex flex-col items-center p-6 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
                 >
-                  <span className="text-2xl">{company.logo}</span>
-                  <span className="font-medium text-lg">{company.name}</span>
-                </div>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-indigo-50 transition-colors">
+                    {company.logo}
+                  </div>
+                  <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                    {company.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 text-center">
+                    {company.description}
+                  </p>
+                </motion.div>
               ))}
+            </div>
+
+            {/* Stats Section */}
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-indigo-600 mb-2">
+                  5000+
+                </div>
+                <div className="text-gray-600">
+                  {language === "en" ? "Active Jobs" : "وظائف نشطة"}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-indigo-600 mb-2">
+                  1000+
+                </div>
+                <div className="text-gray-600">
+                  {language === "en" ? "Companies" : "شركة"}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-indigo-600 mb-2">
+                  50K+
+                </div>
+                <div className="text-gray-600">
+                  {language === "en" ? "Job Seekers" : "باحث عن عمل"}
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
