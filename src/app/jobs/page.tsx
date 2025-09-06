@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Navbar, Footer } from '@/components/shared';
 import { useI18n } from '@/contexts';
 import { jobService } from '@/services';
 import type { JobListing } from '@/types';
@@ -92,18 +93,12 @@ export default function JobsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-blue-600">
-            SU'UD - صعود
-          </h1>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-white">
+      <Navbar />
+      
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+        <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -246,7 +241,10 @@ export default function JobsPage() {
             </div>
           )}
         </motion.div>
+        </div>
       </main>
+      
+      <Footer />
     </div>
   );
 }
