@@ -130,8 +130,34 @@ export default function Navbar() {
                     {language === 'en' ? 'Dashboard' : 'لوحة التحكم'}
                   </Button>
                 </Link>
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                  {user.name ? user.name.charAt(0).toUpperCase() : '?'}
+                <div className="relative group">
+                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium cursor-pointer">
+                    {user.name && user.name.trim() ? user.name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  
+                  {/* Dropdown Menu */}
+                  <div className="absolute right-0 top-10 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">
+                        {user.name && user.name.trim() ? user.name : (language === 'en' ? 'User' : 'المستخدم')}
+                      </p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                    <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                      {language === 'en' ? 'Dashboard' : 'لوحة التحكم'}
+                    </Link>
+                    <button
+                      onClick={() => {
+                        // Add logout functionality
+                        localStorage.removeItem('auth_token');
+                        localStorage.removeItem('user');
+                        window.location.reload();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                    >
+                      {language === 'en' ? 'Logout' : 'تسجيل خروج'}
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
