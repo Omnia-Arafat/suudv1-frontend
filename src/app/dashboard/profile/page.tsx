@@ -95,7 +95,7 @@ function ProfilePageContent() {
           <CardContent className="p-6">
             <div className="flex items-center gap-6">
               <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-3xl">
-                {user?.name.charAt(0).toUpperCase()}
+                {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
               </div>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-gray-900 mb-1">

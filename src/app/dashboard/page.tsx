@@ -167,7 +167,7 @@ function DashboardContent() {
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-                  {user?.name.charAt(0).toUpperCase()}
+                  {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
                 </div>
                 <div>
                   <h4 className="font-bold text-lg">{user?.name}</h4>
