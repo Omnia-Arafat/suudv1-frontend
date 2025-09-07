@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Button } from '@/shared/components/ui';
-import { Navbar, Footer, PageSkeleton } from '@/shared/components';
-import { useAuth, useI18n } from '@/shared/contexts';
+import { Button } from "@/shared/components/ui";
+import { Navbar, Footer, PageSkeleton } from "@/shared/components";
+import { useAuth, useI18n } from "@/shared/contexts";
 
 export default function Home() {
   const { isLoading } = useAuth();
