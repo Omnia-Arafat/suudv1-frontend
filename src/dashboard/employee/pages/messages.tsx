@@ -13,6 +13,7 @@ import {
   Check,
   CheckCheck
 } from "lucide-react";
+import { useI18n } from '@/shared/contexts';
 
 interface Message {
   id: string;
@@ -37,6 +38,7 @@ interface Conversation {
 }
 
 export default function EmployeeMessages() {
+  const { language } = useI18n();
   const [selectedConversation, setSelectedConversation] = useState<string | null>("1");
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -128,7 +130,7 @@ export default function EmployeeMessages() {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex bg-white rounded-lg shadow overflow-hidden">
+      <div className="h-[calc(100vh-12rem)] flex bg-white rounded-lg shadow overflow-hidden">
       {/* Conversations List */}
       <div className="w-1/3 border-r border-gray-200 flex flex-col">
         {/* Search */}
