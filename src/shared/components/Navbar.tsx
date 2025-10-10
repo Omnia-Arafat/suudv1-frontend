@@ -146,13 +146,22 @@ export default function Navbar() {
                   </div>
 
                   {/* Dropdown Menu */}
-                  <div className="absolute right-0 top-10 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="px-4 py-2 border-b border-gray-100">
+                  <div
+                    className={`absolute top-10 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 ${
+                      language === "ar" ? "left-0" : "right-0"
+                    }`}
+                  >
+                    <div
+                      className={`px-4 py-2 border-b border-gray-100 ${
+                        language === "ar" ? "text-right" : "text-left"
+                      }`}
+                    >
                       <p className="text-sm font-medium text-gray-900">
                         {user.name && user.name.trim()
                           ? user.name
-                          : user.email && user.email.split('@')[0]
-                          ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1)
+                          : user.email && user.email.split("@")[0]
+                          ? user.email.split("@")[0].charAt(0).toUpperCase() +
+                            user.email.split("@")[0].slice(1)
                           : language === "en"
                           ? "User"
                           : "المستخدم"}
@@ -161,7 +170,9 @@ export default function Navbar() {
                     </div>
                     <Link
                       href="/dashboard"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 ${
+                        language === "ar" ? "text-right" : "text-left"
+                      }`}
                     >
                       {language === "en" ? "Dashboard" : "لوحة التحكم"}
                     </Link>
@@ -174,7 +185,9 @@ export default function Navbar() {
                           console.error("Logout failed:", error);
                         }
                       }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                      className={`block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50 ${
+                        language === "ar" ? "text-right" : "text-left"
+                      }`}
                     >
                       {language === "en" ? "Logout" : "تسجيل خروج"}
                     </button>
