@@ -91,6 +91,17 @@ class AuthService {
     const response = await apiClient.get<User>("/auth/me");
 
     if (response.success && response.data) {
+      // Validate that we have essential user data
+      if (!response.data.name || !response.data.name.trim()) {
+        console.warn("Server returned user without name:", response.data);
+        // Try to get name from stored data if available
+        const storedUser = this.getStoredUser();
+        if (storedUser && storedUser.name && storedUser.name.trim()) {
+          response.data.name = storedUser.name;
+          console.log("Used stored name for user:", response.data.name);
+        }
+      }
+      
       this.setUser(response.data);
       return response.data;
     }

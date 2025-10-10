@@ -46,7 +46,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Try to refresh user data in background, but don't clear user if it fails
           try {
             const currentUser = await authService.getCurrentUser();
-            setUser(currentUser);
+            // Only update if we get valid user data with a name
+            if (currentUser && currentUser.name && currentUser.name.trim()) {
+              setUser(currentUser);
+              console.log("Updated user from server:", currentUser);
+            } else {
+              console.warn("Server returned user without name, keeping stored data:", { currentUser, storedUser });
+              // Keep using stored user data if server data is incomplete
+            }
           } catch (error) {
             console.warn(
               "Failed to refresh user data, keeping stored data:",

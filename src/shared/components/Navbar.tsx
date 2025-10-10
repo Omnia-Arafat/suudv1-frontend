@@ -151,6 +151,8 @@ export default function Navbar() {
                       <p className="text-sm font-medium text-gray-900">
                         {user.name && user.name.trim()
                           ? user.name
+                          : user.email && user.email.split('@')[0]
+                          ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1)
                           : language === "en"
                           ? "User"
                           : "المستخدم"}
