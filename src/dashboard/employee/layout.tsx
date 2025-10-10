@@ -5,20 +5,7 @@ import { useAuth } from "@/shared/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  Search,
-  FileText,
-  User,
-  BarChart3,
-  BookmarkCheck,
-  GraduationCap,
-  Activity,
-  Menu,
-  X,
-  LogOut,
-  Bell,
-  MessageCircle,
-} from "lucide-react";
+import { Menu, X, LogOut, Bell } from "lucide-react";
 
 interface EmployeeLayoutProps {
   children: ReactNode;
@@ -28,7 +15,7 @@ interface EmployeeLayoutProps {
 interface NavItem {
   name: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string;
   count?: number;
   badge?: string;
 }
@@ -60,17 +47,25 @@ export default function EmployeeLayout({
   }, [user, isLoading, router]);
 
   const navigation: NavItem[] = [
-    { name: "Dashboard", href: "/employee/dashboard", icon: Activity },
-    { name: "Find Jobs", href: "/employee/jobs", icon: Search },
-    { name: "My Applications", href: "/employee/applications", icon: FileText },
-    { name: "Messages", href: "/employee/messages", icon: MessageCircle },
-    { name: "Saved Jobs", href: "/employee/saved", icon: BookmarkCheck },
-    { name: "Profile", href: "/employee/profile", icon: User },
-    { name: "Career Stats", href: "/employee/stats", icon: BarChart3 },
+    {
+      name: "Dashboard",
+      href: "/employee/dashboard",
+      icon: "pi pi-chart-line",
+    },
+    { name: "Find Jobs", href: "/employee/jobs", icon: "pi pi-search" },
+    {
+      name: "My Applications",
+      href: "/employee/applications",
+      icon: "pi pi-file-text",
+    },
+    { name: "Messages", href: "/employee/messages", icon: "pi pi-comments" },
+    { name: "Saved Jobs", href: "/employee/saved", icon: "pi pi-bookmark" },
+    { name: "Profile", href: "/employee/profile", icon: "pi pi-user" },
+    { name: "Career Stats", href: "/employee/stats", icon: "pi pi-chart-bar" },
     {
       name: "Learning",
       href: "/employee/learning",
-      icon: GraduationCap,
+      icon: "pi pi-graduation-cap",
       badge: "New",
     },
   ];
@@ -138,7 +133,6 @@ export default function EmployeeLayout({
             </div>
             <nav className="mt-5 px-2 space-y-1">
               {navigation.map((item) => {
-                const Icon = item.icon;
                 const isActive = isActiveRoute(item.href);
                 return (
                   <Link
@@ -151,11 +145,15 @@ export default function EmployeeLayout({
                     }`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <Icon className={`mr-4 h-6 w-6 transition-all duration-200 ${
-                      isActive
-                        ? "text-indigo-500 scale-110"
-                        : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
-                    }`} />
+                    <i
+                      className={`${
+                        item.icon
+                      } mr-4 text-lg transition-all duration-200 ${
+                        isActive
+                          ? "text-indigo-500 scale-110"
+                          : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
+                      }`}
+                    />
                     {item.name}
                     {item.count && (
                       <span className="ml-auto inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-green-100 text-green-800">
@@ -209,7 +207,6 @@ export default function EmployeeLayout({
             </div>
             <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
               {navigation.map((item) => {
-                const Icon = item.icon;
                 const isActive = isActiveRoute(item.href);
                 return (
                   <Link
@@ -221,12 +218,18 @@ export default function EmployeeLayout({
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm border-l-4 border-transparent"
                     }`}
                   >
-                    <Icon className={`mr-3 h-6 w-6 transition-all duration-200 ${
-                      isActive
-                        ? "text-indigo-500 scale-110"
-                        : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
-                    }`} />
-                    <span className="flex-1 transition-all duration-200">{item.name}</span>
+                    <i
+                      className={`${
+                        item.icon
+                      } mr-3 text-lg transition-all duration-200 ${
+                        isActive
+                          ? "text-indigo-500 scale-110"
+                          : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
+                      }`}
+                    />
+                    <span className="flex-1 transition-all duration-200">
+                      {item.name}
+                    </span>
                     {item.count && (
                       <span className="ml-auto inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-green-100 text-green-800">
                         {item.count}
@@ -250,7 +253,7 @@ export default function EmployeeLayout({
             <div className="flex-shrink-0 w-full group block">
               <div className="flex items-center">
                 <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                  <User className="h-5 w-5 text-indigo-600" />
+                  <i className="pi pi-user text-indigo-600 text-lg" />
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
@@ -292,7 +295,7 @@ export default function EmployeeLayout({
                 </label>
                 <div className="relative w-full text-gray-400 focus-within:text-gray-600">
                   <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5" />
+                    <i className="pi pi-search text-lg" />
                   </div>
                   <input
                     id="search-field"

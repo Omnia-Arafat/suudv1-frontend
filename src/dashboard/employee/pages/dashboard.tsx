@@ -3,16 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useAuth, useI18n } from "@/shared/contexts";
 import { employeeService } from "@/shared/services/employee.service";
-import { DashboardLayout } from '@/dashboard/shared/components/layout';
+import { DashboardLayout } from "@/dashboard/shared/components/layout";
 import Link from "next/link";
 import {
-  Search,
-  FileText,
-  Clock,
   CheckCircle,
   XCircle,
   TrendingUp,
-  Eye,
   Star,
   MapPin,
   Calendar,
@@ -59,13 +55,13 @@ interface EmployeeDashboardData {
 const StatCard = ({
   title,
   value,
-  icon: Icon,
+  icon,
   color,
   trend,
 }: {
   title: string;
   value: number | string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string;
   color: string;
   trend?: string;
 }) => (
@@ -73,7 +69,7 @@ const StatCard = ({
     <div className="p-5">
       <div className="flex items-center">
         <div className="flex-shrink-0">
-          <Icon className={`h-6 w-6 ${color}`} />
+          <i className={`${icon} text-xl ${color}`} />
         </div>
         <div className="ml-5 w-0 flex-1">
           <dl>
@@ -238,7 +234,7 @@ export default function EmployeeDashboardContent() {
   if (!dashboardData) {
     return (
       <div className="text-center py-12">
-        <FileText className="mx-auto h-12 w-12 text-gray-400" />
+        <i className="pi pi-file-text mx-auto text-4xl text-gray-400 block" />
         <h3 className="mt-2 text-sm font-medium text-gray-900">
           Failed to load dashboard
         </h3>
@@ -266,308 +262,316 @@ export default function EmployeeDashboardContent() {
 
   return (
     <DashboardLayout
-      title={language === 'en' ? 'Dashboard' : 'لوحة القيادة'}
-      subtitle={language === 'en' ? 'Welcome to your job search dashboard' : 'مرحباً بك في لوحة البحث عن الوظائف'}
+      title={language === "en" ? "Dashboard" : "لوحة القيادة"}
+      subtitle={
+        language === "en"
+          ? "Welcome to your job search dashboard"
+          : "مرحباً بك في لوحة البحث عن الوظائف"
+      }
     >
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                <Search className="h-6 w-6 text-indigo-600" />
-              </div>
-            </div>
-            <div className="ml-4">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Welcome back, {user?.name}!
-              </h1>
-              <p className="text-sm text-gray-500">
-                {user?.specialization ? `${user.specialization} • ` : ""}Ready
-                to find your next opportunity?
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-gray-500">Profile Completion</div>
-            <div className="flex items-center mt-1">
-              <div className="w-16 bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-indigo-600 h-2 rounded-full"
-                  style={{
-                    width: `${dashboardData.stats.profile.completion}%`,
-                  }}
-                ></div>
-              </div>
-              <span className="ml-2 text-sm font-medium text-gray-900">
-                {dashboardData.stats.profile.completion}%
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="My Applications"
-          value={dashboardData.stats.applications.total}
-          icon={FileText}
-          color="text-indigo-600"
-          trend={`+${dashboardData.stats.applications.this_month} this month`}
-        />
-        <StatCard
-          title="Pending Reviews"
-          value={dashboardData.stats.applications.pending}
-          icon={Clock}
-          color="text-purple-600"
-        />
-        <StatCard
-          title="Available Jobs"
-          value={dashboardData.stats.jobs.available}
-          icon={Search}
-          color="text-indigo-600"
-          trend={`+${dashboardData.stats.jobs.new_today} today`}
-        />
-        <StatCard
-          title="Profile Views"
-          value={dashboardData.stats.profile.views}
-          icon={Eye}
-          color="text-purple-600"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Applications */}
-        <div className="lg:col-span-1">
-          <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Recent Applications
-              </h3>
-              <Link
-                href="/employee/applications"
-                className="text-sm text-indigo-600 hover:text-indigo-500"
-              >
-                View all
-              </Link>
-            </div>
-            <div className="space-y-3">
-              {dashboardData.recent_applications.length > 0 ? (
-                dashboardData.recent_applications.map((application) => (
-                  <div key={application.id} className="border rounded-lg p-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-900">
-                          {application.job}
-                        </h4>
-                        <p className="text-xs text-gray-600">
-                          {application.company}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Applied {application.applied_date}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            application.status
-                          )}`}
-                        >
-                          {application.status}
-                        </span>
-                        {application.status === "pending" && (
-                          <button
-                            onClick={() =>
-                              handleWithdrawApplication(application.id)
-                            }
-                            className="text-xs text-red-600 hover:text-red-800 font-medium"
-                            title="Withdraw Application"
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-6 text-gray-500">
-                  <FileText className="mx-auto h-8 w-8 mb-2" />
-                  <p className="text-sm">No recent applications</p>
+      <div className="space-y-6">
+        {/* Welcome Section */}
+        <div className="bg-white shadow rounded-lg p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                  <i className="pi pi-search text-indigo-600 text-xl" />
                 </div>
-              )}
+              </div>
+              <div className="ml-4">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Welcome back, {user?.name}!
+                </h1>
+                <p className="text-sm text-gray-500">
+                  {user?.specialization ? `${user.specialization} • ` : ""}Ready
+                  to find your next opportunity?
+                </p>
+              </div>
             </div>
-
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Success Rate</span>
-                <span className="font-medium text-indigo-600">
-                  {dashboardData.stats.applications.total > 0
-                    ? Math.round(
-                        (dashboardData.stats.applications.accepted /
-                          dashboardData.stats.applications.total) *
-                          100
-                      )
-                    : 0}
-                  %
+            <div className="text-right">
+              <div className="text-sm text-gray-500">Profile Completion</div>
+              <div className="flex items-center mt-1">
+                <div className="w-16 bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-indigo-600 h-2 rounded-full"
+                    style={{
+                      width: `${dashboardData.stats.profile.completion}%`,
+                    }}
+                  ></div>
+                </div>
+                <span className="ml-2 text-sm font-medium text-gray-900">
+                  {dashboardData.stats.profile.completion}%
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Recommended Jobs */}
-        <div className="lg:col-span-2">
-          <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Recommended for You
-              </h3>
-              <Link
-                href="/employee/jobs"
-                className="text-sm text-indigo-600 hover:text-indigo-500"
-              >
-                Browse all jobs
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {dashboardData.recommended_jobs.length > 0 ? (
-                dashboardData.recommended_jobs.map((job) => (
-                  <div key={job.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="text-lg font-medium text-gray-900 flex items-center">
-                          {job.title}
-                          <Star className="h-4 w-4 text-yellow-400 ml-1" />
-                        </h4>
-                        <div className="flex items-center text-sm text-gray-600 mt-1">
-                          <Building2 className="h-4 w-4 mr-1" />
-                          <span>{job.company}</span>
-                          <MapPin className="h-4 w-4 ml-4 mr-1" />
-                          <span>{job.location}</span>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            title="My Applications"
+            value={dashboardData.stats.applications.total}
+            icon="pi pi-file-text"
+            color="text-indigo-600"
+            trend={`+${dashboardData.stats.applications.this_month} this month`}
+          />
+          <StatCard
+            title="Pending Reviews"
+            value={dashboardData.stats.applications.pending}
+            icon="pi pi-clock"
+            color="text-purple-600"
+          />
+          <StatCard
+            title="Available Jobs"
+            value={dashboardData.stats.jobs.available}
+            icon="pi pi-search"
+            color="text-indigo-600"
+            trend={`+${dashboardData.stats.jobs.new_today} today`}
+          />
+          <StatCard
+            title="Profile Views"
+            value={dashboardData.stats.profile.views}
+            icon="pi pi-eye"
+            color="text-purple-600"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recent Applications */}
+          <div className="lg:col-span-1">
+            <div className="bg-white shadow rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  Recent Applications
+                </h3>
+                <Link
+                  href="/employee/applications"
+                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                >
+                  View all
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {dashboardData.recent_applications.length > 0 ? (
+                  dashboardData.recent_applications.map((application) => (
+                    <div key={application.id} className="border rounded-lg p-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-gray-900">
+                            {application.job}
+                          </h4>
+                          <p className="text-xs text-gray-600">
+                            {application.company}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Applied {application.applied_date}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              application.status
+                            )}`}
+                          >
+                            {application.status}
+                          </span>
+                          {application.status === "pending" && (
+                            <button
+                              onClick={() =>
+                                handleWithdrawApplication(application.id)
+                              }
+                              className="text-xs text-red-600 hover:text-red-800 font-medium"
+                              title="Withdraw Application"
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
                       </div>
-                      <span className="text-sm text-gray-500">
-                        {job.posted_date}
-                      </span>
                     </div>
-                    <p className="text-sm text-gray-700 mb-3">
-                      {job.description}
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {job.type}
-                        </span>
-                        <span className="text-sm text-green-600 font-medium">
-                          {job.salary}
-                        </span>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleApplyForJob(job.id)}
-                          disabled={applying === job.id}
-                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors"
-                        >
-                          {applying === job.id ? "Applying..." : "Quick Apply"}
-                        </button>
-                        <Link
-                          href={`/employee/jobs/${job.id}`}
-                          className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                        >
-                          View Details
-                        </Link>
-                      </div>
-                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-500">
+                    <i className="pi pi-file-text mx-auto text-2xl mb-2 block" />
+                    <p className="text-sm">No recent applications</p>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Star className="mx-auto h-10 w-10 mb-3" />
-                  <p className="text-sm">No recommended jobs yet</p>
-                  <p className="text-xs mt-1">
-                    Complete your profile to get personalized job
-                    recommendations
-                  </p>
+                )}
+              </div>
+
+              <div className="mt-4 pt-4 border-t">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Success Rate</span>
+                  <span className="font-medium text-indigo-600">
+                    {dashboardData.stats.applications.total > 0
+                      ? Math.round(
+                          (dashboardData.stats.applications.accepted /
+                            dashboardData.stats.applications.total) *
+                            100
+                        )
+                      : 0}
+                    %
+                  </span>
                 </div>
-              )}
+              </div>
+            </div>
+          </div>
+
+          {/* Recommended Jobs */}
+          <div className="lg:col-span-2">
+            <div className="bg-white shadow rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  Recommended for You
+                </h3>
+                <Link
+                  href="/employee/jobs"
+                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                >
+                  Browse all jobs
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {dashboardData.recommended_jobs.length > 0 ? (
+                  dashboardData.recommended_jobs.map((job) => (
+                    <div key={job.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="text-lg font-medium text-gray-900 flex items-center">
+                            {job.title}
+                            <Star className="h-4 w-4 text-yellow-400 ml-1" />
+                          </h4>
+                          <div className="flex items-center text-sm text-gray-600 mt-1">
+                            <Building2 className="h-4 w-4 mr-1" />
+                            <span>{job.company}</span>
+                            <MapPin className="h-4 w-4 ml-4 mr-1" />
+                            <span>{job.location}</span>
+                          </div>
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          {job.posted_date}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-3">
+                        {job.description}
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {job.type}
+                          </span>
+                          <span className="text-sm text-green-600 font-medium">
+                            {job.salary}
+                          </span>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleApplyForJob(job.id)}
+                            disabled={applying === job.id}
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors"
+                          >
+                            {applying === job.id
+                              ? "Applying..."
+                              : "Quick Apply"}
+                          </button>
+                          <Link
+                            href={`/employee/jobs/${job.id}`}
+                            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                          >
+                            View Details
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <i className="pi pi-star mx-auto text-3xl mb-3 block" />
+                    <p className="text-sm">No recommended jobs yet</p>
+                    <p className="text-xs mt-1">
+                      Complete your profile to get personalized job
+                      recommendations
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Latest Jobs */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Latest Job Openings
+        {/* Latest Jobs */}
+        <div className="bg-white shadow rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg leading-6 font-medium text-gray-900">
+              Latest Job Openings
+            </h3>
+            <span className="text-sm text-gray-500">
+              {dashboardData.stats.jobs.new_today} new today
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {dashboardData.latest_jobs.length > 0 ? (
+              dashboardData.latest_jobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                <i className="pi pi-search mx-auto text-3xl mb-3 block" />
+                <p className="text-sm">No job openings available yet</p>
+                <p className="text-xs mt-1">
+                  Check back later for new opportunities
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white shadow rounded-lg p-6">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Quick Actions
           </h3>
-          <span className="text-sm text-gray-500">
-            {dashboardData.stats.jobs.new_today} new today
-          </span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {dashboardData.latest_jobs.length > 0 ? (
-            dashboardData.latest_jobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-8 text-gray-500">
-              <Search className="mx-auto h-10 w-10 mb-3" />
-              <p className="text-sm">No job openings available yet</p>
-              <p className="text-xs mt-1">
-                Check back later for new opportunities
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-          Quick Actions
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Link
-            href="/employee/jobs"
-            className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Search className="h-8 w-8 text-green-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">Find Jobs</span>
-          </Link>
-          <Link
-            href="/employee/profile"
-            className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <FileText className="h-8 w-8 text-blue-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">
-              Update Profile
-            </span>
-          </Link>
-          <Link
-            href="/employee/applications"
-            className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Clock className="h-8 w-8 text-yellow-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">
-              Track Applications
-            </span>
-          </Link>
-          <Link
-            href="/employee/stats"
-            className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <TrendingUp className="h-8 w-8 text-purple-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">
-              View Stats
-            </span>
-          </Link>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link
+              href="/employee/jobs"
+              className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <i className="pi pi-search text-green-600 text-2xl mb-2" />
+              <span className="text-sm font-medium text-gray-900">
+                Find Jobs
+              </span>
+            </Link>
+            <Link
+              href="/employee/profile"
+              className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <i className="pi pi-user-edit text-blue-600 text-2xl mb-2" />
+              <span className="text-sm font-medium text-gray-900">
+                Update Profile
+              </span>
+            </Link>
+            <Link
+              href="/employee/applications"
+              className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <i className="pi pi-clock text-yellow-600 text-2xl mb-2" />
+              <span className="text-sm font-medium text-gray-900">
+                Track Applications
+              </span>
+            </Link>
+            <Link
+              href="/employee/stats"
+              className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <i className="pi pi-chart-line text-purple-600 text-2xl mb-2" />
+              <span className="text-sm font-medium text-gray-900">
+                View Stats
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
     </DashboardLayout>
   );
 }
