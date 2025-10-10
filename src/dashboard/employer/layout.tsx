@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { useAuth } from "@/shared/contexts/AuthContext";
+import { useAuth, useI18n } from "@/shared/contexts";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -38,6 +38,7 @@ export default function EmployerLayout({
   title = "Employer Dashboard",
 }: EmployerLayoutProps) {
   const { user, logout, isLoading } = useAuth();
+  const { language } = useI18n();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -75,7 +76,10 @@ export default function EmployerLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen bg-gray-50"
+      dir={language === "ar" ? "rtl" : "ltr"}
+    >
       {/* Mobile sidebar */}
       <div
         className={`fixed inset-0 flex z-40 lg:hidden ${
@@ -91,7 +95,11 @@ export default function EmployerLayout({
 
         <div
           className={`relative flex-1 flex flex-col max-w-xs w-full bg-white transform transition ease-in-out duration-300 ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            sidebarOpen
+              ? "translate-x-0"
+              : language === "ar"
+              ? "translate-x-full"
+              : "-translate-x-full"
           }`}
         >
           <div className="absolute top-0 right-0 -mr-12 pt-2">
@@ -235,7 +243,11 @@ export default function EmployerLayout({
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64 flex flex-col flex-1">
+      <div
+        className={`${
+          language === "ar" ? "lg:pr-64" : "lg:pl-64"
+        } flex flex-col flex-1`}
+      >
         {/* Top navigation bar */}
         <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
           <button
@@ -281,16 +293,30 @@ export default function EmployerLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="md:flex md:items-center md:justify-between">
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                  <h2
+                    className={`text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate ${
+                      language === "ar" ? "text-right" : "text-left"
+                    }`}
+                  >
                     {title}
                   </h2>
                 </div>
-                <div className="mt-4 flex md:mt-0 md:ml-4">
+                <div
+                  className={`mt-4 flex md:mt-0 ${
+                    language === "ar" ? "md:mr-4" : "md:ml-4"
+                  }`}
+                >
                   <Link
                     href="/employer/jobs/create"
-                    className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className={`${
+                      language === "ar" ? "mr-3" : "ml-3"
+                    } inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                   >
-                    <PlusCircle className="-ml-1 mr-2 h-5 w-5" />
+                    <PlusCircle
+                      className={`${
+                        language === "ar" ? "-mr-1 ml-2" : "-ml-1 mr-2"
+                      } h-5 w-5`}
+                    />
                     Post New Job
                   </Link>
                 </div>

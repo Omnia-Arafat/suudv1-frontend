@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/shared/contexts/AuthContext";
+import { useAuth, useI18n } from "@/shared/contexts";
 import { employerService } from "@/shared/services/employer.service";
 import Link from "next/link";
 import {
@@ -53,6 +53,7 @@ const StatCard = ({
   color,
   trend,
   action,
+  language,
 }: {
   title: string;
   value: number | string;
@@ -60,24 +61,41 @@ const StatCard = ({
   color: string;
   trend?: string;
   action?: { label: string; href: string };
+  language: string;
 }) => (
   <div className="bg-white overflow-hidden shadow rounded-lg">
     <div className="p-5">
-      <div className="flex items-center">
+      <div
+        className={`flex items-center ${
+          language === "ar" ? "flex-row-reverse" : ""
+        }`}
+      >
         <div className="flex-shrink-0">
           <Icon className={`h-6 w-6 ${color}`} />
         </div>
-        <div className="ml-5 w-0 flex-1">
+        <div className={`${language === "ar" ? "mr-5" : "ml-5"} w-0 flex-1`}>
           <dl>
-            <dt className="text-sm font-medium text-gray-500 truncate">
+            <dt
+              className={`text-sm font-medium text-gray-500 truncate ${
+                language === "ar" ? "text-right" : "text-left"
+              }`}
+            >
               {title}
             </dt>
-            <dd className="flex items-baseline">
+            <dd
+              className={`flex items-baseline ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
               <div className="text-2xl font-semibold text-gray-900">
                 {value}
               </div>
               {trend && (
-                <div className="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                <div
+                  className={`${
+                    language === "ar" ? "mr-2" : "ml-2"
+                  } flex items-baseline text-sm font-semibold text-green-600`}
+                >
                   {trend}
                 </div>
               )}
@@ -87,7 +105,9 @@ const StatCard = ({
             <div className="mt-2">
               <Link
                 href={action.href}
-                className="text-sm text-blue-600 hover:text-blue-500"
+                className={`text-sm text-blue-600 hover:text-blue-500 ${
+                  language === "ar" ? "text-right" : "text-left"
+                }`}
               >
                 {action.label}
               </Link>
@@ -136,6 +156,7 @@ const JobCard = ({ job }: { job: any }) => (
 
 export default function EmployerDashboardContent() {
   const { user } = useAuth();
+  const { language } = useI18n();
   const [dashboardData, setDashboardData] =
     useState<EmployerDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -290,27 +311,53 @@ export default function EmployerDashboardContent() {
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
+        <div
+          className={`flex items-center justify-between ${
+            language === "ar" ? "flex-row-reverse" : ""
+          }`}
+        >
+          <div
+            className={`flex items-center ${
+              language === "ar" ? "flex-row-reverse" : ""
+            }`}
+          >
             <div className="flex-shrink-0">
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
                 <Building2 className="h-6 w-6 text-indigo-600" />
               </div>
             </div>
-            <div className="ml-4">
-              <h1 className="text-2xl font-bold text-gray-900">
+            <div className={language === "ar" ? "mr-4" : "ml-4"}>
+              <h1
+                className={`text-2xl font-bold text-gray-900 ${
+                  language === "ar" ? "text-right" : "text-left"
+                }`}
+              >
                 Welcome back, {user?.name}!
               </h1>
-              <p className="text-sm text-gray-500">
+              <p
+                className={`text-sm text-gray-500 ${
+                  language === "ar" ? "text-right" : "text-left"
+                }`}
+              >
                 Recruiter • Ready to find your next great hire?
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <div className="flex items-center">
+          <div className={language === "ar" ? "text-left" : "text-right"}>
+            <div
+              className={`flex items-center ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
               {dashboardData.stats.company.is_verified && (
-                <div className="flex items-center text-green-600">
-                  <CheckCircle className="h-5 w-5 mr-1" />
+                <div
+                  className={`flex items-center text-green-600 ${
+                    language === "ar" ? "flex-row-reverse" : ""
+                  }`}
+                >
+                  <CheckCircle
+                    className={`h-5 w-5 ${language === "ar" ? "ml-1" : "mr-1"}`}
+                  />
                   <span className="text-sm font-medium">Verified</span>
                 </div>
               )}
@@ -328,6 +375,7 @@ export default function EmployerDashboardContent() {
           color="text-indigo-600"
           trend={`+${dashboardData.stats.jobs.this_month} this month`}
           action={{ label: "Manage Jobs", href: "/employer/jobs" }}
+          language={language}
         />
         <StatCard
           title="New Applications"
@@ -336,6 +384,7 @@ export default function EmployerDashboardContent() {
           color="text-purple-600"
           trend="Today"
           action={{ label: "Review All", href: "/employer/applications" }}
+          language={language}
         />
         <StatCard
           title="Pending Reviews"
@@ -346,6 +395,7 @@ export default function EmployerDashboardContent() {
             label: "Review Now",
             href: "/employer/applications?status=pending",
           }}
+          language={language}
         />
         <StatCard
           title="Total Applications"
@@ -357,6 +407,7 @@ export default function EmployerDashboardContent() {
               dashboardData.stats.applications.total) *
               100
           )}% hired`}
+          language={language}
         />
       </div>
 

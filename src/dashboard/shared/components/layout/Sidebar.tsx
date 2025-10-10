@@ -139,8 +139,16 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-white shadow-lg border-r border-gray-100 z-50 transition-all duration-300 ease-in-out lg:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed top-0 ${
+          language === "ar" ? "right-0" : "left-0"
+        } h-screen w-64 bg-white shadow-lg ${
+          language === "ar" ? "border-l" : "border-r"
+        } border-gray-100 z-50 transition-all duration-300 ease-in-out lg:translate-x-0 ${
+          isOpen
+            ? "translate-x-0"
+            : language === "ar"
+            ? "translate-x-full"
+            : "-translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full">
@@ -156,7 +164,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-sm group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
                 ص
               </div>
-              <div>
+              <div className={language === "ar" ? "text-right" : "text-left"}>
                 <h2 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors duration-200">
                   SU'UD
                 </h2>
@@ -173,7 +181,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
           {/* User Info */}
           <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-purple-50">
-            <div className="text-center">
+            <div className={language === "ar" ? "text-right" : "text-center"}>
               <div className="mb-2">
                 <i className="pi pi-user-plus text-2xl text-blue-600"></i>
               </div>
@@ -203,10 +211,16 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 <button
                   key={item.id}
                   onClick={() => handleNavigation(item.href)}
-                  className={`group w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-98 ${
+                  className={`group w-full flex items-center gap-3 px-4 py-3 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  } rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-98 ${
                     isActive
-                      ? "text-blue-600 bg-blue-50 border-l-4 border-blue-600 shadow-sm font-semibold"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm border-l-4 border-transparent"
+                      ? `text-blue-600 bg-blue-50 ${
+                          language === "ar" ? "border-r-4" : "border-l-4"
+                        } border-blue-600 shadow-sm font-semibold`
+                      : `text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm ${
+                          language === "ar" ? "border-r-4" : "border-l-4"
+                        } border-transparent`
                   }`}
                 >
                   <i
@@ -225,7 +239,15 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                     </span>
                   )}
                   {!isActive && (
-                    <i className="pi pi-angle-right text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform group-hover:translate-x-1"></i>
+                    <i
+                      className={`pi ${
+                        language === "ar" ? "pi-angle-left" : "pi-angle-right"
+                      } text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform ${
+                        language === "ar"
+                          ? "group-hover:-translate-x-1"
+                          : "group-hover:translate-x-1"
+                      }`}
+                    ></i>
                   )}
                 </button>
               );
@@ -236,11 +258,21 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           <div className="p-4 border-t border-gray-100 bg-gray-50/20 space-y-3">
             <button
               onClick={handleLogout}
-              className="group w-full flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 hover:border-red-100 border border-transparent transition-all duration-200 hover:scale-[1.02] active:scale-95 hover:shadow-sm"
+              className={`group w-full flex items-center ${
+                language === "ar" ? "justify-end" : "justify-start"
+              } gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 hover:border-red-100 border border-transparent transition-all duration-200 hover:scale-[1.02] active:scale-95 hover:shadow-sm`}
             >
               <i className="pi pi-sign-out text-lg transition-transform duration-200 group-hover:scale-110"></i>
               <span className="font-medium">{t("sidebar.sign_out")}</span>
-              <i className="pi pi-angle-right text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform group-hover:translate-x-1 ml-auto"></i>
+              <i
+                className={`pi ${
+                  language === "ar" ? "pi-angle-left" : "pi-angle-right"
+                } text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform ${
+                  language === "ar"
+                    ? "group-hover:-translate-x-1"
+                    : "group-hover:translate-x-1"
+                } ${language === "ar" ? "mr-auto" : "ml-auto"}`}
+              ></i>
             </button>
             <div className="text-xs text-gray-400 text-center pt-1 border-t border-gray-100">
               © 2024 SU'UD Platform
