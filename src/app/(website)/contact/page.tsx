@@ -20,13 +20,32 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus(null);
     
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      setSubmitStatus('error');
+    } finally {
       setIsSubmitting(false);
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 2000);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -40,7 +59,7 @@ export default function ContactPage() {
     {
       icon: '📧',
       title: language === 'en' ? 'Email' : 'البريد الإلكتروني',
-      value: 'contact@suud.com',
+      value: 'RSL111@hotmail.com',
       description: language === 'en' 
         ? 'Send us an email anytime'
         : 'أرسل لنا بريد إلكتروني في أي وقت'
@@ -48,7 +67,7 @@ export default function ContactPage() {
     {
       icon: '📞',
       title: language === 'en' ? 'Phone' : 'الهاتف',
-      value: '+966 11 123 4567',
+      value: '0550033610',
       description: language === 'en'
         ? 'Available 9 AM - 6 PM (GMT+3)'
         : 'متاح من 9 صباحاً - 6 مساءً (GMT+3)'
@@ -57,19 +76,19 @@ export default function ContactPage() {
       icon: '📍',
       title: language === 'en' ? 'Office' : 'المكتب',
       value: language === 'en' 
-        ? 'King Fahd Road, Riyadh' 
-        : 'طريق الملك فهد، الرياض',
+        ? '24°50\'43.6"N 46°47\'43.0"E, Riyadh' 
+        : '24°50\'43.6"N 46°47\'43.0"E، الرياض',
       description: language === 'en'
         ? 'Visit our headquarters'
         : 'زر مقرنا الرئيسي'
     },
     {
-      icon: '💬',
-      title: language === 'en' ? 'Live Chat' : 'الدردشة المباشرة',
-      value: language === 'en' ? 'Available 24/7' : 'متاح 24/7',
+      icon: '🗺️',
+      title: language === 'en' ? 'Location' : 'الموقع',
+      value: language === 'en' ? 'Google Maps' : 'خرائط جوجل',
       description: language === 'en'
-        ? 'Chat with our support team'
-        : 'تحدث مع فريق الدعم'
+        ? 'Find us on the map'
+        : 'اعثر علينا على الخريطة'
     }
   ];
 
@@ -208,6 +227,21 @@ export default function ContactPage() {
                     {language === 'en'
                       ? 'Thank you! Your message has been sent successfully.'
                       : 'شكراً لك! تم إرسال رسالتك بنجاح.'
+                    }
+                  </p>
+                </motion.div>
+              )}
+
+              {submitStatus === 'error' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-red-50 border border-red-200 rounded-lg"
+                >
+                  <p className="text-red-800">
+                    {language === 'en'
+                      ? 'Sorry, there was an error sending your message. Please try again.'
+                      : 'عذراً، حدث خطأ في إرسال رسالتك. يرجى المحاولة مرة أخرى.'
                     }
                   </p>
                 </motion.div>

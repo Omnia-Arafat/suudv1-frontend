@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Button } from '@/shared/components/ui';
-import { Navbar, Footer, PageSkeleton } from '@/shared/components';
-import { useAuth, useI18n } from '@/shared/contexts';
+import { Button } from "@/shared/components/ui";
+import { Navbar, Footer, PageSkeleton } from "@/shared/components";
+import { useAuth, useI18n } from "@/shared/contexts";
+import { generatePageMetadata } from "@/shared/config/metadata";
 
 export default function Home() {
   const { isLoading } = useAuth();
@@ -16,7 +17,7 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState("Florence, Italy");
 
   if (isLoading) {
-    return <PageSkeleton />;
+    return <PageSkeleton type="site" />;
   }
 
   const handleSearch = () => {
@@ -179,7 +180,7 @@ export default function Home() {
                     }
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 placeholder-gray-400 text-lg"
+                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 placeholder-gray-400 text-lg py-2"
                   />
                 </div>
 
@@ -207,7 +208,7 @@ export default function Home() {
                   <select
                     value={selectedLocation}
                     onChange={(e) => setSelectedLocation(e.target.value)}
-                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 cursor-pointer text-lg"
+                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 cursor-pointer text-lg py-2"
                   >
                     <option value="Florence, Italy">
                       {language === "en"
