@@ -1,29 +1,28 @@
 User-agent: *
 Allow: /
 
-# Disallow private areas
-Disallow: /dashboard/
-Disallow: /admin/
-Disallow: /employer/
-Disallow: /employee/
-Disallow: /profile/
-Disallow: /settings/
-Disallow: /applications/
-Disallow: /login
-Disallow: /register
-
-# Allow public pages
-Allow: /
+# Allowed public pages
 Allow: /jobs
 Allow: /companies
 Allow: /about
 Allow: /contact
 Allow: /services
+Allow: /privacy
+Allow: /terms
+Allow: /cookies
+
+# Disallow private areas
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /employer/
+Disallow: /employee/
+Disallow: /login
+Disallow: /register
+Disallow: /api/
+Disallow: /_next/
+Disallow: /test-modals/
 
 # Sitemap
 Sitemap: https://suud.com/sitemap.xml
-
-# Crawl delay
-Crawl-delay: 1
 
 
