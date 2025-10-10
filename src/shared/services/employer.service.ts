@@ -79,7 +79,7 @@ class EmployerService {
    * Update application status (accept/reject)
    */
   async updateApplicationStatus(
-    applicationId: number,
+    applicationId: string,
     status: "pending" | "reviewed" | "accepted" | "rejected",
     notes?: string
   ): Promise<any> {

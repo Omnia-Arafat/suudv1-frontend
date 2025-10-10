@@ -201,8 +201,7 @@ function JobsPageContent() {
     } catch (error: unknown) {
       console.error("Failed to delete job:", error);
 
-      let errorMessage =
-        language === "en" ? "Failed to delete job" : "فشل في حذف الوظيفة";
+      let errorMessage = t("dashboard.failedToDeleteJob");
 
       if (error && typeof error === "object" && "response" in error) {
         const axiosError = error as AxiosError;
@@ -295,9 +294,7 @@ function JobsPageContent() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {language === "en" ? "Loading jobs..." : "جاري تحميل الوظائف..."}
-          </p>
+          <p className="text-gray-600">{t("dashboard.loadingJobs")}</p>
         </div>
       </div>
     );
@@ -310,21 +307,21 @@ function JobsPageContent() {
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <p className="text-gray-600 mb-4">{error}</p>
           <Button variant="primary" onClick={fetchJobs}>
-            {language === "en" ? "Try Again" : "حاول مرة أخرى"}
+            {t("dashboard.tryAgain")}
           </Button>
         </div>
       </div>
     );
   }
 
-    return (
+  return (
     <div className="space-y-6">
       {/* Header Section */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              {language === "en" ? "My Job Postings" : "إعلاناتي الوظيفية"}
+              {t("dashboard.myJobPostings")}
             </h1>
             <p className="text-gray-600 mt-1">
               {language === "en"
@@ -338,98 +335,98 @@ function JobsPageContent() {
             className="flex items-center gap-2"
           >
             <PlusCircle className="w-4 h-4" />
-            {language === "en" ? "Post New Job" : "نشر وظيفة جديدة"}
+            {t("dashboard.postNewJob")}
           </Button>
         </div>
       </div>
 
-          {/* Stats Cards */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-blue-100 text-sm font-medium">
-                  {language === "en" ? "Total Jobs" : "إجمالي الوظائف"}
-                    </p>
+                  {t("dashboard.totalJobs")}
+                </p>
                 <p className="text-3xl font-bold">{jobs.length}</p>
-                  </div>
+              </div>
               <Building className="w-8 h-8 text-blue-200" />
-                </div>
-              </CardContent>
-            </Card>
-            
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-green-100 text-sm font-medium">
-                  {language === "en" ? "Active Jobs" : "الوظائف النشطة"}
+                  {t("dashboard.activeJobs")}
                 </p>
                 <p className="text-3xl font-bold">
                   {jobs.filter((job) => job.status === "active").length}
                 </p>
-                  </div>
+              </div>
               <Eye className="w-8 h-8 text-green-200" />
-                </div>
-              </CardContent>
-            </Card>
-            
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-purple-100 text-sm font-medium">
-                  {language === "en" ? "Pending Review" : "في انتظار المراجعة"}
+                  {t("dashboard.pendingReview")}
                 </p>
                 <p className="text-3xl font-bold">
                   {jobs.filter((job) => job.status === "pending").length}
                 </p>
-                  </div>
+              </div>
               <Calendar className="w-8 h-8 text-purple-200" />
-                </div>
-              </CardContent>
-            </Card>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-orange-100 text-sm font-medium">
-                  {language === "en" ? "Draft Jobs" : "المسودات"}
+                  {t("dashboard.draftJobs")}
                 </p>
                 <p className="text-3xl font-bold">
                   {jobs.filter((job) => job.status === "draft").length}
                 </p>
-                      </div>
-              <Bookmark className="w-8 h-8 text-orange-200" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Bookmark className="w-8 h-8 text-orange-200" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Search and Filters */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              {/* Search Bar */}
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
+              <input
+                type="text"
                 placeholder={
                   language === "en"
                     ? "Search jobs by title, company, or description..."
                     : "ابحث عن الوظائف بالعنوان أو الشركة أو الوصف..."
                 }
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-              
-              {/* Filters */}
-              <div className="flex flex-wrap gap-4">
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-gray-500" />
                 <select
@@ -437,54 +434,36 @@ function JobsPageContent() {
                   onChange={(e) => setSelectedType(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
                 >
-                  <option value="all">
-                    {language === "en" ? "All Types" : "جميع الأنواع"}
-                  </option>
-                  <option value="full-time">
-                    {language === "en" ? "Full Time" : "دوام كامل"}
-                  </option>
-                  <option value="part-time">
-                    {language === "en" ? "Part Time" : "دوام جزئي"}
-                  </option>
-                  <option value="contract">
-                    {language === "en" ? "Contract" : "عقد"}
-                  </option>
+                  <option value="all">{t("dashboard.allTypes")}</option>
+                  <option value="full-time">{t("dashboard.fullTime")}</option>
+                  <option value="part-time">{t("dashboard.partTime")}</option>
+                  <option value="contract">{t("dashboard.contract")}</option>
                   <option value="internship">
-                    {language === "en" ? "Internship" : "تدريب"}
+                    {t("dashboard.internship")}
                   </option>
                 </select>
               </div>
-                
+
               <div className="flex items-center gap-2">
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
                 >
-                  <option value="all">
-                    {language === "en" ? "All Status" : "جميع الحالات"}
-                  </option>
-                  <option value="active">
-                    {language === "en" ? "Active" : "نشط"}
-                  </option>
-                  <option value="pending">
-                    {language === "en" ? "Pending" : "في الانتظار"}
-                  </option>
-                  <option value="draft">
-                    {language === "en" ? "Draft" : "مسودة"}
-                  </option>
-                  <option value="closed">
-                    {language === "en" ? "Closed" : "مغلق"}
-                  </option>
+                  <option value="all">{t("dashboard.allStatus")}</option>
+                  <option value="active">{t("dashboard.active")}</option>
+                  <option value="pending">{t("dashboard.pending")}</option>
+                  <option value="draft">{t("dashboard.draft")}</option>
+                  <option value="closed">{t("dashboard.closed")}</option>
                 </select>
               </div>
-              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-          {/* Job Listings */}
-          <div className="space-y-4">
+      {/* Job Listings */}
+      <div className="space-y-4">
         {filteredJobs.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
@@ -505,28 +484,28 @@ function JobsPageContent() {
                 className="flex items-center gap-2 mx-auto cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
-                {language === "en" ? "Post New Job" : "نشر وظيفة جديدة"}
+                {t("dashboard.postNewJob")}
               </Button>
             </CardContent>
           </Card>
         ) : (
           filteredJobs.map((job, index) => (
-              <motion.div
-                key={job.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
+            <motion.div
+              key={job.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
               <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-indigo-500">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h3 className="text-xl font-semibold text-gray-900 mb-2">
                             {job.title}
                           </h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                             <span className="flex items-center gap-1">
                               <Building className="w-4 h-4" />
                               {job.company?.company_name || "Company"}
@@ -534,7 +513,7 @@ function JobsPageContent() {
                             <span className="flex items-center gap-1">
                               <MapPin className="w-4 h-4" />
                               {job.location}
-                          </span>
+                            </span>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(
                                 job.job_type
@@ -549,22 +528,22 @@ function JobsPageContent() {
                             >
                               {getStatusLabel(job.status)}
                             </span>
+                          </div>
                         </div>
-                      </div>
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-gray-500">
                             {new Date(job.created_at).toLocaleDateString()}
                           </span>
-                        <button
+                          <button
                             className={`p-2 rounded-full transition-colors ${
-                            job.isBookmarked 
+                              job.isBookmarked
                                 ? "text-red-500 bg-red-50"
                                 : "text-gray-400 hover:text-red-500 hover:bg-red-50"
-                          }`}
+                            }`}
                             onClick={() => handleBookmark(job.id)}
-                        >
+                          >
                             <Bookmark className="w-4 h-4" />
-                        </button>
+                          </button>
                         </div>
                       </div>
 
@@ -599,44 +578,44 @@ function JobsPageContent() {
                       <p className="text-gray-700 mb-4 line-clamp-2">
                         {job.description}
                       </p>
-                      </div>
                     </div>
-                    
-                    <div className="flex gap-3">
+                  </div>
+
+                  <div className="flex gap-3">
                     <Button
                       variant="primary"
                       className="flex-1 cursor-pointer"
                       onClick={() => handleViewJob(job)}
                     >
-                      {language === "en" ? "View Details" : "عرض التفاصيل"}
+                      {t("dashboard.viewDetails")}
                     </Button>
                     <Button
                       variant="outline"
                       className="cursor-pointer"
                       onClick={() => handleEditJob(job)}
                     >
-                      {language === "en" ? "Edit Job" : "تعديل الوظيفة"}
-                      </Button>
+                      {t("dashboard.editJob")}
+                    </Button>
                     <Button
                       variant="outline"
                       className="text-red-600 hover:text-red-700 cursor-pointer"
                       onClick={() => handleDeleteJob(job)}
                     >
-                      {language === "en" ? "Delete" : "حذف"}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                      {t("dashboard.delete")}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))
         )}
-          </div>
+      </div>
 
       {/* Modals */}
       <SuccessModal
         visible={showSuccessModal}
         onHide={() => setShowSuccessModal(false)}
-        title={language === "en" ? "Success" : "نجح"}
+        title={t("dashboard.success")}
         message={successMessage}
         onConfirm={() => setShowSuccessModal(false)}
       />
@@ -644,7 +623,7 @@ function JobsPageContent() {
       <ErrorModal
         visible={showErrorModal}
         onHide={() => setShowErrorModal(false)}
-        title={language === "en" ? "Error" : "خطأ"}
+        title={t("dashboard.error")}
         message={errorMessage}
         onConfirm={() => setShowErrorModal(false)}
       />
@@ -655,7 +634,7 @@ function JobsPageContent() {
           setShowDeleteModal(false);
           setJobToDelete(null);
         }}
-        title={language === "en" ? "Delete Job" : "حذف الوظيفة"}
+        title={t("dashboard.deleteJob")}
         message={
           language === "en"
             ? `Are you sure you want to delete "${jobToDelete?.title}"? This action cannot be undone.`
@@ -682,7 +661,7 @@ function JobsPageContent() {
         onHide={() => setShowViewDialog(false)}
         job={jobToView}
       />
-      </div>
+    </div>
   );
 }
 

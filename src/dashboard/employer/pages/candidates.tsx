@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/shared/contexts/AuthContext";
+import { useI18n } from "@/shared/contexts/I18nContext";
 import { employerService } from "@/shared/services/employer.service";
 import {
   Users,
@@ -255,6 +256,7 @@ const CandidateCard = ({
 
 export default function EmployerCandidatesContent() {
   const { user } = useAuth();
+  const { language, t } = useI18n();
   const [candidatesData, setCandidatesData] = useState<CandidatesData | null>(
     null
   );
@@ -397,15 +399,29 @@ export default function EmployerCandidatesContent() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mr-4">
+      <div
+        className={`flex items-center justify-between ${
+          language === "ar" ? "flex-row-reverse" : ""
+        }`}
+      >
+        <div
+          className={`flex items-center ${
+            language === "ar" ? "flex-row-reverse" : ""
+          }`}
+        >
+          <div
+            className={`h-10 w-10 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center ${
+              language === "ar" ? "ml-4" : "mr-4"
+            }`}
+          >
             <Users className="h-6 w-6 text-purple-600" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Candidates</h1>
+          <div className={language === "ar" ? "text-right" : "text-left"}>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {t("dashboard.candidates")}
+            </h1>
             <p className="text-sm text-gray-500">
-              {candidatesData?.total || 0} candidates available
+              {candidatesData?.total || 0} {t("dashboard.candidatesAvailable")}
             </p>
           </div>
         </div>
@@ -417,26 +433,40 @@ export default function EmployerCandidatesContent() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute inset-y-0 left-0 pl-3 flex items-center h-full w-5 text-gray-400" />
+                <Search
+                  className={`absolute inset-y-0 ${
+                    language === "ar" ? "right-0 pr-3" : "left-0 pl-3"
+                  } flex items-center h-full w-5 text-gray-400`}
+                />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Search by name, title, or skills..."
+                  className={`block w-full ${
+                    language === "ar" ? "pr-10 pl-3" : "pl-10 pr-3"
+                  } py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                  placeholder={t("dashboard.searchByNameTitleSkills")}
                 />
               </form>
             </div>
 
-            <div className="flex space-x-2">
+            <div
+              className={`flex ${
+                language === "ar" ? "space-x-reverse space-x-2" : "space-x-2"
+              }`}
+            >
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
-                <Filter className="h-4 w-4 mr-1" />
-                Filters
+                <Filter
+                  className={`h-4 w-4 ${language === "ar" ? "ml-1" : "mr-1"}`}
+                />
+                {t("dashboard.filters")}
                 <ChevronDown
-                  className={`h-4 w-4 ml-1 transform transition-transform ${
+                  className={`h-4 w-4 ${
+                    language === "ar" ? "mr-1" : "ml-1"
+                  } transform transition-transform ${
                     showFilters ? "rotate-180" : ""
                   }`}
                 />

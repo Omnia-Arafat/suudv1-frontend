@@ -4,19 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth, useI18n } from "@/shared/contexts";
 import { employerService } from "@/shared/services/employer.service";
 import Link from "next/link";
-import {
-  Briefcase,
-  FileText,
-  Users,
-  TrendingUp,
-  PlusCircle,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Eye,
-  AlertCircle,
-  Building2,
-} from "lucide-react";
+// Using PrimeIcons instead of Lucide React icons
 
 interface EmployerDashboardData {
   stats: {
@@ -41,15 +29,33 @@ interface EmployerDashboardData {
       employee_count: number;
     };
   };
-  recent_applications: any[];
-  active_jobs: any[];
-  top_jobs: any[];
+  recent_applications: Array<{
+    id: string;
+    candidate_name: string;
+    job_title: string;
+    applied_date: string;
+    status: string;
+  }>;
+  active_jobs: Array<{
+    id: string;
+    title: string;
+    status: string;
+    applications_count: number;
+    views: number;
+    created_at: string;
+  }>;
+  top_jobs: Array<{
+    id: string;
+    title: string;
+    applications: number;
+    views: number;
+  }>;
 }
 
 const StatCard = ({
   title,
   value,
-  icon: Icon,
+  icon,
   color,
   trend,
   action,
@@ -57,7 +63,7 @@ const StatCard = ({
 }: {
   title: string;
   value: number | string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string;
   color: string;
   trend?: string;
   action?: { label: string; href: string };
@@ -66,14 +72,14 @@ const StatCard = ({
   <div className="bg-white overflow-hidden shadow rounded-lg">
     <div className="p-5">
       <div
-        className={`flex items-center ${
+        className={`flex items-start ${
           language === "ar" ? "flex-row-reverse" : ""
         }`}
       >
-        <div className="flex-shrink-0">
-          <Icon className={`h-6 w-6 ${color}`} />
+        <div className={`flex-shrink-0 ${language === "ar" ? "ml-4" : "mr-4"}`}>
+          <i className={`${icon} ${color} text-2xl`}></i>
         </div>
-        <div className={`${language === "ar" ? "mr-5" : "ml-5"} w-0 flex-1`}>
+        <div className="flex-1 min-w-0">
           <dl>
             <dt
               className={`text-sm font-medium text-gray-500 truncate ${
@@ -82,27 +88,31 @@ const StatCard = ({
             >
               {title}
             </dt>
-            <dd
-              className={`flex items-baseline ${
-                language === "ar" ? "flex-row-reverse" : ""
-              }`}
-            >
-              <div className="text-2xl font-semibold text-gray-900">
-                {value}
-              </div>
-              {trend && (
-                <div
-                  className={`${
-                    language === "ar" ? "mr-2" : "ml-2"
-                  } flex items-baseline text-sm font-semibold text-green-600`}
-                >
-                  {trend}
+            <dd className="mt-1">
+              <div
+                className={`flex items-baseline ${
+                  language === "ar"
+                    ? "flex-row-reverse justify-end"
+                    : "justify-start"
+                }`}
+              >
+                <div className="text-2xl font-semibold text-gray-900">
+                  {value}
                 </div>
-              )}
+                {trend && (
+                  <div
+                    className={`${
+                      language === "ar" ? "mr-2" : "ml-2"
+                    } text-sm font-semibold text-green-600`}
+                  >
+                    {trend}
+                  </div>
+                )}
+              </div>
             </dd>
           </dl>
           {action && (
-            <div className="mt-2">
+            <div className="mt-3">
               <Link
                 href={action.href}
                 className={`text-sm text-blue-600 hover:text-blue-500 ${
@@ -119,44 +129,90 @@ const StatCard = ({
   </div>
 );
 
-const JobCard = ({ job }: { job: any }) => (
-  <div className="bg-white p-4 rounded-lg border hover:shadow-md transition-shadow">
-    <div className="flex justify-between items-start mb-2">
-      <h4 className="text-lg font-medium text-gray-900">{job.title}</h4>
-      <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          job.status === "active"
-            ? "bg-green-100 text-green-800"
-            : "bg-gray-100 text-gray-800"
+const JobCard = ({
+  job,
+}: {
+  job: {
+    id: string;
+    title: string;
+    status: string;
+    applications_count: number;
+    views: number;
+    created_at: string;
+  };
+}) => {
+  const { t, language } = useI18n();
+  return (
+    <div className="bg-white p-4 rounded-lg border hover:shadow-md transition-shadow">
+      <div
+        className={`flex justify-between items-start mb-2 ${
+          language === "ar" ? "flex-row-reverse" : ""
         }`}
       >
-        {job.status}
-      </span>
-    </div>
-    <div className="text-sm text-gray-600 mb-3">
-      <div className="flex items-center justify-between">
-        <span>{job.applications_count || 0} applications</span>
-        <span>Posted {job.created_at}</span>
+        <h4
+          className={`text-lg font-medium text-gray-900 ${
+            language === "ar" ? "text-right" : "text-left"
+          }`}
+        >
+          {job.title}
+        </h4>
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            job.status === "active"
+              ? "bg-green-100 text-green-800"
+              : "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {job.status === "active" ? t("dashboard.activeJobs") : job.status}
+        </span>
       </div>
-    </div>
-    <div className="flex justify-between items-center">
-      <div className="flex items-center space-x-2">
-        <Eye className="h-4 w-4 text-gray-400" />
-        <span className="text-sm text-gray-600">{job.views || 0} views</span>
+      <div className="text-sm text-gray-600 mb-3">
+        <div
+          className={`flex items-center justify-between ${
+            language === "ar" ? "flex-row-reverse" : ""
+          }`}
+        >
+          <span className={language === "ar" ? "text-right" : "text-left"}>
+            {job.applications_count || 0} {t("dashboard.applications")}
+          </span>
+          <span className={language === "ar" ? "text-right" : "text-left"}>
+            {t("dashboard.posted")} {job.created_at}
+          </span>
+        </div>
       </div>
-      <Link
-        href={`/employer/jobs/${job.id}`}
-        className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md transition-colors"
+      <div
+        className={`flex justify-between items-center ${
+          language === "ar" ? "flex-row-reverse" : ""
+        }`}
       >
-        Manage
-      </Link>
+        <div
+          className={`flex items-center ${
+            language === "ar" ? "space-x-reverse space-x-2" : "space-x-2"
+          }`}
+        >
+          <i className="pi pi-eye text-gray-400 text-sm"></i>
+          <span
+            className={`text-sm text-gray-600 ${
+              language === "ar" ? "text-right" : "text-left"
+            }`}
+          >
+            {job.views || 0} {t("dashboard.views")}
+          </span>
+        </div>
+        <Link
+          href={`/employer/jobs/${job.id}`}
+          className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md transition-colors"
+        >
+          {t("dashboard.manage")}
+        </Link>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function EmployerDashboardContent() {
   const { user } = useAuth();
-  const { language } = useI18n();
+  const { language, t } = useI18n();
   const [dashboardData, setDashboardData] =
     useState<EmployerDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -197,25 +253,23 @@ export default function EmployerDashboardContent() {
         },
         recent_applications: [
           {
-            id: 1,
-            candidate: "Sarah Johnson",
-            job: "Frontend Developer",
+            id: "1",
+            candidate_name: "Sarah Johnson",
+            job_title: "Frontend Developer",
             status: "pending",
             applied_date: "2 hours ago",
-            specialization: "React Developer",
           },
           {
-            id: 2,
-            candidate: "Ahmed Ali",
-            job: "Backend Developer",
+            id: "2",
+            candidate_name: "Ahmed Ali",
+            job_title: "Backend Developer",
             status: "reviewed",
             applied_date: "1 day ago",
-            specialization: "Node.js Developer",
           },
         ],
         active_jobs: [
           {
-            id: 1,
+            id: "1",
             title: "Senior Frontend Developer",
             status: "active",
             applications_count: 24,
@@ -223,7 +277,7 @@ export default function EmployerDashboardContent() {
             created_at: "1 week ago",
           },
           {
-            id: 2,
+            id: "2",
             title: "UI/UX Designer",
             status: "active",
             applications_count: 18,
@@ -233,11 +287,10 @@ export default function EmployerDashboardContent() {
         ],
         top_jobs: [
           {
-            id: 3,
+            id: "3",
             title: "Full Stack Developer",
-            applications_count: 45,
-            status: "active",
-            created_at: "2 weeks ago",
+            applications: 45,
+            views: 234,
           },
         ],
       };
@@ -268,7 +321,7 @@ export default function EmployerDashboardContent() {
   if (!dashboardData) {
     return (
       <div className="text-center py-12">
-        <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
+        <i className="pi pi-exclamation-triangle mx-auto text-4xl text-gray-400"></i>
         <h3 className="mt-2 text-sm font-medium text-gray-900">
           Failed to load dashboard
         </h3>
@@ -280,11 +333,14 @@ export default function EmployerDashboardContent() {
   }
 
   const handleApplicationAction = async (
-    applicationId: number,
+    applicationId: string,
     action: "accepted" | "rejected"
   ) => {
     try {
-      await employerService.updateApplicationStatus(applicationId, action);
+      await employerService.updateApplicationStatus(
+        applicationId,
+        action as "pending" | "reviewed" | "accepted" | "rejected"
+      );
       // Refresh dashboard data
       fetchDashboardData();
     } catch (error) {
@@ -323,7 +379,7 @@ export default function EmployerDashboardContent() {
           >
             <div className="flex-shrink-0">
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-indigo-600" />
+                <i className="pi pi-building text-indigo-600 text-xl"></i>
               </div>
             </div>
             <div className={language === "ar" ? "mr-4" : "ml-4"}>
@@ -332,14 +388,14 @@ export default function EmployerDashboardContent() {
                   language === "ar" ? "text-right" : "text-left"
                 }`}
               >
-                Welcome back, {user?.name}!
+                {t("dashboard.welcomeBack")}, {user?.name}!
               </h1>
               <p
                 className={`text-sm text-gray-500 ${
                   language === "ar" ? "text-right" : "text-left"
                 }`}
               >
-                Recruiter • Ready to find your next great hire?
+                {t("dashboard.recruiter")} • {t("dashboard.readyToHire")}
               </p>
             </div>
           </div>
@@ -355,10 +411,14 @@ export default function EmployerDashboardContent() {
                     language === "ar" ? "flex-row-reverse" : ""
                   }`}
                 >
-                  <CheckCircle
-                    className={`h-5 w-5 ${language === "ar" ? "ml-1" : "mr-1"}`}
-                  />
-                  <span className="text-sm font-medium">Verified</span>
+                  <i
+                    className={`pi pi-check-circle h-5 w-5 ${
+                      language === "ar" ? "ml-1" : "mr-1"
+                    }`}
+                  ></i>
+                  <span className="text-sm font-medium">
+                    {t("dashboard.verified")}
+                  </span>
                 </div>
               )}
             </div>
@@ -369,44 +429,49 @@ export default function EmployerDashboardContent() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Active Jobs"
+          title={t("dashboard.activeJobs")}
           value={dashboardData.stats.jobs.active}
-          icon={Briefcase}
+          icon="pi pi-briefcase"
           color="text-indigo-600"
-          trend={`+${dashboardData.stats.jobs.this_month} this month`}
-          action={{ label: "Manage Jobs", href: "/employer/jobs" }}
+          trend={`+${dashboardData.stats.jobs.this_month} ${t(
+            "dashboard.thisMonth"
+          )}`}
+          action={{ label: t("dashboard.manageJobs"), href: "/employer/jobs" }}
           language={language}
         />
         <StatCard
-          title="New Applications"
+          title={t("dashboard.newApplications")}
           value={dashboardData.stats.applications.new_today}
-          icon={FileText}
+          icon="pi pi-file-edit"
           color="text-purple-600"
-          trend="Today"
-          action={{ label: "Review All", href: "/employer/applications" }}
+          trend={t("dashboard.today")}
+          action={{
+            label: t("dashboard.reviewAll"),
+            href: "/employer/applications",
+          }}
           language={language}
         />
         <StatCard
-          title="Pending Reviews"
+          title={t("dashboard.pendingApplications")}
           value={dashboardData.stats.applications.pending}
-          icon={Clock}
+          icon="pi pi-clock"
           color="text-indigo-600"
           action={{
-            label: "Review Now",
+            label: t("dashboard.reviewNow"),
             href: "/employer/applications?status=pending",
           }}
           language={language}
         />
         <StatCard
-          title="Total Applications"
+          title={t("dashboard.totalApplications")}
           value={dashboardData.stats.applications.total}
-          icon={Users}
+          icon="pi pi-users"
           color="text-purple-600"
           trend={`${Math.round(
             (dashboardData.stats.applications.accepted /
               dashboardData.stats.applications.total) *
               100
-          )}% hired`}
+          )}% ${t("dashboard.hired")}`}
           language={language}
         />
       </div>
@@ -415,27 +480,47 @@ export default function EmployerDashboardContent() {
         {/* Recent Applications */}
         <div className="lg:col-span-1">
           <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Recent Applications
+            <div
+              className={`flex items-center justify-between mb-4 ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
+              <h3
+                className={`text-lg leading-6 font-medium text-gray-900 ${
+                  language === "ar" ? "text-right" : "text-left"
+                }`}
+              >
+                {t("dashboard.recentApplications")}
               </h3>
               <Link
                 href="/employer/applications"
                 className="text-sm text-blue-600 hover:text-blue-500"
               >
-                View all
+                {t("dashboard.viewAll")}
               </Link>
             </div>
             <div className="space-y-3">
               {dashboardData.recent_applications.map((application) => (
                 <div key={application.id} className="border rounded-lg p-3">
-                  <div className="flex justify-between items-start mb-2">
+                  <div
+                    className={`flex justify-between items-start mb-2 ${
+                      language === "ar" ? "flex-row-reverse" : ""
+                    }`}
+                  >
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900">
-                        {application.candidate}
+                      <h4
+                        className={`text-sm font-medium text-gray-900 ${
+                          language === "ar" ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {application.candidate_name}
                       </h4>
-                      <p className="text-xs text-gray-600">
-                        {application.job} • {application.specialization}
+                      <p
+                        className={`text-xs text-gray-600 ${
+                          language === "ar" ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {application.job_title}
                       </p>
                     </div>
                     <span
@@ -446,20 +531,38 @@ export default function EmployerDashboardContent() {
                       {application.status}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-gray-500">
-                      Applied {application.applied_date}
+                  <div
+                    className={`flex justify-between items-center ${
+                      language === "ar" ? "flex-row-reverse" : ""
+                    }`}
+                  >
+                    <p
+                      className={`text-xs text-gray-500 ${
+                        language === "ar" ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {t("dashboard.applied")} {application.applied_date}
                     </p>
                     {application.status === "pending" && (
-                      <div className="flex space-x-1">
+                      <div
+                        className={`flex ${
+                          language === "ar"
+                            ? "space-x-reverse space-x-1"
+                            : "space-x-1"
+                        }`}
+                      >
                         <button
                           onClick={() =>
                             handleApplicationAction(application.id, "accepted")
                           }
                           className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 transition-colors"
                         >
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Accept
+                          <i
+                            className={`pi pi-check-circle text-xs ${
+                              language === "ar" ? "ml-1" : "mr-1"
+                            }`}
+                          ></i>
+                          {t("dashboard.accept")}
                         </button>
                         <button
                           onClick={() =>
@@ -467,8 +570,12 @@ export default function EmployerDashboardContent() {
                           }
                           className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 transition-colors"
                         >
-                          <XCircle className="h-3 w-3 mr-1" />
-                          Reject
+                          <i
+                            className={`pi pi-times-circle text-xs ${
+                              language === "ar" ? "ml-1" : "mr-1"
+                            }`}
+                          ></i>
+                          {t("dashboard.reject")}
                         </button>
                       </div>
                     )}
@@ -478,9 +585,23 @@ export default function EmployerDashboardContent() {
             </div>
 
             <div className="mt-4 pt-4 border-t">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Response Rate</span>
-                <span className="font-medium text-indigo-600">
+              <div
+                className={`flex justify-between text-sm ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <span
+                  className={`text-gray-600 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  }`}
+                >
+                  {t("dashboard.responseRate")}
+                </span>
+                <span
+                  className={`font-medium text-indigo-600 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  }`}
+                >
                   {Math.round(
                     (dashboardData.stats.applications.reviewed /
                       dashboardData.stats.applications.total) *
@@ -496,15 +617,23 @@ export default function EmployerDashboardContent() {
         {/* Active Jobs */}
         <div className="lg:col-span-2">
           <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Active Job Postings
+            <div
+              className={`flex items-center justify-between mb-4 ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
+              <h3
+                className={`text-lg leading-6 font-medium text-gray-900 ${
+                  language === "ar" ? "text-right" : "text-left"
+                }`}
+              >
+                {t("dashboard.activeJobsList")}
               </h3>
               <Link
                 href="/employer/jobs"
                 className="text-sm text-blue-600 hover:text-blue-500"
               >
-                Manage all jobs
+                {t("dashboard.manageJobs")}
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -520,17 +649,47 @@ export default function EmployerDashboardContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Hiring Pipeline */}
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-            Hiring Pipeline
+          <h3
+            className={`text-lg leading-6 font-medium text-gray-900 mb-4 ${
+              language === "ar" ? "text-right" : "text-left"
+            }`}
+          >
+            {t("dashboard.hiringPipeline")}
           </h3>
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-yellow-400 rounded-full mr-3"></div>
-                <span className="text-sm text-gray-600">Pending Review</span>
+            <div
+              className={`flex justify-between items-center ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
+              <div
+                className={`flex items-center ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <div
+                  className={`w-4 h-4 bg-yellow-400 rounded-full ${
+                    language === "ar" ? "ml-3" : "mr-3"
+                  }`}
+                ></div>
+                <span
+                  className={`text-sm text-gray-600 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  }`}
+                >
+                  {t("dashboard.pendingReview")}
+                </span>
               </div>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-900 mr-2">
+              <div
+                className={`flex items-center ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <span
+                  className={`text-sm font-medium text-gray-900 ${
+                    language === "ar" ? "ml-2" : "mr-2"
+                  }`}
+                >
                   {dashboardData.stats.applications.pending}
                 </span>
                 <div className="w-24 bg-gray-200 rounded-full h-2">
@@ -548,13 +707,39 @@ export default function EmployerDashboardContent() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-blue-400 rounded-full mr-3"></div>
-                <span className="text-sm text-gray-600">Under Review</span>
+            <div
+              className={`flex justify-between items-center ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
+              <div
+                className={`flex items-center ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <div
+                  className={`w-4 h-4 bg-blue-400 rounded-full ${
+                    language === "ar" ? "ml-3" : "mr-3"
+                  }`}
+                ></div>
+                <span
+                  className={`text-sm text-gray-600 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  }`}
+                >
+                  {t("dashboard.underReview")}
+                </span>
               </div>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-900 mr-2">
+              <div
+                className={`flex items-center ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <span
+                  className={`text-sm font-medium text-gray-900 ${
+                    language === "ar" ? "ml-2" : "mr-2"
+                  }`}
+                >
                   {dashboardData.stats.applications.reviewed}
                 </span>
                 <div className="w-24 bg-gray-200 rounded-full h-2">
@@ -572,13 +757,39 @@ export default function EmployerDashboardContent() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-green-400 rounded-full mr-3"></div>
-                <span className="text-sm text-gray-600">Accepted</span>
+            <div
+              className={`flex justify-between items-center ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
+              <div
+                className={`flex items-center ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <div
+                  className={`w-4 h-4 bg-green-400 rounded-full ${
+                    language === "ar" ? "ml-3" : "mr-3"
+                  }`}
+                ></div>
+                <span
+                  className={`text-sm text-gray-600 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  }`}
+                >
+                  {t("dashboard.accepted")}
+                </span>
               </div>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-900 mr-2">
+              <div
+                className={`flex items-center ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <span
+                  className={`text-sm font-medium text-gray-900 ${
+                    language === "ar" ? "ml-2" : "mr-2"
+                  }`}
+                >
                   {dashboardData.stats.applications.accepted}
                 </span>
                 <div className="w-24 bg-gray-200 rounded-full h-2">
@@ -600,14 +811,32 @@ export default function EmployerDashboardContent() {
 
         {/* Company Profile Status */}
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-            Company Profile
+          <h3
+            className={`text-lg leading-6 font-medium text-gray-900 mb-4 ${
+              language === "ar" ? "text-right" : "text-left"
+            }`}
+          >
+            {t("dashboard.companyProfile")}
           </h3>
           <div className="space-y-4">
             <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Profile Completion</span>
-                <span className="font-medium text-gray-900">
+              <div
+                className={`flex justify-between text-sm mb-1 ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <span
+                  className={`text-gray-600 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  }`}
+                >
+                  {t("dashboard.profileCompletion")}
+                </span>
+                <span
+                  className={`font-medium text-gray-900 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  }`}
+                >
                   {dashboardData.stats.company.profile_completion}%
                 </span>
               </div>
@@ -621,19 +850,55 @@ export default function EmployerDashboardContent() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center py-2 border-t">
-              <span className="text-sm text-gray-600">Verification Status</span>
-              <div className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-sm font-medium text-green-600">
-                  Verified
+            <div
+              className={`flex justify-between items-center py-2 border-t ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
+              <span
+                className={`text-sm text-gray-600 ${
+                  language === "ar" ? "text-right" : "text-left"
+                }`}
+              >
+                {t("dashboard.verificationStatus")}
+              </span>
+              <div
+                className={`flex items-center ${
+                  language === "ar" ? "flex-row-reverse" : ""
+                }`}
+              >
+                <i
+                  className={`pi pi-check-circle text-green-500 ${
+                    language === "ar" ? "ml-1" : "mr-1"
+                  }`}
+                ></i>
+                <span
+                  className={`text-sm font-medium text-green-600 ${
+                    language === "ar" ? "text-right" : "text-left"
+                  }`}
+                >
+                  {t("dashboard.verified")}
                 </span>
               </div>
             </div>
 
-            <div className="flex justify-between items-center py-2">
-              <span className="text-sm text-gray-600">Profile Views</span>
-              <span className="text-sm font-medium text-gray-900">
+            <div
+              className={`flex justify-between items-center py-2 ${
+                language === "ar" ? "flex-row-reverse" : ""
+              }`}
+            >
+              <span
+                className={`text-sm text-gray-600 ${
+                  language === "ar" ? "text-right" : "text-left"
+                }`}
+              >
+                {t("dashboard.profileViews")}
+              </span>
+              <span
+                className={`text-sm font-medium text-gray-900 ${
+                  language === "ar" ? "text-right" : "text-left"
+                }`}
+              >
                 {dashboardData.stats.company.total_views}
               </span>
             </div>
@@ -643,7 +908,7 @@ export default function EmployerDashboardContent() {
                 href="/employer/company"
                 className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
-                Update Company Profile
+                {t("dashboard.updateCompanyProfile")}
               </Link>
             </div>
           </div>
@@ -652,44 +917,64 @@ export default function EmployerDashboardContent() {
 
       {/* Quick Actions */}
       <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-          Quick Actions
+        <h3
+          className={`text-lg leading-6 font-medium text-gray-900 mb-4 ${
+            language === "ar" ? "text-right" : "text-left"
+          }`}
+        >
+          {t("dashboard.quickActions")}
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Link
             href="/employer/jobs/create"
             className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <PlusCircle className="h-8 w-8 text-blue-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">
-              Post New Job
+            <i className="pi pi-plus-circle text-blue-600 text-2xl mb-2"></i>
+            <span
+              className={`text-sm font-medium text-gray-900 ${
+                language === "ar" ? "text-center" : "text-center"
+              }`}
+            >
+              {t("dashboard.postNewJob")}
             </span>
           </Link>
           <Link
             href="/employer/applications"
             className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <FileText className="h-8 w-8 text-green-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">
-              Review Applications
+            <i className="pi pi-file-edit text-green-600 text-2xl mb-2"></i>
+            <span
+              className={`text-sm font-medium text-gray-900 ${
+                language === "ar" ? "text-center" : "text-center"
+              }`}
+            >
+              {t("dashboard.reviewApplications")}
             </span>
           </Link>
           <Link
             href="/employer/candidates"
             className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <Users className="h-8 w-8 text-purple-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">
-              Browse Candidates
+            <i className="pi pi-users text-purple-600 text-2xl mb-2"></i>
+            <span
+              className={`text-sm font-medium text-gray-900 ${
+                language === "ar" ? "text-center" : "text-center"
+              }`}
+            >
+              {t("dashboard.browseCandidates")}
             </span>
           </Link>
           <Link
             href="/employer/analytics"
             className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <TrendingUp className="h-8 w-8 text-yellow-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">
-              View Analytics
+            <i className="pi pi-chart-line text-yellow-600 text-2xl mb-2"></i>
+            <span
+              className={`text-sm font-medium text-gray-900 ${
+                language === "ar" ? "text-center" : "text-center"
+              }`}
+            >
+              {t("dashboard.viewAnalytics")}
             </span>
           </Link>
         </div>

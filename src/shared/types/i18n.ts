@@ -168,6 +168,12 @@ export interface TranslationKeys {
   "navigation.savedJobs": string;
   "navigation.notifications": string;
   "navigation.messages": string;
+  "navigation.postJobNav": string;
+  "navigation.myJobsNav": string;
+  "navigation.applicationsNav": string;
+  "navigation.candidatesNav": string;
+  "navigation.companyProfileNav": string;
+  "navigation.analyticsNav": string;
 
   // Dashboard
   "dashboard.welcome": string;
@@ -187,6 +193,53 @@ export interface TranslationKeys {
   "dashboard.employerDashboard": string;
   "dashboard.employeeDashboard": string;
   "dashboard.adminDashboard": string;
+  "dashboard.welcomeBack": string;
+  "dashboard.readyToHire": string;
+  "dashboard.recruiter": string;
+  "dashboard.verified": string;
+  "dashboard.manageJobs": string;
+  "dashboard.reviewAll": string;
+  "dashboard.reviewNow": string;
+  "dashboard.hired": string;
+  "dashboard.thisMonth": string;
+  "dashboard.today": string;
+  "dashboard.recentApplications": string;
+  "dashboard.activeJobsList": string;
+  "dashboard.topPerformingJobs": string;
+  "dashboard.candidate": string;
+  "dashboard.job": string;
+  "dashboard.status": string;
+  "dashboard.appliedDate": string;
+  "dashboard.specialization": string;
+  "dashboard.applications": string;
+  "dashboard.views": string;
+  "dashboard.manage": string;
+  "dashboard.pending": string;
+  "dashboard.reviewed": string;
+  "dashboard.accepted": string;
+  "dashboard.closed": string;
+  "dashboard.draft": string;
+  "dashboard.profileCompletion": string;
+  "dashboard.totalViews": string;
+  "dashboard.employeeCount": string;
+  "dashboard.posted": string;
+  "dashboard.hiringPipeline": string;
+  "dashboard.pendingReview": string;
+  "dashboard.underReview": string;
+  "dashboard.accepted": string;
+  "dashboard.companyProfile": string;
+  "dashboard.verificationStatus": string;
+  "dashboard.profileViews": string;
+  "dashboard.updateCompanyProfile": string;
+  "dashboard.quickActions": string;
+  "dashboard.postNewJob": string;
+  "dashboard.reviewApplications": string;
+  "dashboard.browseCandidates": string;
+  "dashboard.viewAnalytics": string;
+  "dashboard.responseRate": string;
+  "dashboard.applied": string;
+  "dashboard.accept": string;
+  "dashboard.reject": string;
 
   // Forms
   "forms.required": string;

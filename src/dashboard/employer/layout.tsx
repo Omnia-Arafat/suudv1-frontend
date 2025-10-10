@@ -5,20 +5,7 @@ import { useAuth, useI18n } from "@/shared/contexts";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  Briefcase,
-  FileText,
-  Building2,
-  Users,
-  BarChart3,
-  PlusCircle,
-  Activity,
-  Menu,
-  X,
-  LogOut,
-  Bell,
-  Search,
-} from "lucide-react";
+// Using PrimeIcons instead of Lucide React icons
 
 interface EmployerLayoutProps {
   children: ReactNode;
@@ -28,17 +15,17 @@ interface EmployerLayoutProps {
 interface NavItem {
   name: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string; // PrimeIcon class name
   count?: number;
   badge?: string;
 }
 
 export default function EmployerLayout({
   children,
-  title = "Employer Dashboard",
+  title,
 }: EmployerLayoutProps) {
   const { user, logout, isLoading } = useAuth();
-  const { language } = useI18n();
+  const { language, t } = useI18n();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -49,13 +36,41 @@ export default function EmployerLayout({
   }, [user, isLoading, router]);
 
   const navigation: NavItem[] = [
-    { name: "Dashboard", href: "/employer/dashboard", icon: Activity },
-    { name: "Post Job", href: "/employer/jobs/create", icon: PlusCircle },
-    { name: "My Jobs", href: "/employer/jobs", icon: Briefcase },
-    { name: "Applications", href: "/employer/applications", icon: FileText },
-    { name: "Candidates", href: "/employer/candidates", icon: Users },
-    { name: "Company Profile", href: "/employer/company", icon: Building2 },
-    { name: "Analytics", href: "/employer/analytics", icon: BarChart3 },
+    {
+      name: t("navigation.dashboard"),
+      href: "/employer/dashboard",
+      icon: "pi pi-chart-bar",
+    },
+    {
+      name: t("navigation.postJobNav"),
+      href: "/employer/jobs/create",
+      icon: "pi pi-plus-circle",
+    },
+    {
+      name: t("navigation.myJobsNav"),
+      href: "/employer/jobs",
+      icon: "pi pi-briefcase",
+    },
+    {
+      name: t("navigation.applicationsNav"),
+      href: "/employer/applications",
+      icon: "pi pi-file-edit",
+    },
+    {
+      name: t("navigation.candidatesNav"),
+      href: "/employer/candidates",
+      icon: "pi pi-users",
+    },
+    {
+      name: t("navigation.companyProfileNav"),
+      href: "/employer/company",
+      icon: "pi pi-building",
+    },
+    {
+      name: t("navigation.analyticsNav"),
+      href: "/employer/analytics",
+      icon: "pi pi-chart-line",
+    },
   ];
 
   const handleLogout = async () => {
@@ -108,7 +123,7 @@ export default function EmployerLayout({
               className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-6 w-6 text-white" />
+              <i className="pi pi-times text-white"></i>
             </button>
           </div>
 
@@ -121,14 +136,17 @@ export default function EmployerLayout({
                 <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform duration-200">
                   ص
                 </div>
-                <span className="ml-2 text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
+                <span
+                  className={`${
+                    language === "ar" ? "mr-2" : "ml-2"
+                  } text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200`}
+                >
                   SU&apos;UD
                 </span>
               </button>
             </div>
             <nav className="mt-5 px-2 space-y-1">
               {navigation.map((item) => {
-                const Icon = item.icon;
                 return (
                   <Link
                     key={item.name}
@@ -136,15 +154,27 @@ export default function EmployerLayout({
                     className="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <Icon className="mr-4 h-6 w-6 text-gray-400 group-hover:text-gray-500" />
+                    <i
+                      className={`${item.icon} ${
+                        language === "ar" ? "ml-4" : "mr-4"
+                      } text-gray-400 group-hover:text-gray-500`}
+                    ></i>
                     {item.name}
                     {item.count && (
-                      <span className="ml-auto inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      <span
+                        className={`${
+                          language === "ar" ? "mr-auto" : "ml-auto"
+                        } inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-blue-100 text-blue-800`}
+                      >
                         {item.count}
                       </span>
                     )}
                     {item.badge && (
-                      <span className="ml-auto inline-block py-0.5 px-2 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                      <span
+                        className={`${
+                          language === "ar" ? "mr-auto" : "ml-auto"
+                        } inline-block py-0.5 px-2 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800`}
+                      >
                         {item.badge}
                       </span>
                     )}
@@ -157,11 +187,19 @@ export default function EmployerLayout({
           <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
             <div className="flex-shrink-0 group block">
               <div className="flex items-center">
-                <div className="ml-3">
-                  <p className="text-base font-medium text-gray-700 group-hover:text-gray-900">
+                <div className={language === "ar" ? "mr-3" : "ml-3"}>
+                  <p
+                    className={`text-base font-medium text-gray-700 group-hover:text-gray-900 ${
+                      language === "ar" ? "text-right" : "text-left"
+                    }`}
+                  >
                     {user.name}
                   </p>
-                  <p className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
+                  <p
+                    className={`text-sm font-medium text-gray-500 group-hover:text-gray-700 ${
+                      language === "ar" ? "text-right" : "text-left"
+                    }`}
+                  >
                     Recruiter
                   </p>
                 </div>
@@ -183,29 +221,44 @@ export default function EmployerLayout({
                 <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform duration-200">
                   ص
                 </div>
-                <span className="ml-2 text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
+                <span
+                  className={`${
+                    language === "ar" ? "mr-2" : "ml-2"
+                  } text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200`}
+                >
                   SU&apos;UD
                 </span>
               </button>
             </div>
             <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
               {navigation.map((item) => {
-                const Icon = item.icon;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
                     className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   >
-                    <Icon className="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" />
+                    <i
+                      className={`${item.icon} ${
+                        language === "ar" ? "ml-3" : "mr-3"
+                      } text-gray-400 group-hover:text-gray-500`}
+                    ></i>
                     {item.name}
                     {item.count && (
-                      <span className="ml-auto inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      <span
+                        className={`${
+                          language === "ar" ? "mr-auto" : "ml-auto"
+                        } inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-blue-100 text-blue-800`}
+                      >
                         {item.count}
                       </span>
                     )}
                     {item.badge && (
-                      <span className="ml-auto inline-block py-0.5 px-2 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                      <span
+                        className={`${
+                          language === "ar" ? "mr-auto" : "ml-auto"
+                        } inline-block py-0.5 px-2 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800`}
+                      >
                         {item.badge}
                       </span>
                     )}
@@ -219,11 +272,11 @@ export default function EmployerLayout({
             <div className="flex-shrink-0 w-full group block">
               <div className="flex items-center">
                 <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-indigo-600" />
+                  <i className="pi pi-building text-indigo-600"></i>
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                    {user.name}
+                    {user?.name}
                   </p>
                   <p className="text-xs font-medium text-gray-500 group-hover:text-gray-700">
                     Recruiter
@@ -234,8 +287,12 @@ export default function EmployerLayout({
                 onClick={handleLogout}
                 className="mt-2 w-full flex items-center px-2 py-2 text-xs font-medium rounded-md text-red-600 hover:bg-red-50 hover:text-red-700"
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign out
+                <i
+                  className={`pi pi-sign-out ${
+                    language === "ar" ? "ml-2" : "mr-2"
+                  }`}
+                ></i>
+                {t("sidebar.sign_out")}
               </button>
             </div>
           </div>
@@ -255,7 +312,7 @@ export default function EmployerLayout({
             className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu className="h-6 w-6" />
+            <i className="pi pi-bars text-lg"></i>
           </button>
           <div className="flex-1 px-4 flex justify-between">
             <div className="flex-1 flex">
@@ -264,25 +321,35 @@ export default function EmployerLayout({
                   Search
                 </label>
                 <div className="relative w-full text-gray-400 focus-within:text-gray-600">
-                  <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5" />
+                  <div
+                    className={`absolute inset-y-0 ${
+                      language === "ar" ? "right-0" : "left-0"
+                    } flex items-center pointer-events-none`}
+                  >
+                    <i className="pi pi-search"></i>
                   </div>
                   <input
                     id="search-field"
-                    className="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent sm:text-sm"
-                    placeholder="Search candidates, applications..."
+                    className={`block w-full h-full ${
+                      language === "ar" ? "pr-8 pl-3" : "pl-8 pr-3"
+                    } py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent sm:text-sm`}
+                    placeholder={t("dashboard.searchPlaceholder")}
                     type="search"
                     name="search"
                   />
                 </div>
               </form>
             </div>
-            <div className="ml-4 flex items-center md:ml-6">
+            <div
+              className={`${
+                language === "ar" ? "mr-4" : "ml-4"
+              } flex items-center ${language === "ar" ? "md:mr-6" : "md:ml-6"}`}
+            >
               <button
                 type="button"
                 className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                <Bell className="h-6 w-6" />
+                <i className="pi pi-bell text-lg"></i>
               </button>
             </div>
           </div>
@@ -298,7 +365,7 @@ export default function EmployerLayout({
                       language === "ar" ? "text-right" : "text-left"
                     }`}
                   >
-                    {title}
+                    {title || t("dashboard.employerDashboard")}
                   </h2>
                 </div>
                 <div
@@ -312,12 +379,12 @@ export default function EmployerLayout({
                       language === "ar" ? "mr-3" : "ml-3"
                     } inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                   >
-                    <PlusCircle
-                      className={`${
-                        language === "ar" ? "-mr-1 ml-2" : "-ml-1 mr-2"
-                      } h-5 w-5`}
-                    />
-                    Post New Job
+                    <i
+                      className={`pi pi-plus-circle ${
+                        language === "ar" ? "ml-2" : "mr-2"
+                      }`}
+                    ></i>
+                    {t("navigation.postJobNav")}
                   </Link>
                 </div>
               </div>

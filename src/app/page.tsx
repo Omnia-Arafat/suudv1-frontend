@@ -40,19 +40,27 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-50/30 via-white to-indigo-50/30" />
 
         {/* Decorative elements */}
-        <div className="absolute top-20 right-20 w-32 h-32 bg-indigo-100 rounded-full opacity-50" />
-        <div className="absolute bottom-20 left-20 w-24 h-24 bg-purple-100 rounded-full opacity-50" />
+        <div
+          className={`absolute top-20 w-32 h-32 bg-indigo-100 rounded-full opacity-50 ${
+            language === "ar" ? "left-20" : "right-20"
+          }`}
+        />
+        <div
+          className={`absolute bottom-20 w-24 h-24 bg-purple-100 rounded-full opacity-50 ${
+            language === "ar" ? "right-20" : "left-20"
+          }`}
+        />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[600px]">
-            {/* Left Content */}
+            {/* Content */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className={`${
+              className={`space-y-8 ${
                 language === "ar" ? "text-right" : "text-left"
-              } space-y-8`}
+              }`}
             >
               <div>
                 <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
@@ -105,7 +113,11 @@ export default function Home() {
                   )}
                 </h1>
 
-                <p className="text-xl text-gray-600 max-w-lg leading-relaxed">
+                <p
+                  className={`text-xl text-gray-600 leading-relaxed ${
+                    language === "ar" ? "max-w-lg ml-auto" : "max-w-lg"
+                  }`}
+                >
                   {language === "en"
                     ? "Great platform for the job seeker that searching for new career heights and passionate about startups."
                     : "منصة رائعة للباحث عن عمل الذي يبحث عن آفاق مهنية جديدة ومتحمس للشركات الناشئة."}
@@ -114,11 +126,7 @@ export default function Home() {
 
               {/* Popular Tags */}
               <div>
-                <p
-                  className={`text-sm text-gray-500 mb-4 font-medium ${
-                    language === "ar" ? "text-right" : "text-left"
-                  }`}
-                >
+                <p className="text-sm text-gray-500 mb-4 font-medium">
                   {language === "en" ? "Popular :" : "شائع :"}
                 </p>
                 <div
@@ -143,9 +151,9 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right Image */}
+            {/* Image */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: language === "ar" ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative hidden lg:flex justify-center items-center"
@@ -166,12 +174,18 @@ export default function Home() {
         {/* Job Search Bar - Overlay with high z-index */}
         <div className="absolute bottom-8 left-0 right-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Job Title Input */}
-                <div className="flex items-center bg-gray-50 rounded-xl px-4 py-4 border border-gray-200">
+                <div
+                  className={`flex items-center bg-gray-50 rounded-lg px-4 py-3 border border-gray-200 ${
+                    language === "ar" ? "flex-row-reverse" : ""
+                  }`}
+                >
                   <svg
-                    className="w-5 h-5 text-gray-400 mr-3"
+                    className={`w-5 h-5 text-gray-400 ${
+                      language === "ar" ? "ml-3" : "mr-3"
+                    }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -192,14 +206,22 @@ export default function Home() {
                     }
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 placeholder-gray-400 text-lg"
+                    className={`bg-transparent border-0 outline-none flex-1 text-gray-700 placeholder-gray-400 text-base ${
+                      language === "ar" ? "text-right" : "text-left"
+                    }`}
                   />
                 </div>
 
                 {/* Location Input */}
-                <div className="flex items-center bg-gray-50 rounded-xl px-4 py-4 border border-gray-200">
+                <div
+                  className={`flex items-center bg-gray-50 rounded-lg px-4 py-3 border border-gray-200 ${
+                    language === "ar" ? "flex-row-reverse" : ""
+                  }`}
+                >
                   <svg
-                    className="w-5 h-5 text-gray-400 mr-3"
+                    className={`w-5 h-5 text-gray-400 ${
+                      language === "ar" ? "ml-3" : "mr-3"
+                    }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -220,7 +242,9 @@ export default function Home() {
                   <select
                     value={selectedLocation}
                     onChange={(e) => setSelectedLocation(e.target.value)}
-                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 cursor-pointer text-lg"
+                    className={`bg-transparent border-0 outline-none flex-1 text-gray-700 cursor-pointer text-base ${
+                      language === "ar" ? "text-right" : "text-left"
+                    }`}
                   >
                     <option value="Florence, Italy">
                       {language === "en"
@@ -246,7 +270,7 @@ export default function Home() {
                 {/* Search Button */}
                 <Button
                   onClick={handleSearch}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200 w-full"
                 >
                   {language === "en" ? "Search my job" : "ابحث عن وظيفتي"}
                 </Button>

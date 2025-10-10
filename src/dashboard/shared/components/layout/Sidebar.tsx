@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth, useI18n } from "@/shared/contexts";
 import type { TranslationKeys } from "@/shared/types";
@@ -166,7 +165,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               </div>
               <div className={language === "ar" ? "text-right" : "text-left"}>
                 <h2 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors duration-200">
-                  SU'UD
+                  SU&apos;UD
                 </h2>
                 <p className="text-xs text-gray-500 font-medium">صعود</p>
               </div>
@@ -228,7 +227,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                       item.icon
                     } text-lg transition-transform duration-200 ${
                       isActive ? "scale-110" : "group-hover:scale-105"
-                    }`}
+                    } ${language === "ar" ? "ml-3" : "mr-3"}`}
                   ></i>
                   <span className="font-medium flex-1 transition-all duration-200">
                     {t(item.label_key as keyof TranslationKeys)}
@@ -275,7 +274,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               ></i>
             </button>
             <div className="text-xs text-gray-400 text-center pt-1 border-t border-gray-100">
-              © 2024 SU'UD Platform
+              © 2024 SU&apos;UD Platform
             </div>
           </div>
         </div>
