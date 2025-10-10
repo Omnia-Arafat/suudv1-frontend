@@ -154,12 +154,12 @@ export default function Home() {
         {/* Job Search Bar - Overlay with high z-index */}
         <div className="absolute bottom-8 left-0 right-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* Job Title Input */}
-                <div className="flex items-center bg-gray-50 rounded-xl px-6 py-4 border border-gray-200">
+                <div className="flex items-center bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
                   <svg
-                    className="w-6 h-6 text-gray-400 mr-4"
+                    className="w-5 h-5 text-gray-400 mr-3"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -180,14 +180,14 @@ export default function Home() {
                     }
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 placeholder-gray-400 text-lg py-2"
+                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 placeholder-gray-400 text-base"
                   />
                 </div>
 
                 {/* Location Input */}
-                <div className="flex items-center bg-gray-50 rounded-xl px-6 py-4 border border-gray-200">
+                <div className="flex items-center bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
                   <svg
-                    className="w-6 h-6 text-gray-400 mr-4"
+                    className="w-5 h-5 text-gray-400 mr-3"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -208,7 +208,7 @@ export default function Home() {
                   <select
                     value={selectedLocation}
                     onChange={(e) => setSelectedLocation(e.target.value)}
-                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 cursor-pointer text-lg py-2"
+                    className="bg-transparent border-0 outline-none flex-1 text-gray-700 cursor-pointer text-base"
                   >
                     <option value="Florence, Italy">
                       {language === "en"
@@ -234,7 +234,7 @@ export default function Home() {
                 {/* Search Button */}
                 <Button
                   onClick={handleSearch}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200 w-full"
                 >
                   {language === "en" ? "Search my job" : "ابحث عن وظيفتي"}
                 </Button>
