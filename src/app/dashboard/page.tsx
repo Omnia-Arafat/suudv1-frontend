@@ -11,7 +11,7 @@ export default function DashboardRouter() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      // Redirect based on user role
+      // Redirect based on user role to the dashboard structure
       switch (user.role) {
         case 'admin':
           router.replace('/admin/dashboard');

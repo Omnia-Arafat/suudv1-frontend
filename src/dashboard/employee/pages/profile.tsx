@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { User, Save, Upload, MapPin, Phone, Mail, Calendar, Briefcase, GraduationCap } from 'lucide-react';
-import { useAuth } from '@/shared/contexts/AuthContext';
+import { useAuth, useI18n } from '@/shared/contexts';
 import { employeeService } from '@/shared/services/employee.service';
 
 interface ProfileFormData {
@@ -22,6 +22,7 @@ interface ProfileFormData {
 
 export default function EmployeeProfileContent() {
   const { user } = useAuth();
+  const { language } = useI18n();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<ProfileFormData>({
     name: user?.name || '',
@@ -81,18 +82,6 @@ export default function EmployeeProfileContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center mr-4">
-            <User className="h-6 w-6 text-indigo-600" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-            <p className="text-sm text-gray-500">Manage your personal information and preferences</p>
-          </div>
-        </div>
-      </div>
 
       {/* Profile Completion */}
       <div className="bg-white shadow rounded-lg p-6">

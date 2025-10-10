@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/shared/contexts/AuthContext";
+import { useAuth, useI18n } from "@/shared/contexts";
 import { employeeService } from "@/shared/services/employee.service";
+import { DashboardLayout } from '@/dashboard/shared/components/layout';
 import Link from "next/link";
 import {
   Search,
@@ -130,6 +131,7 @@ const JobCard = ({ job }: { job: any }) => (
 
 export default function EmployeeDashboardContent() {
   const { user } = useAuth();
+  const { language } = useI18n();
   const [dashboardData, setDashboardData] =
     useState<EmployeeDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -263,6 +265,10 @@ export default function EmployeeDashboardContent() {
   };
 
   return (
+    <DashboardLayout
+      title={language === 'en' ? 'Dashboard' : 'لوحة القيادة'}
+      subtitle={language === 'en' ? 'Welcome to your job search dashboard' : 'مرحباً بك في لوحة البحث عن الوظائف'}
+    >
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-white shadow rounded-lg p-6">
@@ -562,5 +568,6 @@ export default function EmployeeDashboardContent() {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

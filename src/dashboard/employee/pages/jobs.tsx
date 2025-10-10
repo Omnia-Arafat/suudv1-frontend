@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/shared/contexts/AuthContext";
-import { useI18n } from "@/shared/contexts";
+import { useAuth, useI18n } from "@/shared/contexts";
 import { employeeService } from "@/shared/services/employee.service";
+import { DashboardLayout } from '@/dashboard/shared/components/layout';
 import { Button } from "@/shared/components/ui";
 import { SuccessModal, ErrorModal } from "@/shared/components";
 import { Heart, MapPin, Clock, Building, DollarSign } from "lucide-react";
@@ -244,18 +244,11 @@ export default function EmployeeJobsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {language === "en" ? "Available Jobs" : "الوظائف المتاحة"}
-          </h1>
-          <p className="mt-2 text-gray-600">
-            {language === "en"
-              ? "Discover exciting career opportunities"
-              : "اكتشف فرص عمل مثيرة"}
-          </p>
-        </div>
+    <DashboardLayout
+      title={language === "en" ? "Find Jobs" : "ابحث عن وظائف"}
+      subtitle={language === "en" ? "Discover exciting career opportunities" : "اكتشف فرص عمل مثيرة"}
+    >
+      <div className="space-y-6">
 
         {jobs.length === 0 ? (
           <div className="text-center py-12">
@@ -389,6 +382,6 @@ export default function EmployeeJobsPage() {
         message={errorMessage}
         onConfirm={() => setShowErrorModal(false)}
       />
-    </div>
+    </DashboardLayout>
   );
 }
