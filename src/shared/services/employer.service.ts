@@ -7,7 +7,7 @@ class EmployerService {
    */
   async getDashboardData(): Promise<any> {
     const response = await apiClient.get("/employer/dashboard");
-    return response.data;
+    return response;
   }
 
   /**
@@ -20,7 +20,7 @@ class EmployerService {
     search?: string;
   }): Promise<any> {
     const response = await apiClient.get("/employer/jobs", { params });
-    return response.data;
+    return response;
   }
 
   /**
@@ -42,7 +42,7 @@ class EmployerService {
     status?: "draft" | "pending";
   }): Promise<any> {
     const response = await apiClient.post("/jobs", jobData);
-    return response.data;
+    return response;
   }
 
   /**
@@ -50,7 +50,7 @@ class EmployerService {
    */
   async updateJob(jobId: number, jobData: any): Promise<any> {
     const response = await apiClient.put(`/jobs/${jobId}`, jobData);
-    return response.data;
+    return response;
   }
 
   /**
@@ -58,7 +58,7 @@ class EmployerService {
    */
   async deleteJob(jobId: number): Promise<any> {
     const response = await apiClient.delete(`/jobs/${jobId}`);
-    return response.data;
+    return response;
   }
 
   /**
@@ -72,14 +72,14 @@ class EmployerService {
     search?: string;
   }): Promise<any> {
     const response = await apiClient.get("/employer/applications", { params });
-    return response.data;
+    return response;
   }
 
   /**
    * Update application status (accept/reject)
    */
   async updateApplicationStatus(
-    applicationId: string,
+    applicationId: number,
     status: "pending" | "reviewed" | "accepted" | "rejected",
     notes?: string
   ): Promise<any> {
@@ -90,7 +90,7 @@ class EmployerService {
         notes,
       }
     );
-    return response.data;
+    return response;
   }
 
   /**
@@ -98,7 +98,14 @@ class EmployerService {
    */
   async getCompany(): Promise<any> {
     const response = await apiClient.get("/employer/company");
-    return response.data;
+    return response;
+  }
+
+  /**
+   * Get company profile (alias for getCompany)
+   */
+  async getCompanyProfile(): Promise<any> {
+    return this.getCompany();
   }
 
   /**
@@ -115,7 +122,14 @@ class EmployerService {
     founded_year?: number;
   }): Promise<any> {
     const response = await apiClient.patch("/employer/company", companyData);
-    return response.data;
+    return response;
+  }
+
+  /**
+   * Update company profile (alias for updateCompany)
+   */
+  async updateCompanyProfile(companyData: any): Promise<any> {
+    return this.updateCompany(companyData);
   }
 
   /**
@@ -130,15 +144,15 @@ class EmployerService {
         "Content-Type": "multipart/form-data",
       },
     });
-    return response.data;
+    return response;
   }
 
   /**
    * Get hiring analytics
    */
-  async getAnalytics(): Promise<any> {
-    const response = await apiClient.get("/employer/analytics");
-    return response.data;
+  async getAnalytics(params?: { period?: string }): Promise<any> {
+    const response = await apiClient.get("/employer/analytics", { params });
+    return response;
   }
 
   /**
@@ -151,9 +165,21 @@ class EmployerService {
     location?: string;
     experience_level?: string;
     search?: string;
+    skills?: string;
+    sort_by?: string;
   }): Promise<any> {
     const response = await apiClient.get("/candidates", { params });
-    return response.data;
+    return response;
+  }
+
+  /**
+   * Toggle candidate favorite status
+   */
+  async toggleCandidateFavorite(candidateId: number): Promise<any> {
+    const response = await apiClient.post(
+      `/candidates/${candidateId}/favorite`
+    );
+    return response;
   }
 
   /**
@@ -168,7 +194,7 @@ class EmployerService {
       new_password: newPassword,
       new_password_confirmation: newPassword,
     });
-    return response.data;
+    return response;
   }
 
   /**
@@ -176,7 +202,7 @@ class EmployerService {
    */
   async getJobDetails(jobId: number): Promise<any> {
     const response = await apiClient.get(`/jobs/${jobId}`);
-    return response.data;
+    return response;
   }
 
   /**
@@ -184,7 +210,7 @@ class EmployerService {
    */
   async cloneJob(jobId: number): Promise<any> {
     const response = await apiClient.post(`/employer/jobs/${jobId}/clone`);
-    return response.data;
+    return response;
   }
 
   /**
@@ -192,7 +218,7 @@ class EmployerService {
    */
   async getJobStats(jobId: number): Promise<any> {
     const response = await apiClient.get(`/employer/jobs/${jobId}/stats`);
-    return response.data;
+    return response;
   }
 }
 
