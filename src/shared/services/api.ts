@@ -1,5 +1,5 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import type { ApiResponse, ApiError } from '@/shared/types';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import type { ApiResponse, ApiError } from "@/shared/types";
 
 class ApiClient {
   private client: AxiosInstance;
@@ -7,11 +7,12 @@ class ApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
+      baseURL:
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") + "/api",
       timeout: 10000,
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
     });
 
@@ -43,7 +44,10 @@ class ApiClient {
       (response: AxiosResponse<ApiResponse>) => response,
       (error) => {
         const apiError: ApiError = {
-          message: error.response?.data?.message || error.message || 'An error occurred',
+          message:
+            error.response?.data?.message ||
+            error.message ||
+            "An error occurred",
           status: error.response?.status || 500,
           errors: error.response?.data?.errors,
         };
@@ -51,9 +55,17 @@ class ApiClient {
         // Handle 401 - redirect to login
         if (error.response?.status === 401) {
           this.clearStoredToken();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
           }
+        }
+
+        // In development, reduce noise from connection errors
+        if (
+          process.env.NODE_ENV === "development" &&
+          error.code === "ERR_NETWORK"
+        ) {
+          console.warn("⚠️ Backend API not available - using fallback data");
         }
 
         return Promise.reject(apiError);
@@ -62,38 +74,61 @@ class ApiClient {
   }
 
   private getStoredToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('auth_token');
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("auth_token");
   }
 
   private clearStoredToken(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
   }
 
   setToken(token: string): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('auth_token', token);
+    if (typeof window === "undefined") return;
+    localStorage.setItem("auth_token", token);
   }
 
-  async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async get<T>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.get<ApiResponse<T>>(url, config);
     return response.data;
   }
 
-  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async post<T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.post<ApiResponse<T>>(url, data, config);
     return response.data;
   }
 
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.put<ApiResponse<T>>(url, data, config);
     return response.data;
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async delete<T>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.delete<ApiResponse<T>>(url, config);
+    return response.data;
+  }
+
+  async patch<T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    const response = await this.client.patch<ApiResponse<T>>(url, data, config);
     return response.data;
   }
 }

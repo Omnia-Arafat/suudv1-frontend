@@ -1,11 +1,11 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 import type {
   User,
   LoginRequest,
   RegisterRequest,
   AuthResponse,
   ApiResponse,
-} from '@/shared/types';
+} from "@/shared/types";
 
 class AuthService {
   /**
@@ -13,19 +13,26 @@ class AuthService {
    */
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-      
+      const response = await apiClient.post<AuthResponse>(
+        "/auth/login",
+        credentials
+      );
+
       if (response.success && response.data) {
         // Store token and user data
         apiClient.setToken(response.data.token);
         this.setUser(response.data.user);
         return response.data;
       }
-      
-      throw new Error(response.message || 'Login failed');
+
+      throw new Error(response.message || "Login failed");
     } catch (error: any) {
       // Fallback to mock authentication if API is not available
-      if (error.status === 500 || error.message?.includes('Network Error') || error.message?.includes('ECONNREFUSED')) {
+      if (
+        error.status === 500 ||
+        error.message?.includes("Network Error") ||
+        error.message?.includes("ECONNREFUSED")
+      ) {
         return this.mockLogin(credentials);
       }
       throw error;
@@ -37,19 +44,26 @@ class AuthService {
    */
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/register', userData);
-      
+      const response = await apiClient.post<AuthResponse>(
+        "/auth/register",
+        userData
+      );
+
       if (response.success && response.data) {
         // Store token and user data
         apiClient.setToken(response.data.token);
         this.setUser(response.data.user);
         return response.data;
       }
-      
-      throw new Error(response.message || 'Registration failed');
+
+      throw new Error(response.message || "Registration failed");
     } catch (error: any) {
       // Fallback to mock authentication if API is not available
-      if (error.status === 500 || error.message?.includes('Network Error') || error.message?.includes('ECONNREFUSED')) {
+      if (
+        error.status === 500 ||
+        error.message?.includes("Network Error") ||
+        error.message?.includes("ECONNREFUSED")
+      ) {
         return this.mockRegister(userData);
       }
       throw error;
@@ -61,10 +75,10 @@ class AuthService {
    */
   async logout(): Promise<void> {
     try {
-      await apiClient.post('/auth/logout');
+      await apiClient.post("/auth/logout");
     } catch (error) {
       // Even if logout fails on server, clear local data
-      console.warn('Logout request failed:', error);
+      console.warn("Logout request failed:", error);
     } finally {
       this.clearAuthData();
     }
@@ -74,30 +88,30 @@ class AuthService {
    * Get current user from server
    */
   async getCurrentUser(): Promise<User> {
-    const response = await apiClient.get<User>('/auth/me');
-    
+    const response = await apiClient.get<User>("/auth/me");
+
     if (response.success && response.data) {
       this.setUser(response.data);
       return response.data;
     }
-    
-    throw new Error(response.message || 'Failed to get user data');
+
+    throw new Error(response.message || "Failed to get user data");
   }
 
   /**
    * Check if user is authenticated
    */
   isAuthenticated(): boolean {
-    if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem('auth_token');
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem("auth_token");
   }
 
   /**
    * Get stored user data
    */
   getStoredUser(): User | null {
-    if (typeof window === 'undefined') return null;
-    const userData = localStorage.getItem('user');
+    if (typeof window === "undefined") return null;
+    const userData = localStorage.getItem("user");
     return userData ? JSON.parse(userData) : null;
   }
 
@@ -105,32 +119,32 @@ class AuthService {
    * Store user data locally
    */
   private setUser(user: User): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('user', JSON.stringify(user));
+    if (typeof window === "undefined") return;
+    localStorage.setItem("user", JSON.stringify(user));
   }
 
   /**
    * Clear authentication data
    */
   private clearAuthData(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
   }
 
   /**
    * Refresh authentication token
    */
   async refreshToken(): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/refresh');
-    
+    const response = await apiClient.post<AuthResponse>("/auth/refresh");
+
     if (response.success && response.data) {
       apiClient.setToken(response.data.token);
       this.setUser(response.data.user);
       return response.data;
     }
-    
-    throw new Error(response.message || 'Token refresh failed');
+
+    throw new Error(response.message || "Token refresh failed");
   }
 
   /**
@@ -138,52 +152,69 @@ class AuthService {
    */
   private async mockLogin(credentials: LoginRequest): Promise<AuthResponse> {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Mock user data based on email
     let mockUser: User;
-    const isEmployer = credentials.email.includes('employer') || credentials.email.includes('company');
-    
-    if (isEmployer) {
+    const isAdmin =
+      credentials.email.includes("admin") ||
+      credentials.email === "admin@suud.com";
+    const isEmployer =
+      credentials.email.includes("employer") ||
+      credentials.email.includes("company");
+
+    if (isAdmin) {
       mockUser = {
-        id: 1,
-        name: 'أحمد الرشيد', // Ahmed Al-Rashid in Arabic
+        id: 0,
+        name: "System Administrator",
         email: credentials.email,
-        role: 'employer',
+        role: "admin",
         is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        phone: '+966501234567',
-        location: 'الرياض، السعودية'
+        phone: "+966500000000",
+        location: "الرياض، السعودية",
+      };
+    } else if (isEmployer) {
+      mockUser = {
+        id: 1,
+        name: "أحمد الرشيد", // Ahmed Al-Rashid in Arabic
+        email: credentials.email,
+        role: "employer",
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        phone: "+966501234567",
+        location: "الرياض، السعودية",
       };
     } else {
       mockUser = {
         id: 2,
-        name: 'فاطمة العلي', // Fatima Al-Ali in Arabic
+        name: "فاطمة العلي", // Fatima Al-Ali in Arabic
         email: credentials.email,
-        role: 'employee',
-        specialization: 'مطور برمجيات',
-        university: 'جامعة الملك سعود',
+        role: "employee",
+        specialization: "مطور برمجيات",
+        university: "جامعة الملك سعود",
         is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        phone: '+966507654321',
-        location: 'جدة، السعودية'
+        phone: "+966507654321",
+        location: "جدة، السعودية",
       };
     }
-    
-    const mockToken = 'mock_token_' + Date.now();
+
+    const mockToken = "mock_token_" + Date.now();
     const authResponse: AuthResponse = {
       user: mockUser,
       token: mockToken,
-      token_type: 'Bearer',
-      expires_in: 3600
+      token_type: "Bearer",
+      expires_in: 3600,
     };
-    
+
     // Store token and user data
     apiClient.setToken(mockToken);
     this.setUser(mockUser);
-    
+
     return authResponse;
   }
 
@@ -192,8 +223,8 @@ class AuthService {
    */
   private async mockRegister(userData: RegisterRequest): Promise<AuthResponse> {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     const mockUser: User = {
       id: Date.now(),
       name: userData.name,
@@ -205,21 +236,21 @@ class AuthService {
       location: userData.location,
       is_active: true,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
-    
-    const mockToken = 'mock_token_' + Date.now();
+
+    const mockToken = "mock_token_" + Date.now();
     const authResponse: AuthResponse = {
       user: mockUser,
       token: mockToken,
-      token_type: 'Bearer',
-      expires_in: 3600
+      token_type: "Bearer",
+      expires_in: 3600,
     };
-    
+
     // Store token and user data
     apiClient.setToken(mockToken);
     this.setUser(mockUser);
-    
+
     return authResponse;
   }
 }

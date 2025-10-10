@@ -1,90 +1,44 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { Language, Direction, LocaleConfig, TranslationFunction } from '@/shared/types';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import type {
+  Language,
+  Direction,
+  LocaleConfig,
+  TranslationFunction,
+} from "@/shared/types";
 
 // Locale configurations
 const locales: Record<Language, LocaleConfig> = {
   en: {
-    code: 'en',
-    name: 'English',
-    nativeName: 'English',
-    direction: 'ltr',
-    flag: '🇺🇸',
+    code: "en",
+    name: "English",
+    nativeName: "English",
+    direction: "ltr",
+    flag: "🇺🇸",
   },
   ar: {
-    code: 'ar',
-    name: 'Arabic',
-    nativeName: 'العربية',
-    direction: 'rtl',
-    flag: '🇸🇦',
+    code: "ar",
+    name: "Arabic",
+    nativeName: "العربية",
+    direction: "rtl",
+    flag: "🇸🇦",
   },
 };
 
-// Basic translations (in a real app, these would come from translation files)
+// Import translation files
+import enTranslations from "@/shared/locales/en.json";
+import arTranslations from "@/shared/locales/ar.json";
+
 const translations = {
-  en: {
-    'common.loading': 'Loading...',
-    'common.error': 'Error',
-    'common.success': 'Success',
-    'common.cancel': 'Cancel',
-    'common.save': 'Save',
-    'common.edit': 'Edit',
-    'common.delete': 'Delete',
-    'common.search': 'Search',
-    'common.filter': 'Filter',
-    'common.apply': 'Apply',
-    'common.reset': 'Reset',
-    'auth.login': 'Login',
-    'auth.register': 'Register',
-    'auth.logout': 'Logout',
-    'auth.email': 'Email',
-    'auth.password': 'Password',
-    'auth.name': 'Name',
-    'auth.role': 'Role',
-    'jobs.title': 'Job Title',
-    'jobs.search': 'Search Jobs',
-    'jobs.location': 'Location',
-    'jobs.type': 'Job Type',
-    'jobs.apply': 'Apply',
-    'jobs.salary': 'Salary',
-    'jobs.deadline': 'Application Deadline',
-    'dashboard.welcome': 'Welcome',
-    'dashboard.profile': 'Profile',
-    'dashboard.applications': 'Applications',
-    'dashboard.companies': 'Companies',
-  },
-  ar: {
-    'common.loading': 'جاري التحميل...',
-    'common.error': 'خطأ',
-    'common.success': 'نجح',
-    'common.cancel': 'إلغاء',
-    'common.save': 'حفظ',
-    'common.edit': 'تعديل',
-    'common.delete': 'حذف',
-    'common.search': 'بحث',
-    'common.filter': 'فلتر',
-    'common.apply': 'تطبيق',
-    'common.reset': 'إعادة تعيين',
-    'auth.login': 'تسجيل الدخول',
-    'auth.register': 'إنشاء حساب',
-    'auth.logout': 'تسجيل الخروج',
-    'auth.email': 'البريد الإلكتروني',
-    'auth.password': 'كلمة المرور',
-    'auth.name': 'الاسم',
-    'auth.role': 'الدور',
-    'jobs.title': 'عنوان الوظيفة',
-    'jobs.search': 'البحث عن الوظائف',
-    'jobs.location': 'الموقع',
-    'jobs.type': 'نوع الوظيفة',
-    'jobs.apply': 'تقدم',
-    'jobs.salary': 'الراتب',
-    'jobs.deadline': 'موعد انتهاء التقديم',
-    'dashboard.welcome': 'مرحباً',
-    'dashboard.profile': 'الملف الشخصي',
-    'dashboard.applications': 'الطلبات',
-    'dashboard.companies': 'الشركات',
-  },
+  en: enTranslations,
+  ar: arTranslations,
 };
 
 interface I18nContextType {
@@ -100,11 +54,11 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>("en");
 
   useEffect(() => {
     // Load saved language from localStorage
-    const savedLang = localStorage.getItem('language') as Language;
+    const savedLang = localStorage.getItem("language") as Language;
     if (savedLang && locales[savedLang]) {
       setLanguage(savedLang);
     }
@@ -119,23 +73,42 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const changeLanguage = (lang: Language) => {
     setLanguage(lang);
-    localStorage.setItem('language', lang);
+    localStorage.setItem("language", lang);
   };
 
   const toggleLanguage = () => {
-    const newLang = language === 'en' ? 'ar' : 'en';
+    const newLang = language === "en" ? "ar" : "en";
     changeLanguage(newLang);
   };
 
   const t: TranslationFunction = (key, params) => {
-    let translation = translations[language][key] || key;
-    
+    let translation: any = translations[language];
+
+    // Handle nested keys like 'auth.login'
+    const keys = key.split(".");
+    for (const k of keys) {
+      if (translation && typeof translation === "object" && k in translation) {
+        translation = translation[k];
+      } else {
+        translation = key; // fallback to key if not found
+        break;
+      }
+    }
+
+    // Ensure we have a string
+    if (typeof translation !== "string") {
+      translation = key;
+    }
+
     if (params) {
       Object.entries(params).forEach(([param, value]) => {
-        translation = translation.replace(new RegExp(`\\{\\{${param}\\}\\}`, 'g'), String(value));
+        translation = translation.replace(
+          new RegExp(`\\{\\{${param}\\}\\}`, "g"),
+          String(value)
+        );
       });
     }
-    
+
     return translation;
   };
 
@@ -155,7 +128,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 export function useI18n(): I18nContextType {
   const context = useContext(I18nContext);
   if (context === undefined) {
-    throw new Error('useI18n must be used within an I18nProvider');
+    throw new Error("useI18n must be used within an I18nProvider");
   }
   return context;
 }

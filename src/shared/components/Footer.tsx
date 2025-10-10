@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useI18n } from '@/shared/contexts';
+import { useAuth } from '@/shared/contexts/AuthContext';
 
 const footerSections = {
   en: {
@@ -9,18 +11,6 @@ const footerSections = {
       title: 'Company',
       links: [
         { name: 'About Us', href: '/about' },
-        { name: 'Careers', href: '/careers' },
-        { name: 'Press', href: '/press' },
-        { name: 'Blog', href: '/blog' },
-      ],
-    },
-    resources: {
-      title: 'Resources',
-      links: [
-        { name: 'Help Center', href: '/help' },
-        { name: 'Guides', href: '/guides' },
-        { name: 'API Documentation', href: '/api-docs' },
-        { name: 'Status', href: '/status' },
       ],
     },
     jobSeekers: {
@@ -28,17 +18,13 @@ const footerSections = {
       links: [
         { name: 'Find Jobs', href: '/jobs' },
         { name: 'Browse Companies', href: '/companies' },
-        { name: 'Salary Guide', href: '/salary' },
-        { name: 'Career Tips', href: '/career-tips' },
       ],
     },
     employers: {
       title: 'For Employers',
       links: [
-        { name: 'Post a Job', href: '/post-job' },
-        { name: 'Browse Candidates', href: '/candidates' },
-        { name: 'Recruiting Solutions', href: '/solutions' },
-        { name: 'Pricing', href: '/pricing' },
+        { name: 'Post a Job', href: '/post-job', requiresEmployer: true },
+        { name: 'Browse Candidates', href: '/candidates', requiresEmployer: true },
       ],
     },
   },
@@ -47,18 +33,6 @@ const footerSections = {
       title: 'الشركة',
       links: [
         { name: 'من نحن', href: '/about' },
-        { name: 'الوظائف', href: '/careers' },
-        { name: 'الصحافة', href: '/press' },
-        { name: 'المدونة', href: '/blog' },
-      ],
-    },
-    resources: {
-      title: 'الموارد',
-      links: [
-        { name: 'مركز المساعدة', href: '/help' },
-        { name: 'الأدلة', href: '/guides' },
-        { name: 'وثائق API', href: '/api-docs' },
-        { name: 'الحالة', href: '/status' },
       ],
     },
     jobSeekers: {
@@ -66,17 +40,13 @@ const footerSections = {
       links: [
         { name: 'البحث عن وظائف', href: '/jobs' },
         { name: 'تصفح الشركات', href: '/companies' },
-        { name: 'دليل الرواتب', href: '/salary' },
-        { name: 'نصائح مهنية', href: '/career-tips' },
       ],
     },
     employers: {
       title: 'لأصحاب العمل',
       links: [
-        { name: 'نشر وظيفة', href: '/post-job' },
-        { name: 'تصفح المرشحين', href: '/candidates' },
-        { name: 'حلول التوظيف', href: '/solutions' },
-        { name: 'الأسعار', href: '/pricing' },
+        { name: 'نشر وظيفة', href: '/post-job', requiresEmployer: true },
+        { name: 'تصفح المرشحين', href: '/candidates', requiresEmployer: true },
       ],
     },
   },
@@ -123,7 +93,27 @@ const socialLinks = [
 
 export default function Footer() {
   const { language, direction } = useI18n();
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
   const sections = footerSections[language as keyof typeof footerSections];
+
+  const handleLinkClick = (link: any, e: React.MouseEvent) => {
+    // If the link requires employer access
+    if (link.requiresEmployer) {
+      e.preventDefault();
+      
+      // Check if user is authenticated and is an employer
+      if (!isAuthenticated || user?.role !== 'employer') {
+        // Redirect to login with return URL
+        const returnUrl = encodeURIComponent(link.href);
+        router.push(`/login?returnUrl=${returnUrl}`);
+        return;
+      }
+      
+      // If user is authenticated employer, proceed with normal navigation
+      router.push(link.href);
+    }
+  };
 
   return (
     <footer className="bg-white border-t border-gray-200">
@@ -171,12 +161,22 @@ export default function Footer() {
               <ul className="space-y-3">
                 {section.links.map((link) => (
                   <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
-                    >
-                      {link.name}
-                    </Link>
+                    {link.requiresEmployer ? (
+                      <a
+                        href={link.href}
+                        onClick={(e) => handleLinkClick(link, e)}
+                        className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 cursor-pointer"
+                      >
+                        {link.name}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                      >
+                        {link.name}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
