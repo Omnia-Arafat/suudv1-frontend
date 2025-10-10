@@ -16,7 +16,7 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState("Florence, Italy");
 
   if (isLoading) {
-    return <PageSkeleton />;
+    return <PageSkeleton type="site" />;
   }
 
   const handleSearch = () => {
@@ -152,11 +152,11 @@ export default function Home() {
 
         {/* Job Search Bar - Overlay with high z-index */}
         <div className="absolute bottom-8 left-0 right-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto  sm:px-6 lg:px-8">
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Job Title Input */}
-                <div className="flex items-center bg-gray-50 rounded-xl px-6 py-4 border border-gray-200">
+                <div className="flex items-center bg-gray-50 rounded-xl px-6   border border-gray-200">
                   <svg
                     className="w-6 h-6 text-gray-400 mr-4"
                     fill="none"
@@ -184,7 +184,7 @@ export default function Home() {
                 </div>
 
                 {/* Location Input */}
-                <div className="flex items-center bg-gray-50 rounded-xl px-6 py-4 border border-gray-200">
+                <div className="flex items-center bg-gray-50 rounded-xl px-6  border border-gray-200">
                   <svg
                     className="w-6 h-6 text-gray-400 mr-4"
                     fill="none"
@@ -233,7 +233,7 @@ export default function Home() {
                 {/* Search Button */}
                 <Button
                   onClick={handleSearch}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8  rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
                 >
                   {language === "en" ? "Search my job" : "ابحث عن وظيفتي"}
                 </Button>
