@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth, useI18n } from "@/shared/contexts";
 import { employeeService } from "@/shared/services/employee.service";
-import { DashboardLayout } from '@/dashboard/shared/components/layout';
 import { Button } from "@/shared/components/ui";
 import { SuccessModal, ErrorModal } from "@/shared/components";
 import { Heart, MapPin, Clock, Building, DollarSign } from "lucide-react";
@@ -244,12 +243,18 @@ export default function EmployeeJobsPage() {
   }
 
   return (
-    <DashboardLayout
-      title={language === "en" ? "Find Jobs" : "ابحث عن وظائف"}
-      subtitle={language === "en" ? "Discover exciting career opportunities" : "اكتشف فرص عمل مثيرة"}
-    >
+    <div className="space-y-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">
+          {language === "en" ? "Find Jobs" : "ابحث عن وظائف"}
+        </h1>
+        <p className="text-gray-600 mt-1">
+          {language === "en"
+            ? "Discover exciting career opportunities"
+            : "اكتشف فرص عمل مثيرة"}
+        </p>
+      </div>
       <div className="space-y-6">
-
         {jobs.length === 0 ? (
           <div className="text-center py-12">
             <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -382,6 +387,6 @@ export default function EmployeeJobsPage() {
         message={errorMessage}
         onConfirm={() => setShowErrorModal(false)}
       />
-    </DashboardLayout>
+    </div>
   );
 }
