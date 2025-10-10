@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Disallow private areas
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /employer/
+Disallow: /employee/
+Disallow: /profile/
+Disallow: /settings/
+Disallow: /applications/
+Disallow: /login
+Disallow: /register
+
+# Allow public pages
+Allow: /
+Allow: /jobs
+Allow: /companies
+Allow: /about
+Allow: /contact
+Allow: /services
+
+# Sitemap
+Sitemap: https://suud.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
+
+
