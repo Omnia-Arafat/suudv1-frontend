@@ -85,7 +85,7 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                   placeholder={language === 'en' ? 'Enter your email' : 'أدخل بريدك الإلكتروني'}
                 />
               </div>
@@ -104,7 +104,7 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                   placeholder={language === 'en' ? 'Enter your password' : 'أدخل كلمة المرور'}
                 />
               </div>

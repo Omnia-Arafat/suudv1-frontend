@@ -99,7 +99,7 @@ export default function RegisterPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                   placeholder={language === 'en' ? 'Enter your full name' : 'أدخل اسمك الكامل'}
                 />
               </div>
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                   placeholder={language === 'en' ? 'Enter your email' : 'أدخل بريدك الإلكتروني'}
                 />
               </div>
@@ -138,7 +138,7 @@ export default function RegisterPage() {
                   value={formData.role}
                   onChange={handleChange}
                   required
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                 >
                   <option value="employee">
                     {language === 'en' ? 'Student/Job Seeker' : 'طالب/باحث عن عمل'}
@@ -165,7 +165,7 @@ export default function RegisterPage() {
                     value={formData.company_name}
                     onChange={handleChange}
                     required={formData.role === 'employer'}
-                    className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                     placeholder={language === 'en' ? 'Enter your company name' : 'أدخل اسم شركتك'}
                   />
                 </div>
@@ -187,7 +187,7 @@ export default function RegisterPage() {
                       name="university"
                       value={formData.university}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                       placeholder={language === 'en' ? 'Enter your university' : 'أدخل جامعتك'}
                     />
                   </div>
@@ -204,7 +204,7 @@ export default function RegisterPage() {
                       name="specialization"
                       value={formData.specialization}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                       placeholder={language === 'en' ? 'Enter your field of study' : 'أدخل مجال دراستك'}
                     />
                   </div>
@@ -226,7 +226,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                   placeholder={language === 'en' ? 'Enter your password' : 'أدخل كلمة المرور'}
                 />
               </div>
@@ -246,7 +246,7 @@ export default function RegisterPage() {
                   value={formData.password_confirmation}
                   onChange={handleChange}
                   required
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-base ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                   placeholder={language === 'en' ? 'Confirm your password' : 'أعد كلمة المرور'}
                 />
               </div>
