@@ -1,106 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuth, useI18n } from '@/shared/contexts';
-import { Button } from '@/shared/components/ui';
-import { cn } from '@/shared/utils/cn';
-
-interface NavItem {
-  id: string;
-  label_en: string;
-  label_ar: string;
-  icon: string;
-  href: string;
-  badge?: number;
-}
-
-const employeeNavItems: NavItem[] = [
-  {
-    id: 'dashboard',
-    label_en: 'Dashboard',
-    label_ar: 'لوحة التحكم',
-    icon: '🏠',
-    href: '/dashboard',
-  },
-  {
-    id: 'jobs',
-    label_en: 'Find Jobs',
-    label_ar: 'البحث عن الوظائف',
-    icon: '🔍',
-    href: '/dashboard/jobs',
-  },
-  {
-    id: 'applications',
-    label_en: 'My Applications',
-    label_ar: 'طلباتي',
-    icon: '📋',
-    href: '/dashboard/applications',
-    badge: 3,
-  },
-  {
-    id: 'saved',
-    label_en: 'Saved Jobs',
-    label_ar: 'الوظائف المحفوظة',
-    icon: '🔖',
-    href: '/dashboard/saved',
-  },
-  {
-    id: 'profile',
-    label_en: 'My Profile',
-    label_ar: 'ملفي الشخصي',
-    icon: '👤',
-    href: '/dashboard/profile',
-  },
-];
-
-const employerNavItems: NavItem[] = [
-  {
-    id: 'dashboard',
-    label_en: 'Dashboard',
-    label_ar: 'لوحة التحكم',
-    icon: '🏠',
-    href: '/dashboard',
-  },
-  {
-    id: 'jobs',
-    label_en: 'Job Postings',
-    label_ar: 'الوظائف المنشورة',
-    icon: '📝',
-    href: '/dashboard/jobs',
-  },
-  {
-    id: 'applications',
-    label_en: 'Applications',
-    label_ar: 'الطلبات الواردة',
-    icon: '📨',
-    href: '/dashboard/applications',
-    badge: 12,
-  },
-  {
-    id: 'candidates',
-    label_en: 'Candidates',
-    label_ar: 'المرشحون',
-    icon: '👥',
-    href: '/dashboard/candidates',
-  },
-  {
-    id: 'company',
-    label_en: 'Company Profile',
-    label_ar: 'ملف الشركة',
-    icon: '🏢',
-    href: '/dashboard/company',
-  },
-  {
-    id: 'analytics',
-    label_en: 'Analytics',
-    label_ar: 'التحليلات',
-    icon: '📊',
-    href: '/dashboard/analytics',
-  },
-];
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth, useI18n } from "@/shared/contexts";
+import type { TranslationKeys } from "@/shared/types";
+import { useState, useEffect } from "react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -109,150 +13,241 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const { user, logout } = useAuth();
-  const { language, direction } = useI18n();
+  const { language, t } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
-  const navItems = user?.role === 'employer' ? employerNavItems : employeeNavItems;
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!user || !mounted) return null;
+
+  const isEmployer = user.role === "employer";
+
+  // Navigation items matching reference design
+  const employerNavItems = [
+    {
+      id: "dashboard",
+      label_key: "sidebar.dashboard",
+      href: "/dashboard",
+      icon: "pi pi-chart-bar",
+      badge: undefined,
+    },
+    {
+      id: "messages",
+      label_key: "sidebar.messages",
+      href: "/dashboard/messages",
+      icon: "pi pi-comments",
+      badge: undefined,
+    },
+    {
+      id: "company",
+      label_key: "sidebar.company_profile",
+      href: "/dashboard/company",
+      icon: "pi pi-building",
+      badge: undefined,
+    },
+    {
+      id: "applicants",
+      label_key: "sidebar.all_applicants",
+      href: "/dashboard/applicants",
+      icon: "pi pi-users",
+      badge: undefined,
+    },
+    {
+      id: "jobs",
+      label_key: "sidebar.job_listing",
+      href: "/dashboard/jobs",
+      icon: "pi pi-briefcase",
+      badge: undefined,
+    },
+  ];
+
+  const employeeNavItems = [
+    {
+      id: "dashboard",
+      label_key: "sidebar.dashboard",
+      href: "/dashboard",
+      icon: "pi pi-chart-bar",
+      badge: undefined,
+    },
+    {
+      id: "messages",
+      label_key: "sidebar.messages",
+      href: "/dashboard/messages",
+      icon: "pi pi-comments",
+      badge: undefined,
+    },
+    {
+      id: "applications",
+      label_key: "sidebar.my_applications",
+      href: "/employee/applications",
+      icon: "pi pi-file-edit",
+      badge: undefined,
+    },
+    {
+      id: "saved",
+      label_key: "sidebar.saved_jobs",
+      href: "/employee/saved",
+      icon: "pi pi-bookmark",
+      badge: undefined,
+    },
+    {
+      id: "profile",
+      label_key: "sidebar.my_profile",
+      href: "/employee/profile",
+      icon: "pi pi-user",
+      badge: undefined,
+    },
+  ];
+
+  const navItems = isEmployer ? employerNavItems : employeeNavItems;
 
   const handleLogout = async () => {
     await logout();
-    router.push('/');
+    router.push("/");
   };
 
   const isActiveRoute = (href: string) => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard';
+    if (!pathname) return false;
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
     }
     return pathname.startsWith(href);
+  };
+
+  const handleNavigation = (href: string) => {
+    router.push(href);
+    // Close mobile sidebar after navigation
+    if (window.innerWidth < 1024) {
+      onToggle();
+    }
   };
 
   return (
     <>
       {/* Mobile Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            onClick={onToggle}
-          />
-        )}
-      </AnimatePresence>
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
 
       {/* Sidebar */}
-      <motion.div
-        initial={false}
-        animate={{
-          x: isOpen ? 0 : direction === 'rtl' ? 280 : -280,
-        }}
-        className={cn(
-          'fixed top-0 h-full w-72 bg-white shadow-xl z-50 lg:static lg:translate-x-0 lg:shadow-none lg:border-r',
-          direction === 'rtl' ? 'right-0' : 'left-0'
-        )}
+      <div
+        className={`fixed top-0 left-0 h-screen w-64 bg-white shadow-lg border-r border-gray-100 z-50 transition-all duration-300 ease-in-out lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/30">
+            <div
+              className="flex items-center gap-3 hover:opacity-80 transition-all duration-200 cursor-pointer group relative z-10"
+              onClick={() => {
+                console.log("Logo clicked!");
+                router.push("/");
+              }}
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-sm group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
                 ص
               </div>
               <div>
-                <h2 className="font-bold text-gray-900">SU'UD</h2>
-                <p className="text-sm text-gray-500">صعود</p>
+                <h2 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors duration-200">
+                  SU'UD
+                </h2>
+                <p className="text-xs text-gray-500 font-medium">صعود</p>
               </div>
-            </Link>
-            <Button
-              variant="ghost"
-              size="sm"
+            </div>
+            <button
               onClick={onToggle}
-              className="lg:hidden"
+              className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200 hover:scale-105 active:scale-95"
             >
-              ✕
-            </Button>
+              <i className="pi pi-times text-sm"></i>
+            </button>
           </div>
 
           {/* User Info */}
           <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-purple-50">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
+            <div className="text-center">
+              <div className="mb-2">
+                <i className="pi pi-user-plus text-2xl text-blue-600"></i>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 truncate max-w-32">
-                  {user?.name}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {user?.role === 'employee' 
-                    ? (language === 'en' ? 'Job Seeker' : 'باحث عن عمل')
-                    : (language === 'en' ? 'Employer' : 'صاحب عمل')
-                  }
-                </p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-1">
+                {t("sidebar.welcome")}
+              </h3>
+              <p className="text-sm text-gray-600">
+                {user.role === "employee"
+                  ? t("sidebar.job_seeker")
+                  : t("sidebar.employer")}
+              </p>
+              {user.name &&
+                user.name !== "employer" &&
+                user.name !== "employee" && (
+                  <p className="text-xs text-blue-600 mt-1 font-medium">
+                    {user.name}
+                  </p>
+                )}
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 px-3 py-4 space-y-1">
             {navItems.map((item) => {
               const isActive = isActiveRoute(item.href);
               return (
-                <motion.button
+                <button
                   key={item.id}
-                  onClick={() => {
-                    router.push(item.href);
-                    if (window.innerWidth < 1024) {
-                      onToggle();
-                    }
-                  }}
-                  className={cn(
-                    'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 group',
+                  onClick={() => handleNavigation(item.href)}
+                  className={`group w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-98 ${
                     isActive
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  )}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                      ? "text-blue-600 bg-blue-50 border-l-4 border-blue-600 shadow-sm font-semibold"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm border-l-4 border-transparent"
+                  }`}
                 >
-                  <span className="text-xl">{item.icon}</span>
-                  <span className="font-medium flex-1">
-                    {language === 'en' ? item.label_en : item.label_ar}
+                  <i
+                    className={`${
+                      item.icon
+                    } text-lg transition-transform duration-200 ${
+                      isActive ? "scale-110" : "group-hover:scale-105"
+                    }`}
+                  ></i>
+                  <span className="font-medium flex-1 transition-all duration-200">
+                    {t(item.label_key as keyof TranslationKeys)}
                   </span>
                   {item.badge && (
-                    <span className={cn(
-                      'px-2 py-1 rounded-full text-xs font-bold',
-                      isActive
-                        ? 'bg-white text-blue-600'
-                        : 'bg-red-500 text-white'
-                    )}>
+                    <span className="px-2 py-1 bg-red-500 text-white rounded-full text-xs font-bold min-w-[20px] text-center animate-pulse">
                       {item.badge}
                     </span>
                   )}
-                </motion.button>
+                  {!isActive && (
+                    <i className="pi pi-angle-right text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform group-hover:translate-x-1"></i>
+                  )}
+                </button>
               );
             })}
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t space-y-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start gap-3 text-gray-600 hover:text-red-600"
+          <div className="p-4 border-t border-gray-100 bg-gray-50/20 space-y-3">
+            <button
               onClick={handleLogout}
+              className="group w-full flex items-center justify-start gap-3 px-4 py-3 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 hover:border-red-100 border border-transparent transition-all duration-200 hover:scale-[1.02] active:scale-95 hover:shadow-sm"
             >
-              <span className="text-lg">🚪</span>
-              <span>{language === 'en' ? 'Sign Out' : 'تسجيل الخروج'}</span>
-            </Button>
-            <div className="text-xs text-gray-400 text-center">
+              <i className="pi pi-sign-out text-lg transition-transform duration-200 group-hover:scale-110"></i>
+              <span className="font-medium">{t("sidebar.sign_out")}</span>
+              <i className="pi pi-angle-right text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform group-hover:translate-x-1 ml-auto"></i>
+            </button>
+            <div className="text-xs text-gray-400 text-center pt-1 border-t border-gray-100">
               © 2024 SU'UD Platform
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </>
   );
 }

@@ -1,356 +1,688 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useAuth, useI18n } from '@/shared/contexts';
-import { useRouter } from 'next/navigation';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui';
-import { DashboardLayout } from '@/dashboard/shared/components/layout';
-import ProtectedRoute from '@/shared/components/auth/ProtectedRoute';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useAuth, useI18n } from "@/shared/contexts";
+import { useRouter } from "next/navigation";
+import { Button, Card, CardContent } from "@/shared/components/ui";
+import ProtectedRoute from "@/shared/components/auth/ProtectedRoute";
+import { employerService } from "@/shared/services/employer.service";
+import {
+  SuccessModal,
+  ErrorModal,
+  DeleteModal,
+  EditJobDialog,
+  ViewJobDialog,
+} from "@/shared/components/modals";
+import {
+  PlusCircle,
+  Search,
+  Filter,
+  Calendar,
+  MapPin,
+  Building,
+  DollarSign,
+  Users,
+  Eye,
+  Bookmark,
+} from "lucide-react";
 
 interface JobListing {
   id: number;
   title: string;
-  company: string;
+  company_id: number;
+  company?: {
+    id: number;
+    company_name: string;
+    logo_path?: string;
+  };
   location: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'internship';
-  experience: string;
-  salary?: string;
+  job_type: "full-time" | "part-time" | "contract" | "internship";
+  experience_level: string;
+  salary_min?: number;
+  salary_max?: number;
+  salary_currency?: string;
   description: string;
-  requirements: string[];
-  posted_at: string;
+  requirements: string;
+  category?: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
   isBookmarked?: boolean;
 }
-
-const mockJobs: JobListing[] = [
-  {
-    id: 1,
-    title: 'Software Developer',
-    company: 'Tech Solutions Saudi',
-    location: 'Riyadh, Saudi Arabia',
-    type: 'full-time',
-    experience: '2-4 years',
-    salary: '8,000 - 12,000 SAR',
-    description: 'We are looking for a passionate software developer to join our growing team...',
-    requirements: ['React.js', 'Node.js', 'TypeScript', 'MySQL'],
-    posted_at: '2024-01-15',
-    isBookmarked: false,
-  },
-  {
-    id: 2,
-    title: 'Marketing Specialist',
-    company: 'Digital Marketing Co.',
-    location: 'Jeddah, Saudi Arabia', 
-    type: 'full-time',
-    experience: '1-3 years',
-    salary: '6,000 - 9,000 SAR',
-    description: 'Join our marketing team to create compelling campaigns and drive brand awareness...',
-    requirements: ['Digital Marketing', 'Social Media', 'Analytics', 'Content Creation'],
-    posted_at: '2024-01-14',
-    isBookmarked: true,
-  },
-  {
-    id: 3,
-    title: 'Data Analyst Intern',
-    company: 'Saudi Data Corp',
-    location: 'Dammam, Saudi Arabia',
-    type: 'internship',
-    experience: 'Entry level',
-    salary: '3,000 - 4,000 SAR',
-    description: 'Perfect opportunity for recent graduates to start their career in data analytics...',
-    requirements: ['Python', 'SQL', 'Excel', 'Statistics'],
-    posted_at: '2024-01-13',
-    isBookmarked: false,
-  },
-];
+interface AxiosError {
+  message: string;
+  response?: {
+    status: number;
+    data?: {
+      message?: string;
+    };
+  };
+  config?: unknown;
+  code?: string;
+}
 
 function JobsPageContent() {
   const { user } = useAuth();
-  const { language } = useI18n();
+  const { language, t } = useI18n();
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [selectedLocation, setSelectedLocation] = useState<string>('all');
-  const [jobs, setJobs] = useState<JobListing[]>(mockJobs);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [jobs, setJobs] = useState<JobListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [jobToDelete, setJobToDelete] = useState<JobListing | null>(null);
+  const [jobToEdit, setJobToEdit] = useState<JobListing | null>(null);
+  const [jobToView, setJobToView] = useState<JobListing | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
-  const filteredJobs = jobs.filter(job => {
-    const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.company.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedType === 'all' || job.type === selectedType;
-    const matchesLocation = selectedLocation === 'all' || job.location.includes(selectedLocation);
-    
-    return matchesSearch && matchesType && matchesLocation;
-  });
+  useEffect(() => {
+    console.log("JobsPageContent mounted, user:", user);
+    console.log("User role:", user?.role);
+    console.log("Is authenticated:", !!user);
+    fetchJobs();
+  }, [user]);
 
-  const toggleBookmark = (jobId: number) => {
-    setJobs(prevJobs =>
-      prevJobs.map(job =>
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      console.log("Fetching jobs...");
+      const response = await employerService.getMyJobs();
+      console.log("Jobs response:", response);
+
+      // Handle paginated response format
+      if (response.data && Array.isArray(response.data)) {
+        // Direct array response
+        setJobs(response.data);
+      } else if (
+        response.data &&
+        response.data.data &&
+        Array.isArray(response.data.data)
+      ) {
+        // Paginated response with data.data
+        setJobs(response.data.data);
+      } else if (response.success && response.data && response.data.jobs) {
+        // Expected format with jobs property
+        setJobs(response.data.jobs);
+      } else {
+        setError(response.message || "Failed to fetch jobs");
+      }
+    } catch (error: unknown) {
+      console.error("Failed to fetch jobs:", error);
+
+      let errorMessage = "Failed to fetch jobs. Please try again.";
+
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as AxiosError;
+        console.error("Error details:", {
+          message: axiosError.message,
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          config: axiosError.config,
+        });
+
+        if (axiosError.response?.status === 401) {
+          errorMessage = "Authentication failed. Please log in again.";
+        } else if (axiosError.response?.status === 403) {
+          errorMessage = "Access denied. Only employers can view job listings.";
+        } else if (axiosError.response?.status === 400) {
+          errorMessage =
+            axiosError.response.data?.message ||
+            "Company profile not found. Please complete your company profile first.";
+        } else if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        } else if (axiosError.code === "ECONNREFUSED") {
+          errorMessage =
+            "Cannot connect to backend server. Please make sure the backend is running on http://localhost:8000";
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBookmark = (jobId: number) => {
+    setJobs((prevJobs) =>
+      prevJobs.map((job) =>
         job.id === jobId ? { ...job, isBookmarked: !job.isBookmarked } : job
       )
     );
   };
 
-  const getJobTypeLabel = (type: string) => {
+  const handleViewJob = (job: JobListing) => {
+    setJobToView(job);
+    setShowViewDialog(true);
+  };
+
+  const handleEditJob = (job: JobListing) => {
+    setJobToEdit(job);
+    setShowEditDialog(true);
+  };
+
+  const handleDeleteJob = (job: JobListing) => {
+    setJobToDelete(job);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteJob = async () => {
+    if (!jobToDelete) return;
+
+    try {
+      setActionLoading(true);
+      const response = await employerService.deleteJob(jobToDelete.id);
+
+      // Check if response has success property or if it's a successful response
+      if (response.success || response.data || !response.message) {
+        setJobs((prevJobs) =>
+          prevJobs.filter((job) => job.id !== jobToDelete.id)
+        );
+        setSuccessMessage(
+          language === "en"
+            ? "Job deleted successfully"
+            : "تم حذف الوظيفة بنجاح"
+        );
+        setShowSuccessModal(true);
+      } else {
+        setErrorMessage(response.message || "Failed to delete job");
+        setShowErrorModal(true);
+      }
+    } catch (error: unknown) {
+      console.error("Failed to delete job:", error);
+
+      let errorMessage =
+        language === "en" ? "Failed to delete job" : "فشل في حذف الوظيفة";
+
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as AxiosError;
+        errorMessage = axiosError.response?.data?.message || errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      setErrorMessage(errorMessage);
+      setShowErrorModal(true);
+    } finally {
+      setActionLoading(false);
+      setShowDeleteModal(false);
+      setJobToDelete(null);
+    }
+  };
+
+  const handleEditSuccess = (message: string) => {
+    setSuccessMessage(message);
+    setShowSuccessModal(true);
+    // Refresh jobs list
+    fetchJobs();
+  };
+
+  const handleEditError = (message: string) => {
+    setErrorMessage(message);
+    setShowErrorModal(true);
+  };
+
+  const handleEditDialogHide = () => {
+    setShowEditDialog(false);
+    setJobToEdit(null);
+  };
+
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch =
+      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (job.company?.company_name || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      job.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = selectedType === "all" || job.job_type === selectedType;
+    const matchesStatus =
+      selectedStatus === "all" || job.status === selectedStatus;
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  const getTypeLabel = (type: string) => {
     const types = {
-      'full-time': language === 'en' ? 'Full Time' : 'دوام كامل',
-      'part-time': language === 'en' ? 'Part Time' : 'دوام جزئي', 
-      'contract': language === 'en' ? 'Contract' : 'عقد',
-      'internship': language === 'en' ? 'Internship' : 'تدريب',
+      "full-time": language === "en" ? "Full Time" : "دوام كامل",
+      "part-time": language === "en" ? "Part Time" : "دوام جزئي",
+      contract: language === "en" ? "Contract" : "عقد",
+      internship: language === "en" ? "Internship" : "تدريب",
     };
     return types[type as keyof typeof types] || type;
   };
 
-  const getJobTypeColor = (type: string) => {
+  const getTypeColor = (type: string) => {
     const colors = {
-      'full-time': 'bg-green-100 text-green-800',
-      'part-time': 'bg-blue-100 text-blue-800',
-      'contract': 'bg-yellow-100 text-yellow-800',
-      'internship': 'bg-purple-100 text-purple-800',
+      "full-time": "bg-blue-100 text-blue-800",
+      "part-time": "bg-green-100 text-green-800",
+      contract: "bg-purple-100 text-purple-800",
+      internship: "bg-orange-100 text-orange-800",
     };
-    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[type as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
-  if (user?.role === 'employer') {
-    // Employer view - job postings management
+  const getStatusColor = (status: string) => {
+    const colors = {
+      active: "bg-green-100 text-green-800",
+      pending: "bg-yellow-100 text-yellow-800",
+      draft: "bg-gray-100 text-gray-800",
+      closed: "bg-red-100 text-red-800",
+    };
+    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels = {
+      active: language === "en" ? "Active" : "نشط",
+      pending: language === "en" ? "Pending" : "في الانتظار",
+      draft: language === "en" ? "Draft" : "مسودة",
+      closed: language === "en" ? "Closed" : "مغلق",
+    };
+    return labels[status as keyof typeof labels] || status;
+  };
+
+  if (loading) {
     return (
-      <DashboardLayout
-        title={language === 'en' ? 'Job Postings' : 'الوظائف المنشورة'}
-        subtitle={language === 'en' ? 'Manage your job listings' : 'إدارة إعلاناتك الوظيفية'}
-        actions={
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">
+            {language === "en" ? "Loading jobs..." : "جاري تحميل الوظائف..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button variant="primary" onClick={fetchJobs}>
+            {language === "en" ? "Try Again" : "حاول مرة أخرى"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+    return (
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {language === "en" ? "My Job Postings" : "إعلاناتي الوظيفية"}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {language === "en"
+                ? "Manage and track your job listings"
+                : "إدارة ومتابعة إعلاناتك الوظيفية"}
+            </p>
+          </div>
           <Button
             variant="primary"
-            onClick={() => router.push('/dashboard/jobs/create')}
+            onClick={() => router.push("/employer/jobs/create")}
+            className="flex items-center gap-2"
           >
-            {language === 'en' ? 'Post New Job' : 'نشر وظيفة جديدة'}
+            <PlusCircle className="w-4 h-4" />
+            {language === "en" ? "Post New Job" : "نشر وظيفة جديدة"}
           </Button>
-        }
-      >
-        <div className="space-y-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      {language === 'en' ? 'Active Jobs' : 'الوظائف النشطة'}
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">5</p>
-                  </div>
-                  <span className="text-3xl">📝</span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      {language === 'en' ? 'Total Applications' : 'إجمالي الطلبات'}
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">23</p>
-                  </div>
-                  <span className="text-3xl">📨</span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      {language === 'en' ? 'Views This Month' : 'المشاهدات هذا الشهر'}
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">156</p>
-                  </div>
-                  <span className="text-3xl">👁️</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        </div>
+      </div>
 
-          {/* Job Listings for Employer */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {language === 'en' ? 'Your Job Postings' : 'إعلاناتك الوظيفية'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockJobs.slice(0, 2).map(job => (
-                  <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-lg">{job.title}</h3>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          {language === 'en' ? 'Edit' : 'تعديل'}
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          {language === 'en' ? 'View Applications (5)' : 'عرض الطلبات (5)'}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                      <span>📍 {job.location}</span>
-                      <span className={`px-2 py-1 rounded-full text-xs ${getJobTypeColor(job.type)}`}>
-                        {getJobTypeLabel(job.type)}
-                      </span>
-                      <span>💰 {job.salary}</span>
-                    </div>
-                    <p className="text-gray-700 text-sm mb-3 line-clamp-2">{job.description}</p>
-                    <div className="text-xs text-gray-500">
-                      {language === 'en' ? 'Posted on' : 'نُشر في'} {new Date(job.posted_at).toLocaleDateString()}
-                    </div>
+          {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                <p className="text-blue-100 text-sm font-medium">
+                  {language === "en" ? "Total Jobs" : "إجمالي الوظائف"}
+                    </p>
+                <p className="text-3xl font-bold">{jobs.length}</p>
                   </div>
-                ))}
+              <Building className="w-8 h-8 text-blue-200" />
+                </div>
+              </CardContent>
+            </Card>
+            
+        <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                <p className="text-green-100 text-sm font-medium">
+                  {language === "en" ? "Active Jobs" : "الوظائف النشطة"}
+                </p>
+                <p className="text-3xl font-bold">
+                  {jobs.filter((job) => job.status === "active").length}
+                </p>
+                  </div>
+              <Eye className="w-8 h-8 text-green-200" />
+                </div>
+              </CardContent>
+            </Card>
+            
+        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                <p className="text-purple-100 text-sm font-medium">
+                  {language === "en" ? "Pending Review" : "في انتظار المراجعة"}
+                </p>
+                <p className="text-3xl font-bold">
+                  {jobs.filter((job) => job.status === "pending").length}
+                </p>
+                  </div>
+              <Calendar className="w-8 h-8 text-purple-200" />
+                </div>
+              </CardContent>
+            </Card>
+
+        <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-orange-100 text-sm font-medium">
+                  {language === "en" ? "Draft Jobs" : "المسودات"}
+                </p>
+                <p className="text-3xl font-bold">
+                  {jobs.filter((job) => job.status === "draft").length}
+                </p>
+                      </div>
+              <Bookmark className="w-8 h-8 text-orange-200" />
               </div>
             </CardContent>
           </Card>
         </div>
-      </DashboardLayout>
-    );
-  }
 
-  // Employee view - job search
-  return (
-    <DashboardLayout
-      title={language === 'en' ? 'Find Jobs' : 'البحث عن الوظائف'}
-      subtitle={language === 'en' ? 'Discover your next career opportunity' : 'اكتشف فرصتك المهنية التالية'}
-    >
-      <div className="space-y-6">
         {/* Search and Filters */}
         <Card>
           <CardContent className="p-6">
             <div className="space-y-4">
               {/* Search Bar */}
-              <div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder={language === 'en' ? 'Search for jobs, companies, or keywords...' : 'ابحث عن الوظائف أو الشركات أو الكلمات المفتاحية...'}
+                placeholder={
+                  language === "en"
+                    ? "Search jobs by title, company, or description..."
+                    : "ابحث عن الوظائف بالعنوان أو الشركة أو الوصف..."
+                }
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
               
               {/* Filters */}
               <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-500" />
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
                 >
-                  <option value="all">{language === 'en' ? 'All Types' : 'جميع الأنواع'}</option>
-                  <option value="full-time">{language === 'en' ? 'Full Time' : 'دوام كامل'}</option>
-                  <option value="part-time">{language === 'en' ? 'Part Time' : 'دوام جزئي'}</option>
-                  <option value="contract">{language === 'en' ? 'Contract' : 'عقد'}</option>
-                  <option value="internship">{language === 'en' ? 'Internship' : 'تدريب'}</option>
+                  <option value="all">
+                    {language === "en" ? "All Types" : "جميع الأنواع"}
+                  </option>
+                  <option value="full-time">
+                    {language === "en" ? "Full Time" : "دوام كامل"}
+                  </option>
+                  <option value="part-time">
+                    {language === "en" ? "Part Time" : "دوام جزئي"}
+                  </option>
+                  <option value="contract">
+                    {language === "en" ? "Contract" : "عقد"}
+                  </option>
+                  <option value="internship">
+                    {language === "en" ? "Internship" : "تدريب"}
+                  </option>
                 </select>
+              </div>
                 
+              <div className="flex items-center gap-2">
                 <select
-                  value={selectedLocation}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
                 >
-                  <option value="all">{language === 'en' ? 'All Locations' : 'جميع المواقع'}</option>
-                  <option value="Riyadh">{language === 'en' ? 'Riyadh' : 'الرياض'}</option>
-                  <option value="Jeddah">{language === 'en' ? 'Jeddah' : 'جدة'}</option>
-                  <option value="Dammam">{language === 'en' ? 'Dammam' : 'الدمام'}</option>
+                  <option value="all">
+                    {language === "en" ? "All Status" : "جميع الحالات"}
+                  </option>
+                  <option value="active">
+                    {language === "en" ? "Active" : "نشط"}
+                  </option>
+                  <option value="pending">
+                    {language === "en" ? "Pending" : "في الانتظار"}
+                  </option>
+                  <option value="draft">
+                    {language === "en" ? "Draft" : "مسودة"}
+                  </option>
+                  <option value="closed">
+                    {language === "en" ? "Closed" : "مغلق"}
+                  </option>
                 </select>
+              </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Job Results */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900">
-              {filteredJobs.length} {language === 'en' ? 'jobs found' : 'وظيفة موجودة'}
-            </h2>
-            <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-              <option>{language === 'en' ? 'Sort by: Newest' : 'ترتيب حسب: الأحدث'}</option>
-              <option>{language === 'en' ? 'Sort by: Salary' : 'ترتيب حسب: الراتب'}</option>
-              <option>{language === 'en' ? 'Sort by: Relevance' : 'ترتيب حسب: الصلة'}</option>
-            </select>
-          </div>
-
           {/* Job Listings */}
           <div className="space-y-4">
-            {filteredJobs.map((job, index) => (
+        {filteredJobs.length === 0 ? (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <div className="text-gray-400 text-6xl mb-4">📝</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {language === "en"
+                  ? "No jobs found"
+                  : "لم يتم العثور على وظائف"}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {language === "en"
+                  ? "Get started by posting your first job listing"
+                  : "ابدأ بنشر إعلانك الوظيفي الأول"}
+              </p>
+              <Button
+                variant="primary"
+                onClick={() => router.push("/employer/jobs/create")}
+                className="flex items-center gap-2 mx-auto cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" />
+                {language === "en" ? "Post New Job" : "نشر وظيفة جديدة"}
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredJobs.map((job, index) => (
               <motion.div
                 key={job.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="hover:shadow-lg transition-shadow duration-200">
+              <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-indigo-500">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{job.title}</h3>
-                        <p className="text-lg text-gray-700 mb-2">{job.company}</p>
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                            {job.title}
+                          </h3>
                         <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                          <span>📍 {job.location}</span>
-                          <span className={`px-2 py-1 rounded-full text-xs ${getJobTypeColor(job.type)}`}>
-                            {getJobTypeLabel(job.type)}
+                            <span className="flex items-center gap-1">
+                              <Building className="w-4 h-4" />
+                              {job.company?.company_name || "Company"}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              {job.location}
                           </span>
-                          <span>👨‍💼 {job.experience}</span>
-                          {job.salary && <span>💰 {job.salary}</span>}
-                        </div>
-                        <p className="text-gray-700 mb-4 line-clamp-2">{job.description}</p>
-                        
-                        {/* Requirements */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {job.requirements.slice(0, 3).map((req, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                              {req}
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(
+                                job.job_type
+                              )}`}
+                            >
+                              {getTypeLabel(job.job_type)}
                             </span>
-                          ))}
-                          {job.requirements.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                              +{job.requirements.length - 3} {language === 'en' ? 'more' : 'أكثر'}
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                job.status
+                              )}`}
+                            >
+                              {getStatusLabel(job.status)}
                             </span>
-                          )}
                         </div>
                       </div>
-                      
-                      <div className="flex flex-col items-end gap-2 ml-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-500">
+                            {new Date(job.created_at).toLocaleDateString()}
+                          </span>
                         <button
-                          onClick={() => toggleBookmark(job.id)}
-                          className={`p-2 rounded-lg transition-colors ${
+                            className={`p-2 rounded-full transition-colors ${
                             job.isBookmarked 
-                              ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200' 
-                              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                                ? "text-red-500 bg-red-50"
+                                : "text-gray-400 hover:text-red-500 hover:bg-red-50"
                           }`}
+                            onClick={() => handleBookmark(job.id)}
                         >
-                          🔖
+                            <Bookmark className="w-4 h-4" />
                         </button>
-                        <div className="text-xs text-gray-500 text-right">
-                          {new Date(job.posted_at).toLocaleDateString()}
                         </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                        <span className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          {job.experience_level}
+                        </span>
+                        {(job.salary_min || job.salary_max) && (
+                          <span className="flex items-center gap-1">
+                            <DollarSign className="w-4 h-4" />
+                            {job.salary_min && job.salary_max
+                              ? `${job.salary_min} - ${job.salary_max} ${
+                                  job.salary_currency || "SAR"
+                                }`
+                              : job.salary_min
+                              ? `${job.salary_min}+ ${
+                                  job.salary_currency || "SAR"
+                                }`
+                              : `Up to ${job.salary_max} ${
+                                  job.salary_currency || "SAR"
+                                }`}
+                          </span>
+                        )}
+                        {job.category && (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs">
+                            {job.category}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-gray-700 mb-4 line-clamp-2">
+                        {job.description}
+                      </p>
                       </div>
                     </div>
                     
                     <div className="flex gap-3">
-                      <Button variant="primary" className="flex-1">
-                        {language === 'en' ? 'Apply Now' : 'قدم الآن'}
+                    <Button
+                      variant="primary"
+                      className="flex-1 cursor-pointer"
+                      onClick={() => handleViewJob(job)}
+                    >
+                      {language === "en" ? "View Details" : "عرض التفاصيل"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="cursor-pointer"
+                      onClick={() => handleEditJob(job)}
+                    >
+                      {language === "en" ? "Edit Job" : "تعديل الوظيفة"}
                       </Button>
-                      <Button variant="outline">
-                        {language === 'en' ? 'View Details' : 'عرض التفاصيل'}
+                    <Button
+                      variant="outline"
+                      className="text-red-600 hover:text-red-700 cursor-pointer"
+                      onClick={() => handleDeleteJob(job)}
+                    >
+                      {language === "en" ? "Delete" : "حذف"}
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+          ))
+        )}
           </div>
-        </div>
+
+      {/* Modals */}
+      <SuccessModal
+        visible={showSuccessModal}
+        onHide={() => setShowSuccessModal(false)}
+        title={language === "en" ? "Success" : "نجح"}
+        message={successMessage}
+        onConfirm={() => setShowSuccessModal(false)}
+      />
+
+      <ErrorModal
+        visible={showErrorModal}
+        onHide={() => setShowErrorModal(false)}
+        title={language === "en" ? "Error" : "خطأ"}
+        message={errorMessage}
+        onConfirm={() => setShowErrorModal(false)}
+      />
+
+      <DeleteModal
+        visible={showDeleteModal}
+        onHide={() => {
+          setShowDeleteModal(false);
+          setJobToDelete(null);
+        }}
+        title={language === "en" ? "Delete Job" : "حذف الوظيفة"}
+        message={
+          language === "en"
+            ? `Are you sure you want to delete "${jobToDelete?.title}"? This action cannot be undone.`
+            : `هل أنت متأكد من حذف "${jobToDelete?.title}"؟ لا يمكن التراجع عن هذا الإجراء.`
+        }
+        onConfirm={confirmDeleteJob}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setJobToDelete(null);
+        }}
+        loading={actionLoading}
+      />
+
+      <EditJobDialog
+        visible={showEditDialog}
+        onHide={handleEditDialogHide}
+        job={jobToEdit}
+        onSuccess={handleEditSuccess}
+        onError={handleEditError}
+      />
+
+      <ViewJobDialog
+        visible={showViewDialog}
+        onHide={() => setShowViewDialog(false)}
+        job={jobToView}
+      />
       </div>
-    </DashboardLayout>
   );
 }
 
