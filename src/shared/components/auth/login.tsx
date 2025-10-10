@@ -29,20 +29,11 @@ export default function LoginPage() {
     setError("");
 
     try {
-      await login(formData);
-
-      // Redirect based on user role from login result
-      const roleDashboards = {
-        admin: "/admin/dashboard",
-        employee: "/employee/dashboard",
-        employer: "/employer/dashboard",
-      };
-
-      // Get user role from context after login
-      const userRole = user?.role;
-      const dashboardPath =
-        roleDashboards[userRole as keyof typeof roleDashboards] || "/dashboard";
-      router.push(dashboardPath);
+      // Get redirect URL from login response
+      const redirectUrl = await login(formData);
+      
+      // Redirect to the URL provided by the backend
+      router.push(redirectUrl);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Login failed";
       setError(errorMessage);

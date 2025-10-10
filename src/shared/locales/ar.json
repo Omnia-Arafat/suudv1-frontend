@@ -33,8 +33,8 @@
     "register": "إنشاء حساب"
   },
   "auth": {
-    "login": "تسجيل الدخول",
-    "register": "إنشاء حساب",
+  "login": "تسجيل الدخول",
+  "register": "إنشاء حساب",
     "logout": "تسجيل الخروج",
     "email": "البريد الإلكتروني",
     "password": "كلمة المرور",
@@ -143,7 +143,10 @@
     "failedToUpdateJob": "فشل في تحديث الوظيفة. يرجى المحاولة مرة أخرى.",
     "confirmDelete": "هل أنت متأكد من حذف هذا العنصر؟",
     "operationSuccessful": "تمت العملية بنجاح",
-    "operationFailed": "فشلت العملية. يرجى المحاولة مرة أخرى."
+    "operationFailed": "فشلت العملية. يرجى المحاولة مرة أخرى.",
+    "typeMessage": "اكتب رسالة...",
+    "noConversation": "لم يتم اختيار محادثة",
+    "selectConversation": "اختر محادثة لبدء المراسلة"
   },
   "navigation": {
     "home": "الرئيسية",
@@ -163,13 +166,13 @@
     "postJob": "نشر وظيفة",
     "savedJobs": "الوظائف المحفوظة",
     "notifications": "الإشعارات",
-    "messages": "الرسائل",
     "postJobNav": "نشر وظيفة",
     "myJobsNav": "وظائفي",
     "applicationsNav": "الطلبات",
     "candidatesNav": "المرشحين",
     "companyProfileNav": "ملف الشركة",
-    "analyticsNav": "التحليلات"
+    "analyticsNav": "التحليلات",
+    "messagesNav": "الرسائل"
   },
   "dashboard": {
     "welcome": "مرحباً",
@@ -239,10 +242,9 @@
     "searchByNameTitleSkills": "ابحث بالاسم، العنوان، أو المهارات...",
     "filters": "المرشحات",
     "totalApplicationsReceived": "إجمالي الطلبات المستلمة",
-    "searchCandidatesJobTitles": "ابحث عن المرشحين أو عناوين الوظائف...",
-    "allStatus": "جميع الحالات",
     "interviewScheduled": "مقابلة مجدولة",
     "rejected": "مرفوض",
+    "searchCandidatesJobTitles": "ابحث عن المرشحين أو عناوين الوظائف...",
     "noApplicationsFound": "لم يتم العثور على طلبات",
     "noApplicationsYet": "لا توجد طلبات بعد",
     "tryAdjustingSearch": "حاول تعديل معايير البحث أو التصفية.",
@@ -254,11 +256,7 @@
     "partTime": "دوام جزئي",
     "contract": "عقد",
     "internship": "تدريب",
-    "allStatus": "جميع الحالات",
     "active": "نشط",
-    "pending": "في الانتظار",
-    "draft": "مسودة",
-    "closed": "مغلق",
     "viewDetails": "عرض التفاصيل",
     "editJob": "تعديل الوظيفة",
     "delete": "حذف",
@@ -360,7 +358,7 @@
     "maxValue": "الحد الأقصى للقيمة هو {max}"
   },
   "sidebar": {
-    "messages": "الرسائل",
+    "dashboard": "لوحة التحكم",
     "company_profile": "ملف الشركة",
     "all_applicants": "جميع المتقدمين",
     "job_listing": "قائمة الوظائف",
@@ -371,6 +369,20 @@
     "job_seeker": "باحث عن عمل",
     "employer": "صاحب عمل",
     "sign_out": "تسجيل الخروج"
+  },
+  "search": {
+    "conversations": "البحث في المحادثات..."
+  },
+  "job": {
+    "jobDetails": "تفاصيل الوظيفة",
+    "viewJobInformation": "عرض معلومات الوظيفة",
+    "jobType": "نوع الوظيفة",
+    "salary": "الراتب",
+    "applicationDeadline": "موعد انتهاء التقديم",
+    "positionsAvailable": "المناصب المتاحة",
+    "jobDescription": "وصف الوظيفة",
+    "createdAt": "تاريخ الإنشاء",
+    "updatedAt": "تاريخ التحديث"
   },
   "errors": {
     "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",

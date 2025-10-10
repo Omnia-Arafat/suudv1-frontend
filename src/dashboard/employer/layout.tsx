@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from "react";
 import { useAuth, useI18n } from "@/shared/contexts";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 // Using PrimeIcons instead of Lucide React icons
@@ -27,7 +27,19 @@ export default function EmployerLayout({
   const { user, logout, isLoading } = useAuth();
   const { language, t } = useI18n();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Function to check if a route is active
+  const isActiveRoute = (href: string) => {
+    if (!pathname) return false;
+    // Exact match for dashboard
+    if (href === "/employer/dashboard") {
+      return pathname === "/employer/dashboard" || pathname === "/employer";
+    }
+    // For other routes, check if pathname starts with the href
+    return pathname.startsWith(href);
+  };
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "employer")) {
@@ -55,6 +67,11 @@ export default function EmployerLayout({
       name: t("navigation.applicationsNav"),
       href: "/employer/applications",
       icon: "pi pi-file-edit",
+    },
+    {
+      name: t("navigation.messagesNav"),
+      href: "/employer/messages",
+      icon: "pi pi-comments",
     },
     {
       name: t("navigation.candidatesNav"),
@@ -147,17 +164,30 @@ export default function EmployerLayout({
             </div>
             <nav className="mt-5 px-2 space-y-1">
               {navigation.map((item) => {
+                const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md transition-all duration-200 ${
+                      isActive
+                        ? `bg-indigo-50 text-indigo-600 shadow-sm font-semibold ${
+                            language === "ar" ? "border-l-4" : "border-r-4"
+                          } border-indigo-600`
+                        : `text-gray-600 hover:bg-gray-50 hover:text-gray-900 ${
+                            language === "ar" ? "border-l-4" : "border-r-4"
+                          } border-transparent`
+                    }`}
                     onClick={() => setSidebarOpen(false)}
                   >
                     <i
                       className={`${item.icon} ${
                         language === "ar" ? "ml-4" : "mr-4"
-                      } text-gray-400 group-hover:text-gray-500`}
+                      } transition-all duration-200 ${
+                        isActive
+                          ? "text-indigo-500 scale-110"
+                          : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
+                      }`}
                     ></i>
                     {item.name}
                     {item.count && (
@@ -232,18 +262,31 @@ export default function EmployerLayout({
             </div>
             <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
               {navigation.map((item) => {
+                const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-98 ${
+                      isActive
+                        ? `bg-indigo-50 text-indigo-600 shadow-sm font-semibold ${
+                            language === "ar" ? "border-r-4" : "border-l-4"
+                          } border-indigo-600`
+                        : `text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm ${
+                            language === "ar" ? "border-r-4" : "border-l-4"
+                          } border-transparent`
+                    }`}
                   >
                     <i
                       className={`${item.icon} ${
                         language === "ar" ? "ml-3" : "mr-3"
-                      } text-gray-400 group-hover:text-gray-500`}
+                      } transition-all duration-200 ${
+                        isActive
+                          ? "text-indigo-500 scale-110"
+                          : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
+                      }`}
                     ></i>
-                    {item.name}
+                    <span className="flex-1 transition-all duration-200">{item.name}</span>
                     {item.count && (
                       <span
                         className={`${
@@ -261,6 +304,17 @@ export default function EmployerLayout({
                       >
                         {item.badge}
                       </span>
+                    )}
+                    {!isActive && (
+                      <i 
+                        className={`pi ${
+                          language === "ar" ? "pi-angle-left" : "pi-angle-right"
+                        } text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform ${
+                          language === "ar" ? "group-hover:-translate-x-1" : "group-hover:translate-x-1"
+                        } ${
+                          language === "ar" ? "mr-auto" : "ml-auto"
+                        }`}
+                      />
                     )}
                   </Link>
                 );

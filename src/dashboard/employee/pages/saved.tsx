@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/shared/contexts/AuthContext';
-import { employeeService } from '@/shared/services/employee.service';
-import Link from 'next/link';
-import { 
-  BookmarkCheck, 
-  MapPin, 
-  Clock, 
-  Building2, 
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/shared/contexts/AuthContext";
+import { employeeService } from "@/shared/services/employee.service";
+import Link from "next/link";
+import {
+  BookmarkCheck,
+  MapPin,
+  Clock,
+  Building2,
   Search,
   Filter,
   Trash2,
@@ -18,8 +18,8 @@ import {
   DollarSign,
   Users,
   Award,
-  Heart
-} from 'lucide-react';
+  Heart,
+} from "lucide-react";
 
 interface SavedJob {
   id: number;
@@ -49,33 +49,53 @@ interface SavedJobsData {
   last_page: number;
 }
 
-const SavedJobCard = ({ 
-  savedJob, 
-  onRemove, 
-  onApply 
-}: { 
-  savedJob: SavedJob; 
+interface ApiResponse {
+  success: boolean;
+  data: {
+    jobs: SavedJob[];
+    pagination: {
+      current_page: number;
+      last_page: number;
+      per_page: number;
+      total: number;
+      from: number | null;
+      to: number | null;
+    };
+  };
+}
+
+const SavedJobCard = ({
+  savedJob,
+  onRemove,
+  onApply,
+}: {
+  savedJob: SavedJob;
   onRemove: (jobId: number) => void;
   onApply: (jobId: number) => void;
 }) => {
   const { job } = savedJob;
-  
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const getEmploymentTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'full-time': return 'bg-green-100 text-green-800';
-      case 'part-time': return 'bg-blue-100 text-blue-800';
-      case 'contract': return 'bg-orange-100 text-orange-800';
-      case 'remote': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "full-time":
+        return "bg-green-100 text-green-800";
+      case "part-time":
+        return "bg-blue-100 text-blue-800";
+      case "contract":
+        return "bg-orange-100 text-orange-800";
+      case "remote":
+        return "bg-purple-100 text-purple-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -113,7 +133,11 @@ const SavedJobCard = ({
           </p>
 
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEmploymentTypeColor(job.employment_type)}`}>
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEmploymentTypeColor(
+                job.employment_type
+              )}`}
+            >
               {job.employment_type}
             </span>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -178,8 +202,8 @@ export default function EmployeeSavedJobsContent() {
   const { user } = useAuth();
   const [savedJobs, setSavedJobs] = useState<SavedJobsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [applying, setApplying] = useState<number | null>(null);
   const [removing, setRemoving] = useState<number | null>(null);
@@ -191,13 +215,23 @@ export default function EmployeeSavedJobsContent() {
   const fetchSavedJobs = async () => {
     try {
       setLoading(true);
-      const data = await employeeService.getSavedJobs({
+      const response = await employeeService.getSavedJobs({
         page: currentPage,
-        per_page: 10
+        per_page: 10,
       });
-      setSavedJobs(data);
+
+      // Handle the backend response structure
+      const savedJobsData: SavedJobsData = {
+        data: response.data?.jobs || [],
+        total: response.data?.pagination?.total || 0,
+        per_page: response.data?.pagination?.per_page || 10,
+        current_page: response.data?.pagination?.current_page || 1,
+        last_page: response.data?.pagination?.last_page || 1,
+      };
+
+      setSavedJobs(savedJobsData);
     } catch (error) {
-      console.error('Failed to fetch saved jobs:', error);
+      console.error("Failed to fetch saved jobs:", error);
       // Set fallback data when API is not available
       const fallbackData: SavedJobsData = {
         data: [],
@@ -214,21 +248,21 @@ export default function EmployeeSavedJobsContent() {
 
   const handleRemoveFromSaved = async (jobId: number) => {
     if (removing === jobId) return;
-    
+
     setRemoving(jobId);
     try {
       await employeeService.toggleSaveJob(jobId);
       // Remove the job from the current list
-      setSavedJobs(prev => {
+      setSavedJobs((prev) => {
         if (!prev) return null;
         return {
           ...prev,
-          data: prev.data.filter(savedJob => savedJob.job.id !== jobId),
-          total: prev.total - 1
+          data: prev.data.filter((savedJob) => savedJob.job.id !== jobId),
+          total: prev.total - 1,
         };
       });
     } catch (error) {
-      console.error('Failed to remove job from saved:', error);
+      console.error("Failed to remove job from saved:", error);
     } finally {
       setRemoving(null);
     }
@@ -236,29 +270,33 @@ export default function EmployeeSavedJobsContent() {
 
   const handleApplyForJob = async (jobId: number) => {
     if (applying === jobId) return;
-    
+
     setApplying(jobId);
     try {
       await employeeService.applyForJob(jobId, {});
       // You might want to show a success message or redirect
     } catch (error) {
-      console.error('Failed to apply for job:', error);
+      console.error("Failed to apply for job:", error);
     } finally {
       setApplying(null);
     }
   };
 
-  const filteredJobs = savedJobs?.data.filter(savedJob => {
-    const matchesSearch = !searchTerm || 
+  const filteredJobs = (
+    savedJobs?.data && Array.isArray(savedJobs.data) ? savedJobs.data : []
+  ).filter((savedJob) => {
+    const matchesSearch =
+      !searchTerm ||
       savedJob.job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       savedJob.job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       savedJob.job.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesFilter = filterType === 'all' || 
+    const matchesFilter =
+      filterType === "all" ||
       savedJob.job.employment_type.toLowerCase() === filterType.toLowerCase();
 
     return matchesSearch && matchesFilter;
-  }) || [];
+  });
 
   if (loading) {
     return (
@@ -266,7 +304,7 @@ export default function EmployeeSavedJobsContent() {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded mb-4"></div>
           <div className="grid gap-6">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-lg shadow p-6">
                 <div className="space-y-4">
                   <div className="h-6 bg-gray-200 rounded"></div>
@@ -292,7 +330,8 @@ export default function EmployeeSavedJobsContent() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Saved Jobs</h1>
             <p className="text-sm text-gray-500">
-              {savedJobs?.total || 0} job{(savedJobs?.total || 0) !== 1 ? 's' : ''} saved for later
+              {savedJobs?.total || 0} job
+              {(savedJobs?.total || 0) !== 1 ? "s" : ""} saved for later
             </p>
           </div>
         </div>
@@ -313,12 +352,12 @@ export default function EmployeeSavedJobsContent() {
               placeholder="Search saved jobs..."
             />
           </div>
-          
+
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Filter className="h-5 w-5 text-gray-400" />
             </div>
-            <select 
+            <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
               className="block w-full pl-10 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md appearance-none bg-white"
@@ -341,7 +380,7 @@ export default function EmployeeSavedJobsContent() {
           </span>
           {searchTerm && (
             <button
-              onClick={() => setSearchTerm('')}
+              onClick={() => setSearchTerm("")}
               className="text-indigo-600 hover:text-indigo-800 font-medium"
             >
               Clear search
@@ -365,15 +404,16 @@ export default function EmployeeSavedJobsContent() {
           <div className="text-center py-12 bg-white rounded-lg shadow">
             <BookmarkCheck className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">
-              {searchTerm || filterType !== 'all' ? 'No jobs found' : 'No saved jobs yet'}
+              {searchTerm || filterType !== "all"
+                ? "No jobs found"
+                : "No saved jobs yet"}
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || filterType !== 'all' 
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Start browsing jobs and save the ones that interest you!'
-              }
+              {searchTerm || filterType !== "all"
+                ? "Try adjusting your search or filter criteria."
+                : "Start browsing jobs and save the ones that interest you!"}
             </p>
-            {(!searchTerm && filterType === 'all') && (
+            {!searchTerm && filterType === "all" && (
               <div className="mt-6">
                 <Link
                   href="/employee/jobs"
@@ -393,14 +433,18 @@ export default function EmployeeSavedJobsContent() {
         <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow">
           <div className="flex flex-1 justify-between sm:hidden">
             <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
             >
               Previous
             </button>
             <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, savedJobs.last_page))}
+              onClick={() =>
+                setCurrentPage((prev) =>
+                  Math.min(prev + 1, savedJobs.last_page)
+                )
+              }
               disabled={currentPage === savedJobs.last_page}
               className="relative ml-3 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
             >
@@ -410,21 +454,30 @@ export default function EmployeeSavedJobsContent() {
           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-700">
-                Showing page <span className="font-medium">{currentPage}</span> of{' '}
-                <span className="font-medium">{savedJobs.last_page}</span>
+                Showing page <span className="font-medium">{currentPage}</span>{" "}
+                of <span className="font-medium">{savedJobs.last_page}</span>
               </p>
             </div>
             <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <nav
+                className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                aria-label="Pagination"
+              >
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
                 >
                   Previous
                 </button>
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, savedJobs.last_page))}
+                  onClick={() =>
+                    setCurrentPage((prev) =>
+                      Math.min(prev + 1, savedJobs.last_page)
+                    )
+                  }
                   disabled={currentPage === savedJobs.last_page}
                   className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
                 >

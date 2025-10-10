@@ -313,7 +313,7 @@ export default function EmployerApplicationsContent() {
 
   const handleStatusChange = async (
     applicationId: number,
-    newStatus: string
+    newStatus: "pending" | "reviewed" | "accepted" | "rejected"
   ) => {
     try {
       await employerService.updateApplicationStatus(applicationId, newStatus);

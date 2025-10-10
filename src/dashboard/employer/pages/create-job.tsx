@@ -17,13 +17,13 @@ interface JobFormData {
   description: string;
   requirements: string;
   location: string;
-  type: "full-time" | "part-time" | "contract" | "internship";
-  salary_min: string;
-  salary_max: string;
+  job_type: "full-time" | "part-time" | "contract" | "internship";
+  salary_min?: number;
+  salary_max?: number;
   category: string;
   experience_level: string;
-  expires_at: string;
-  remote_allowed: boolean;
+  deadline?: string;
+  remote_allowed?: boolean;
 }
 
 function CreateJobPageContent() {
@@ -65,14 +65,14 @@ function CreateJobPageContent() {
         description: data.description,
         requirements: data.requirements,
         location: data.location,
-        job_type: data.type,
-        salary_min: data.salary_min ? parseInt(data.salary_min) : undefined,
-        salary_max: data.salary_max ? parseInt(data.salary_max) : undefined,
+        job_type: data.job_type,
+        salary_min: data.salary_min,
+        salary_max: data.salary_max,
         experience_level: data.experience_level,
         category: data.category,
-        application_deadline: data.expires_at || undefined,
+        application_deadline: data.deadline,
         remote_allowed: data.remote_allowed || false,
-        status: asDraft ? "draft" : "pending",
+        status: asDraft ? ("draft" as const) : ("pending" as const),
       };
 
       console.log("Creating job with data:", jobData);
@@ -232,7 +232,7 @@ function CreateJobPageContent() {
                     <span className="text-red-500 ml-1">*</span>
                   </label>
                   <select
-                    {...register("type")}
+                    {...register("job_type")}
                     className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   >
                     <option value="">Select job type</option>
@@ -242,9 +242,9 @@ function CreateJobPageContent() {
                       </option>
                     ))}
                   </select>
-                  {errors.type && (
+                  {errors.job_type && (
                     <p className="text-sm text-red-600">
-                      {errors.type.message}
+                      {errors.job_type.message}
                     </p>
                   )}
                 </div>
@@ -339,12 +339,12 @@ function CreateJobPageContent() {
                   </label>
                   <input
                     type="date"
-                    {...register("expires_at")}
+                    {...register("deadline")}
                     className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
-                  {errors.expires_at && (
+                  {errors.deadline && (
                     <p className="text-sm text-red-600">
-                      {errors.expires_at.message}
+                      {errors.deadline.message}
                     </p>
                   )}
                 </div>

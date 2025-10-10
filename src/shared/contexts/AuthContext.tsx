@@ -15,8 +15,8 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (credentials: LoginRequest) => Promise<void>;
-  register: (userData: RegisterRequest) => Promise<void>;
+  login: (credentials: LoginRequest) => Promise<string>;
+  register: (userData: RegisterRequest) => Promise<string>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -114,11 +114,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  const login = async (credentials: LoginRequest): Promise<void> => {
+  const login = async (credentials: LoginRequest): Promise<string> => {
     try {
       setIsLoading(true);
       const authResponse = await authService.login(credentials);
       setUser(authResponse.user);
+      return authResponse.redirect_url;
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -127,11 +128,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (userData: RegisterRequest): Promise<void> => {
+  const register = async (userData: RegisterRequest): Promise<string> => {
     try {
       setIsLoading(true);
       const authResponse = await authService.register(userData);
       setUser(authResponse.user);
+      return authResponse.redirect_url;
     } catch (error) {
       console.error("Registration failed:", error);
       throw error;

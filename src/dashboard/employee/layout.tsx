@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from "react";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -17,6 +17,7 @@ import {
   X,
   LogOut,
   Bell,
+  MessageCircle,
 } from "lucide-react";
 
 interface EmployeeLayoutProps {
@@ -38,7 +39,19 @@ export default function EmployeeLayout({
 }: EmployeeLayoutProps) {
   const { user, logout, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Function to check if a route is active
+  const isActiveRoute = (href: string) => {
+    if (!pathname) return false;
+    // Exact match for dashboard
+    if (href === "/employee/dashboard") {
+      return pathname === "/employee/dashboard" || pathname === "/employee";
+    }
+    // For other routes, check if pathname starts with the href
+    return pathname.startsWith(href);
+  };
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "employee")) {
@@ -50,6 +63,7 @@ export default function EmployeeLayout({
     { name: "Dashboard", href: "/employee/dashboard", icon: Activity },
     { name: "Find Jobs", href: "/employee/jobs", icon: Search },
     { name: "My Applications", href: "/employee/applications", icon: FileText },
+    { name: "Messages", href: "/employee/messages", icon: MessageCircle },
     { name: "Saved Jobs", href: "/employee/saved", icon: BookmarkCheck },
     { name: "Profile", href: "/employee/profile", icon: User },
     { name: "Career Stats", href: "/employee/stats", icon: BarChart3 },
@@ -125,14 +139,23 @@ export default function EmployeeLayout({
             <nav className="mt-5 px-2 space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
+                const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md transition-all duration-200 ${
+                      isActive
+                        ? "bg-indigo-50 text-indigo-600 border-r-4 border-indigo-600 shadow-sm font-semibold"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-r-4 border-transparent"
+                    }`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <Icon className="mr-4 h-6 w-6 text-gray-400 group-hover:text-gray-500" />
+                    <Icon className={`mr-4 h-6 w-6 transition-all duration-200 ${
+                      isActive
+                        ? "text-indigo-500 scale-110"
+                        : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
+                    }`} />
                     {item.name}
                     {item.count && (
                       <span className="ml-auto inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-green-100 text-green-800">
@@ -187,14 +210,23 @@ export default function EmployeeLayout({
             <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
+                const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-98 ${
+                      isActive
+                        ? "bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600 shadow-sm font-semibold"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm border-l-4 border-transparent"
+                    }`}
                   >
-                    <Icon className="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" />
-                    {item.name}
+                    <Icon className={`mr-3 h-6 w-6 transition-all duration-200 ${
+                      isActive
+                        ? "text-indigo-500 scale-110"
+                        : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
+                    }`} />
+                    <span className="flex-1 transition-all duration-200">{item.name}</span>
                     {item.count && (
                       <span className="ml-auto inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-green-100 text-green-800">
                         {item.count}
@@ -204,6 +236,9 @@ export default function EmployeeLayout({
                       <span className="ml-auto inline-block py-0.5 px-2 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                         {item.badge}
                       </span>
+                    )}
+                    {!isActive && (
+                      <i className="pi pi-angle-right text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform group-hover:translate-x-1 ml-auto" />
                     )}
                   </Link>
                 );

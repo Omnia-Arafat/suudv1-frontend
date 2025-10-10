@@ -279,8 +279,9 @@ export default function EmployerCandidatesContent() {
       const data = await employerService.getCandidates({
         search: searchTerm || undefined,
         location: selectedLocation !== "all" ? selectedLocation : undefined,
-        skills: selectedSkills.length > 0 ? selectedSkills : undefined,
-        experience:
+        skills:
+          selectedSkills.length > 0 ? selectedSkills.join(",") : undefined,
+        experience_level:
           selectedExperience !== "all" ? selectedExperience : undefined,
         sort_by: sortBy,
       });

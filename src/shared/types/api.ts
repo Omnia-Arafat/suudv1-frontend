@@ -25,6 +25,7 @@ export interface AuthResponse {
   token: string;
   token_type: string;
   expires_in: number;
+  redirect_url: string;
 }
 
 export interface ValidationError {

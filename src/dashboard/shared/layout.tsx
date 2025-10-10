@@ -69,7 +69,7 @@ export default function DashboardLayout({
                     language === "ar" ? "text-right" : "text-left"
                   }`}
                 >
-                  <span className="text-gray-900">SU'UD</span>
+                  <span className="text-gray-900">SU&apos;UD</span>
                   <span className="text-gray-500 text-sm mx-1">|</span>
                   <span className="text-gray-600 text-sm">صعود</span>
                 </div>

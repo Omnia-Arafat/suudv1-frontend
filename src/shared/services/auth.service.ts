@@ -167,6 +167,7 @@ class AuthService {
 
     // Mock user data based on email
     let mockUser: User;
+    let redirectUrl: string;
     const isAdmin =
       credentials.email.includes("admin") ||
       credentials.email === "admin@suud.com";
@@ -186,6 +187,7 @@ class AuthService {
         phone: "+966500000000",
         location: "الرياض، السعودية",
       };
+      redirectUrl = "/admin/dashboard";
     } else if (isEmployer) {
       mockUser = {
         id: 1,
@@ -198,6 +200,7 @@ class AuthService {
         phone: "+966501234567",
         location: "الرياض، السعودية",
       };
+      redirectUrl = "/employer/dashboard";
     } else {
       mockUser = {
         id: 2,
@@ -212,6 +215,7 @@ class AuthService {
         phone: "+966507654321",
         location: "جدة، السعودية",
       };
+      redirectUrl = "/employee/dashboard";
     }
 
     const mockToken = "mock_token_" + Date.now();
@@ -220,6 +224,7 @@ class AuthService {
       token: mockToken,
       token_type: "Bearer",
       expires_in: 3600,
+      redirect_url: redirectUrl,
     };
 
     // Store token and user data
@@ -250,12 +255,20 @@ class AuthService {
       updated_at: new Date().toISOString(),
     };
 
+    // Determine redirect URL based on role
+    const redirectUrl = {
+      admin: "/admin/dashboard",
+      employer: "/employer/dashboard",
+      employee: "/employee/dashboard"
+    }[userData.role] || "/dashboard";
+
     const mockToken = "mock_token_" + Date.now();
     const authResponse: AuthResponse = {
       user: mockUser,
       token: mockToken,
       token_type: "Bearer",
       expires_in: 3600,
+      redirect_url: redirectUrl,
     };
 
     // Store token and user data

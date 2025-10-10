@@ -143,7 +143,10 @@
     "failedToUpdateJob": "Failed to update job. Please try again.",
     "confirmDelete": "Are you sure you want to delete this item?",
     "operationSuccessful": "Operation completed successfully",
-    "operationFailed": "Operation failed. Please try again."
+    "operationFailed": "Operation failed. Please try again.",
+    "typeMessage": "Type a message...",
+    "noConversation": "No conversation selected",
+    "selectConversation": "Select a conversation to start messaging"
   },
   "navigation": {
     "home": "Home",
@@ -163,13 +166,13 @@
     "postJob": "Post Job",
     "savedJobs": "Saved Jobs",
     "notifications": "Notifications",
-    "messages": "Messages",
     "postJobNav": "Post Job",
     "myJobsNav": "My Jobs",
     "applicationsNav": "Applications",
     "candidatesNav": "Candidates",
     "companyProfileNav": "Company Profile",
-    "analyticsNav": "Analytics"
+    "analyticsNav": "Analytics",
+    "messagesNav": "Messages"
   },
   "dashboard": {
     "welcome": "Welcome",
@@ -239,10 +242,9 @@
     "searchByNameTitleSkills": "Search by name, title, or skills...",
     "filters": "Filters",
     "totalApplicationsReceived": "total applications received",
-    "searchCandidatesJobTitles": "Search candidates or job titles...",
-    "allStatus": "All Status",
     "interviewScheduled": "Interview Scheduled",
     "rejected": "Rejected",
+    "searchCandidatesJobTitles": "Search candidates or job titles...",
     "noApplicationsFound": "No applications found",
     "noApplicationsYet": "No applications yet",
     "tryAdjustingSearch": "Try adjusting your search or filter criteria.",
@@ -357,7 +359,7 @@
     "maxValue": "Maximum value is {max}"
   },
   "sidebar": {
-    "messages": "Messages",
+    "dashboard": "Dashboard",
     "company_profile": "Company Profile",
     "all_applicants": "All Applicants",
     "job_listing": "Job Listing",
@@ -368,6 +370,20 @@
     "job_seeker": "Job Seeker",
     "employer": "Employer",
     "sign_out": "Sign Out"
+  },
+  "search": {
+    "conversations": "Search conversations..."
+  },
+  "job": {
+    "jobDetails": "Job Details",
+    "viewJobInformation": "View Job Information",
+    "jobType": "Job Type",
+    "salary": "Salary",
+    "applicationDeadline": "Application Deadline",
+    "positionsAvailable": "Positions Available",
+    "jobDescription": "Job Description",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

@@ -93,7 +93,7 @@ export default function Navbar() {
               ص
             </div>
             <div className="font-bold">
-              <span className="text-gray-900">SU'UD</span>
+              <span className="text-gray-900">SU&apos;UD</span>
               <span className="text-gray-500 text-sm mx-1">|</span>
               <span className="text-gray-600 text-sm">صعود</span>
             </div>

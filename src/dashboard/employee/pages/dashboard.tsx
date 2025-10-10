@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/shared/contexts/AuthContext';
-import { employeeService } from '@/shared/services/employee.service';
-import Link from 'next/link';
-import { 
-  Search, 
-  FileText, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/shared/contexts/AuthContext";
+import { employeeService } from "@/shared/services/employee.service";
+import Link from "next/link";
+import {
+  Search,
+  FileText,
+  Clock,
+  CheckCircle,
+  XCircle,
   TrendingUp,
   Eye,
   Star,
   MapPin,
   Calendar,
-  Building2
-} from 'lucide-react';
+  Building2,
+} from "lucide-react";
 
 interface EmployeeDashboardData {
   stats: {
@@ -44,18 +44,27 @@ interface EmployeeDashboardData {
   recent_applications: any[];
   recommended_jobs: any[];
   latest_jobs: any[];
+  profile?: {
+    name: string;
+    email: string;
+    specialization: string;
+    university: string;
+    profile_summary: string;
+    avatar_url: string;
+    cv_url: string;
+  };
 }
 
-const StatCard = ({ 
-  title, 
-  value, 
-  icon: Icon, 
-  color, 
-  trend 
-}: { 
-  title: string; 
-  value: number | string; 
-  icon: React.ComponentType<{ className?: string }>; 
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  color,
+  trend,
+}: {
+  title: string;
+  value: number | string;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
   trend?: string;
 }) => (
@@ -99,9 +108,7 @@ const JobCard = ({ job }: { job: any }) => (
       <MapPin className="h-4 w-4 ml-4 mr-1" />
       <span>{job.location}</span>
     </div>
-    <p className="text-sm text-gray-700 mb-3 line-clamp-2">
-      {job.description}
-    </p>
+    <p className="text-sm text-gray-700 mb-3 line-clamp-2">{job.description}</p>
     <div className="flex justify-between items-center">
       <div className="flex items-center space-x-2">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -123,7 +130,8 @@ const JobCard = ({ job }: { job: any }) => (
 
 export default function EmployeeDashboardContent() {
   const { user } = useAuth();
-  const [dashboardData, setDashboardData] = useState<EmployeeDashboardData | null>(null);
+  const [dashboardData, setDashboardData] =
+    useState<EmployeeDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState<number | null>(null);
 
@@ -133,12 +141,20 @@ export default function EmployeeDashboardContent() {
 
   const fetchDashboardData = async () => {
     try {
-      const data = await employeeService.getDashboardData();
-      setDashboardData(data);
+      const response = await employeeService.getDashboardData();
+
+      // Handle the backend response structure
+      if (response.success && response.data) {
+        setDashboardData(response.data);
+      } else {
+        throw new Error("Invalid response structure");
+      }
     } catch (error) {
       // Only log detailed errors in development
-      if (process.env.NODE_ENV === 'development') {
-        console.info('ℹ️ Using fallback dashboard data (backend not connected)');
+      if (process.env.NODE_ENV === "development") {
+        console.info(
+          "ℹ️ Using fallback dashboard data (backend not connected)"
+        );
       }
       // Set fallback data when API is not available
       const fallbackData: EmployeeDashboardData = {
@@ -182,8 +198,10 @@ export default function EmployeeDashboardContent() {
       await fetchDashboardData();
     } catch (error) {
       // Only log detailed errors in development
-      if (process.env.NODE_ENV === 'development') {
-        console.info('ℹ️ Using fallback dashboard data (backend not connected)');
+      if (process.env.NODE_ENV === "development") {
+        console.info(
+          "ℹ️ Using fallback dashboard data (backend not connected)"
+        );
       }
     } finally {
       setApplying(null);
@@ -196,7 +214,7 @@ export default function EmployeeDashboardContent() {
       // Refresh dashboard data to update application status
       await fetchDashboardData();
     } catch (error) {
-      console.error('Failed to withdraw application:', error);
+      console.error("Failed to withdraw application:", error);
     }
   };
 
@@ -204,7 +222,7 @@ export default function EmployeeDashboardContent() {
     return (
       <div className="animate-pulse">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="bg-white rounded-lg shadow p-5">
               <div className="h-6 bg-gray-200 rounded mb-2"></div>
               <div className="h-8 bg-gray-200 rounded"></div>
@@ -219,19 +237,28 @@ export default function EmployeeDashboardContent() {
     return (
       <div className="text-center py-12">
         <FileText className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">Failed to load dashboard</h3>
-        <p className="mt-1 text-sm text-gray-500">Please try refreshing the page.</p>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">
+          Failed to load dashboard
+        </h3>
+        <p className="mt-1 text-sm text-gray-500">
+          Please try refreshing the page.
+        </p>
       </div>
     );
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'text-yellow-800 bg-yellow-100';
-      case 'reviewed': return 'text-blue-800 bg-blue-100';
-      case 'accepted': return 'text-green-800 bg-green-100';
-      case 'rejected': return 'text-red-800 bg-red-100';
-      default: return 'text-gray-800 bg-gray-100';
+      case "pending":
+        return "text-yellow-800 bg-yellow-100";
+      case "reviewed":
+        return "text-blue-800 bg-blue-100";
+      case "accepted":
+        return "text-green-800 bg-green-100";
+      case "rejected":
+        return "text-red-800 bg-red-100";
+      default:
+        return "text-gray-800 bg-gray-100";
     }
   };
 
@@ -251,7 +278,8 @@ export default function EmployeeDashboardContent() {
                 Welcome back, {user?.name}!
               </h1>
               <p className="text-sm text-gray-500">
-                {user?.specialization ? `${user.specialization} • ` : ''}Ready to find your next opportunity?
+                {user?.specialization ? `${user.specialization} • ` : ""}Ready
+                to find your next opportunity?
               </p>
             </div>
           </div>
@@ -259,9 +287,11 @@ export default function EmployeeDashboardContent() {
             <div className="text-sm text-gray-500">Profile Completion</div>
             <div className="flex items-center mt-1">
               <div className="w-16 bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-indigo-600 h-2 rounded-full" 
-                  style={{ width: `${dashboardData.stats.profile.completion}%` }}
+                <div
+                  className="bg-indigo-600 h-2 rounded-full"
+                  style={{
+                    width: `${dashboardData.stats.profile.completion}%`,
+                  }}
                 ></div>
               </div>
               <span className="ml-2 text-sm font-medium text-gray-900">
@@ -326,18 +356,26 @@ export default function EmployeeDashboardContent() {
                         <h4 className="text-sm font-medium text-gray-900">
                           {application.job}
                         </h4>
-                        <p className="text-xs text-gray-600">{application.company}</p>
+                        <p className="text-xs text-gray-600">
+                          {application.company}
+                        </p>
                         <p className="text-xs text-gray-500 mt-1">
                           Applied {application.applied_date}
                         </p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            application.status
+                          )}`}
+                        >
                           {application.status}
                         </span>
-                        {application.status === 'pending' && (
+                        {application.status === "pending" && (
                           <button
-                            onClick={() => handleWithdrawApplication(application.id)}
+                            onClick={() =>
+                              handleWithdrawApplication(application.id)
+                            }
                             className="text-xs text-red-600 hover:text-red-800 font-medium"
                             title="Withdraw Application"
                           >
@@ -355,15 +393,19 @@ export default function EmployeeDashboardContent() {
                 </div>
               )}
             </div>
-            
+
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Success Rate</span>
                 <span className="font-medium text-indigo-600">
-                  {dashboardData.stats.applications.total > 0 
-                    ? Math.round((dashboardData.stats.applications.accepted / dashboardData.stats.applications.total) * 100)
-                    : 0
-                  }%
+                  {dashboardData.stats.applications.total > 0
+                    ? Math.round(
+                        (dashboardData.stats.applications.accepted /
+                          dashboardData.stats.applications.total) *
+                          100
+                      )
+                    : 0}
+                  %
                 </span>
               </div>
             </div>
@@ -401,7 +443,9 @@ export default function EmployeeDashboardContent() {
                           <span>{job.location}</span>
                         </div>
                       </div>
-                      <span className="text-sm text-gray-500">{job.posted_date}</span>
+                      <span className="text-sm text-gray-500">
+                        {job.posted_date}
+                      </span>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">
                       {job.description}
@@ -421,7 +465,7 @@ export default function EmployeeDashboardContent() {
                           disabled={applying === job.id}
                           className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors"
                         >
-                          {applying === job.id ? 'Applying...' : 'Quick Apply'}
+                          {applying === job.id ? "Applying..." : "Quick Apply"}
                         </button>
                         <Link
                           href={`/employee/jobs/${job.id}`}
@@ -437,7 +481,10 @@ export default function EmployeeDashboardContent() {
                 <div className="text-center py-8 text-gray-500">
                   <Star className="mx-auto h-10 w-10 mb-3" />
                   <p className="text-sm">No recommended jobs yet</p>
-                  <p className="text-xs mt-1">Complete your profile to get personalized job recommendations</p>
+                  <p className="text-xs mt-1">
+                    Complete your profile to get personalized job
+                    recommendations
+                  </p>
                 </div>
               )}
             </div>
@@ -464,7 +511,9 @@ export default function EmployeeDashboardContent() {
             <div className="col-span-full text-center py-8 text-gray-500">
               <Search className="mx-auto h-10 w-10 mb-3" />
               <p className="text-sm">No job openings available yet</p>
-              <p className="text-xs mt-1">Check back later for new opportunities</p>
+              <p className="text-xs mt-1">
+                Check back later for new opportunities
+              </p>
             </div>
           )}
         </div>
@@ -488,21 +537,27 @@ export default function EmployeeDashboardContent() {
             className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <FileText className="h-8 w-8 text-blue-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">Update Profile</span>
+            <span className="text-sm font-medium text-gray-900">
+              Update Profile
+            </span>
           </Link>
           <Link
             href="/employee/applications"
             className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Clock className="h-8 w-8 text-yellow-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">Track Applications</span>
+            <span className="text-sm font-medium text-gray-900">
+              Track Applications
+            </span>
           </Link>
           <Link
             href="/employee/stats"
             className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <TrendingUp className="h-8 w-8 text-purple-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">View Stats</span>
+            <span className="text-sm font-medium text-gray-900">
+              View Stats
+            </span>
           </Link>
         </div>
       </div>

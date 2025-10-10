@@ -46,8 +46,11 @@ export default function RegisterPage() {
     }
 
     try {
-      await register(formData);
-      router.push("/dashboard");
+      // Get redirect URL from register response
+      const redirectUrl = await register(formData);
+      
+      // Redirect to the URL provided by the backend
+      router.push(redirectUrl);
     } catch (err: any) {
       setError(err.message || "Registration failed");
     }

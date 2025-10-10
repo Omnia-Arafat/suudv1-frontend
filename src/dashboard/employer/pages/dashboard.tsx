@@ -333,7 +333,7 @@ export default function EmployerDashboardContent() {
   }
 
   const handleApplicationAction = async (
-    applicationId: string,
+    applicationId: number,
     action: "accepted" | "rejected"
   ) => {
     try {

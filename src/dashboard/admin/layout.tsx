@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from "react";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -40,7 +40,19 @@ export default function AdminLayout({
 }: AdminLayoutProps) {
   const { user, logout, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Function to check if a route is active
+  const isActiveRoute = (href: string) => {
+    if (!pathname) return false;
+    // Exact match for dashboard
+    if (href === "/admin/dashboard") {
+      return pathname === "/admin/dashboard" || pathname === "/admin";
+    }
+    // For other routes, check if pathname starts with the href
+    return pathname.startsWith(href);
+  };
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "admin")) {
@@ -53,6 +65,7 @@ export default function AdminLayout({
     { name: "User Management", href: "/admin/users", icon: Users },
     { name: "Job Management", href: "/admin/jobs", icon: Briefcase },
     { name: "Applications", href: "/admin/applications", icon: FileText },
+    { name: "Messages", href: "/admin/messages", icon: MessageCircle },
     { name: "Companies", href: "/admin/companies", icon: Shield },
     { name: "Contact Messages", href: "/admin/contacts", icon: MessageCircle },
     { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
@@ -123,14 +136,23 @@ export default function AdminLayout({
             <nav className="mt-5 px-2 space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
+                const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md transition-all duration-200 ${
+                      isActive
+                        ? "bg-indigo-50 text-indigo-600 border-r-4 border-indigo-600 shadow-sm font-semibold"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-r-4 border-transparent"
+                    }`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <Icon className="mr-4 h-6 w-6 text-gray-400 group-hover:text-gray-500" />
+                    <Icon className={`mr-4 h-6 w-6 transition-all duration-200 ${
+                      isActive
+                        ? "text-indigo-500 scale-110"
+                        : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
+                    }`} />
                     {item.name}
                     {item.count && (
                       <span className="ml-auto inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-red-100 text-red-800">
@@ -185,14 +207,23 @@ export default function AdminLayout({
             <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
+                const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-98 ${
+                      isActive
+                        ? "bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600 shadow-sm font-semibold"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm border-l-4 border-transparent"
+                    }`}
                   >
-                    <Icon className="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" />
-                    {item.name}
+                    <Icon className={`mr-3 h-6 w-6 transition-all duration-200 ${
+                      isActive
+                        ? "text-indigo-500 scale-110"
+                        : "text-gray-400 group-hover:text-gray-500 group-hover:scale-105"
+                    }`} />
+                    <span className="flex-1 transition-all duration-200">{item.name}</span>
                     {item.count && (
                       <span className="ml-auto inline-block py-0.5 px-3 text-xs font-medium rounded-full bg-red-100 text-red-800">
                         {item.count}
@@ -202,6 +233,9 @@ export default function AdminLayout({
                       <span className="ml-auto inline-block py-0.5 px-2 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                         {item.badge}
                       </span>
+                    )}
+                    {!isActive && (
+                      <i className="pi pi-angle-right text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform group-hover:translate-x-1 ml-auto" />
                     )}
                   </Link>
                 );
