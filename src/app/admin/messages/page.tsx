@@ -1,15 +1,13 @@
-'use client';
-
-import ProtectedRoute from '@/shared/components/auth/ProtectedRoute';
-import RoleBasedRoute from '@/shared/components/auth/RoleBasedRoute';
-import AdminMessages from '@/dashboard/admin/pages/messages';
+import AdminLayout from "@/dashboard/admin/layout";
+import RoleBasedRoute from "@/shared/components/auth/RoleBasedRoute";
+import AdminMessages from "@/dashboard/admin/pages/messages";
 
 export default function AdminMessagesPage() {
   return (
-    <ProtectedRoute>
-      <RoleBasedRoute allowedRoles={['admin']}>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+      <AdminLayout title="Messages">
         <AdminMessages />
-      </RoleBasedRoute>
-    </ProtectedRoute>
+      </AdminLayout>
+    </RoleBasedRoute>
   );
 }
