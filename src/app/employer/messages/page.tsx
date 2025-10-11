@@ -1,15 +1,13 @@
-'use client';
-
-import ProtectedRoute from '@/shared/components/auth/ProtectedRoute';
-import RoleBasedRoute from '@/shared/components/auth/RoleBasedRoute';
-import EmployerMessages from '@/dashboard/employer/pages/messages';
+import EmployerLayout from "@/dashboard/employer/layout";
+import RoleBasedRoute from "@/shared/components/auth/RoleBasedRoute";
+import EmployerMessages from "@/dashboard/employer/pages/messages";
 
 export default function EmployerMessagesPage() {
   return (
-    <ProtectedRoute>
-      <RoleBasedRoute allowedRoles={['employer']}>
+    <RoleBasedRoute allowedRoles={["employer"]}>
+      <EmployerLayout title="Messages">
         <EmployerMessages />
-      </RoleBasedRoute>
-    </ProtectedRoute>
+      </EmployerLayout>
+    </RoleBasedRoute>
   );
 }
