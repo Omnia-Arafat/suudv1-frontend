@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Settings, Save, Shield, Bell, Database, Mail, Globe, Users, Lock } from 'lucide-react';
+import { Toast } from 'primereact/toast';
 
 interface SettingsSection {
   id: string;
@@ -13,6 +14,7 @@ interface SettingsSection {
 export default function AdminSettingsContent() {
   const [activeSection, setActiveSection] = useState('general');
   const [isSaving, setIsSaving] = useState(false);
+  const toast = useRef<Toast>(null);
 
   // General Settings
   const [generalSettings, setGeneralSettings] = useState({
@@ -128,10 +130,20 @@ export default function AdminSettingsContent() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      alert('Settings saved successfully!');
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Settings Saved! 🎉',
+        detail: `${section.charAt(0).toUpperCase() + section.slice(1)} settings saved successfully!`,
+        life: 4000
+      });
     } catch (error) {
       console.error('Failed to save settings:', error);
-      alert('Failed to save settings. Please try again.');
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error ❌',
+        detail: 'Failed to save settings. Please try again.',
+        life: 4000
+      });
     } finally {
       setIsSaving(false);
     }
@@ -421,6 +433,8 @@ export default function AdminSettingsContent() {
           </div>
         </div>
       </div>
+      
+      <Toast ref={toast} />
     </div>
   );
 }

@@ -1,4 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+
+// Base viewport configuration
+export const baseViewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
 
 // Base metadata configuration
 export const baseMetadata: Metadata = {
@@ -31,7 +44,24 @@ export const baseMetadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://suud.com"),
+  metadataBase: (() => {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const vercelUrl = process.env.VERCEL_URL;
+
+    if (appUrl?.startsWith("http")) {
+      return new URL(appUrl);
+    }
+
+    if (appUrl) {
+      return new URL(`https://${appUrl}`);
+    }
+
+    if (vercelUrl) {
+      return new URL(`https://${vercelUrl}`);
+    }
+
+    return new URL("https://suud-frontend.vercel.app");
+  })(),
   alternates: {
     canonical: "/",
     languages: {
@@ -83,17 +113,6 @@ export const baseMetadata: Metadata = {
   category: "Job Portal",
   classification: "Business",
   referrer: "origin-when-cross-origin",
-  colorScheme: "light dark",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

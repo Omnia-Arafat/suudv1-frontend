@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -8,13 +8,80 @@ import { Button } from "@/shared/components/ui";
 import { Navbar, Footer, PageSkeleton } from "@/shared/components";
 import { useAuth, useI18n } from "@/shared/contexts";
 import { generatePageMetadata } from "@/shared/config/metadata";
+import { jobService } from "@/shared/services";
 
 export default function Home() {
   const { isLoading } = useAuth();
   const { language } = useI18n();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("Florence, Italy");
+  const [selectedLocation, setSelectedLocation] = useState("Riyadh, Saudi Arabia");
+  const [jobStats, setJobStats] = useState({
+    total_active_jobs: 0,
+    total_companies: 0
+  });
+  const [recentJobs, setRecentJobs] = useState([]);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    loadJobData();
+  }, []);
+
+  const loadJobData = async () => {
+    try {
+      setLoadingStats(true);
+      
+      // Load job statistics with fallback
+      try {
+        const statsResponse = await jobService.getJobStats();
+        console.log('Stats response:', statsResponse); // Debug log
+        if (statsResponse?.success && statsResponse.data) {
+          setJobStats(statsResponse.data);
+        } else {
+          console.warn('Stats API returned unsuccessful response:', statsResponse);
+          // Use fallback data
+          setJobStats({
+            total_active_jobs: 150,
+            total_companies: 45
+          });
+        }
+      } catch (statsError) {
+        console.error('Failed to load job stats:', statsError);
+        // Use fallback data when API fails
+        setJobStats({
+          total_active_jobs: 150,
+          total_companies: 45
+        });
+      }
+      
+      // Load recent jobs with fallback
+      try {
+        const recentJobsResponse = await jobService.getRecentJobs(4);
+        console.log('Recent jobs response:', recentJobsResponse); // Debug log
+        if (recentJobsResponse?.success && recentJobsResponse.data?.jobs) {
+          setRecentJobs(recentJobsResponse.data.jobs);
+        } else {
+          console.warn('Recent jobs API returned unsuccessful response:', recentJobsResponse);
+          // Use fallback data
+          setRecentJobs([]);
+        }
+      } catch (recentJobsError) {
+        console.error('Failed to load recent jobs:', recentJobsError);
+        // Use empty array as fallback
+        setRecentJobs([]);
+      }
+    } catch (error) {
+      console.error('Failed to load job data:', error);
+      // Set fallback data for all
+      setJobStats({
+        total_active_jobs: 150,
+        total_companies: 45
+      });
+      setRecentJobs([]);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   if (isLoading) {
     return <PageSkeleton type="site" />;
@@ -22,8 +89,8 @@ export default function Home() {
 
   const handleSearch = () => {
     const searchParams = new URLSearchParams();
-    if (searchTerm) searchParams.append("search", searchTerm);
-    if (selectedLocation && selectedLocation !== "Florence, Italy") {
+                    if (searchTerm) searchParams.append("search", searchTerm);
+    if (selectedLocation && selectedLocation !== "Riyadh, Saudi Arabia") {
       searchParams.append("location", selectedLocation);
     }
     router.push(`/jobs?${searchParams.toString()}`);
@@ -71,7 +138,7 @@ export default function Home() {
                       more than
                       <br />
                       <span className="text-indigo-600 relative">
-                        5000+ Jobs
+                        {loadingStats ? '...' : `${jobStats.total_active_jobs}+`} Jobs
                         <svg
                           className="absolute -bottom-2 left-0 w-full h-3 text-indigo-600"
                           viewBox="0 0 200 12"
@@ -93,7 +160,7 @@ export default function Home() {
                       أكثر من
                       <br />
                       <span className="text-indigo-600 relative">
-                        5000+ وظيفة
+                        {loadingStats ? '...' : `${jobStats.total_active_jobs}+`} وظيفة
                         <svg
                           className={`absolute -bottom-2 w-full h-3 text-indigo-600 ${
                             language === "ar" ? "right-0" : "left-0"
@@ -246,9 +313,9 @@ export default function Home() {
                       language === "ar" ? "text-right" : "text-left"
                     }`}
                   >
-                    <option value="Florence, Italy">
+                    <option value="Riyadh, Saudi Arabia">
                       {language === "en"
-                        ? "Florence, Italy"
+                        ? "Riyadh, Saudi Arabia"
                         : "الرياض، السعودية"}
                     </option>
                     <option value="Riyadh, Saudi Arabia">
@@ -353,7 +420,7 @@ export default function Home() {
             <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="text-4xl font-bold text-indigo-600 mb-2">
-                  5000+
+                  {loadingStats ? '...' : `${jobStats.total_active_jobs}+`}
                 </div>
                 <div className="text-gray-600">
                   {language === "en" ? "Active Jobs" : "وظائف نشطة"}
@@ -361,7 +428,7 @@ export default function Home() {
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-indigo-600 mb-2">
-                  1000+
+                  {loadingStats ? '...' : `${jobStats.total_companies}+`}
                 </div>
                 <div className="text-gray-600">
                   {language === "en" ? "Companies" : "شركة"}
@@ -401,182 +468,95 @@ export default function Home() {
 
           {/* Job Cards */}
           <div className="space-y-4">
-            {[
-              {
-                id: 1,
-                title:
-                  language === "en"
-                    ? "Forward Security Director"
-                    : "مدير الأمن المتقدم",
-                company: "Seven, Snabble and Snablist Co",
-                location: "New York, USA",
-                type: "Full time",
-                salary: "$40000-$44000",
-                tags: ["Hacker & Tourism"],
-                logo: "🛡️",
-                featured: true,
-              },
-              {
-                id: 2,
-                title:
-                  language === "en"
-                    ? "Regional Creative Facilitator"
-                    : "ميسر الإبداع الإقليمي",
-                company: "Wibble - Backer Co",
-                location: "Los Angeles, USA",
-                type: "Part time",
-                salary: "$30000-$32000",
-                tags: ["Media"],
-                logo: "🎨",
-                featured: false,
-              },
-              {
-                id: 3,
-                title:
-                  language === "en"
-                    ? "Internal Integration Planner"
-                    : "مخطط التكامل الداخلي",
-                company: "Man, Groups and Fant Inc",
-                location: "Texas, USA",
-                type: "Full time",
-                salary: "$40000-$50000",
-                tags: ["Construction"],
-                logo: "🏗️",
-                featured: false,
-              },
-              {
-                id: 4,
-                title:
-                  language === "en"
-                    ? "District Intranet Director"
-                    : "مدير الشبكة الداخلية للمقاطعة",
-                company: "VorlicDruin - Wales Co",
-                location: "Florida, USA",
-                type: "Full time",
-                salary: "$60000-$68000",
-                tags: ["Commerce"],
-                logo: "🌐",
-                featured: false,
-              },
-            ].map((job) => (
-              <motion.div
-                key={job.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className={`group bg-white border rounded-xl p-6 hover:border-indigo-200 hover:shadow-lg transition-all duration-200 cursor-pointer ${
-                  job.featured
-                    ? "border-indigo-200 bg-indigo-50/30"
-                    : "border-gray-200"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-xl">
-                      {job.logo}
+            {recentJobs.length > 0 ? (
+              recentJobs.map((job: any, index: number) => (
+                <motion.div
+                  key={job.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="group bg-white border border-gray-200 rounded-xl p-6 hover:border-indigo-200 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  onClick={() => router.push(`/jobs/${job.slug || job.id}`)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
+                          {job.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-2">
+                          {job.company?.company_name || 'Company Name'}
+                        </p>
+                        <div className="flex items-center space-x-6 text-sm text-gray-500">
+                          {job.category && (
+                            <span className="flex items-center space-x-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z" />
+                              </svg>
+                              <span>{job.category}</span>
+                            </span>
+                          )}
+                          <span className="flex items-center space-x-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{job.job_type?.replace('-', ' ') || 'Full time'}</span>
+                          </span>
+                          {job.salary_min && job.salary_max && (
+                            <span className="flex items-center space-x-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                              </svg>
+                              <span>{job.salary_currency || 'SAR'} {job.salary_min?.toLocaleString()}-{job.salary_max?.toLocaleString()}</span>
+                            </span>
+                          )}
+                          <span className="flex items-center space-x-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            </svg>
+                            <span>{job.location}</span>
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
-                        {job.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-2">
-                        {job.company}
-                      </p>
-                      <div className="flex items-center space-x-6 text-sm text-gray-500">
-                        <span className="flex items-center space-x-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"
-                            />
-                          </svg>
-                          <span>{job.tags[0]}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <span>{job.type}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                            />
-                          </svg>
-                          <span>{job.salary}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                          </svg>
-                          <span>{job.location}</span>
-                        </span>
+                    <div className="flex items-center space-x-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push('/jobs');
+                        }}
+                      >
+                        {language === "en" ? "Apply Now" : "قدم الآن"}
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              // Loading or empty state
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-6 animate-pulse">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white"
-                    >
-                      {language === "en" ? "Job Details" : "تفاصيل الوظيفة"}
-                    </Button>
-                    <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { adminService } from '@/shared/services/admin.service';
 import { 
@@ -32,7 +33,8 @@ interface DashboardStats {
   jobs: {
     total: number;
     active: number;
-    draft: number;
+    pending: number;
+    declined: number;
     closed: number;
     this_month: number;
   };
@@ -94,6 +96,7 @@ const StatCard = ({
 
 export default function AdminDashboardContent() {
   const { user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -122,7 +125,8 @@ export default function AdminDashboardContent() {
         jobs: {
           total: 450,
           active: 280,
-          draft: 125,
+          pending: 45,
+          declined: 80,
           closed: 45,
           this_month: 67
         },
@@ -164,6 +168,10 @@ export default function AdminDashboardContent() {
     } catch (error) {
       console.error('Failed to reject company:', error);
     }
+  };
+
+  const navigateToPage = (page: string) => {
+    router.push(`/admin/${page}`);
   };
 
   if (loading) {
@@ -373,7 +381,10 @@ export default function AdminDashboardContent() {
                 </div>
               </div>
             ))}
-            <button className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium py-2">
+            <button 
+              onClick={() => navigateToPage('companies')}
+              className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium py-2 hover:bg-blue-50 rounded transition-colors"
+            >
               View All Pending Companies →
             </button>
           </div>
@@ -386,7 +397,7 @@ export default function AdminDashboardContent() {
               Job Posting Moderation
             </h3>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-              {stats.jobs.draft} Pending Review
+              {stats.jobs.pending} Pending Review
             </span>
           </div>
           <div className="space-y-3">
@@ -403,11 +414,17 @@ export default function AdminDashboardContent() {
                     <p className="text-xs text-gray-600">{job.company} • Posted {job.submittedAt}</p>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200">
+                    <button 
+                      onClick={() => navigateToPage('pending-jobs')}
+                      className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200"
+                    >
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Approve
                     </button>
-                    <button className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200">
+                    <button 
+                      onClick={() => navigateToPage('pending-jobs')}
+                      className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200"
+                    >
                       <Ban className="h-3 w-3 mr-1" />
                       Reject
                     </button>
@@ -415,7 +432,10 @@ export default function AdminDashboardContent() {
                 </div>
               </div>
             ))}
-            <button className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium py-2">
+            <button 
+              onClick={() => navigateToPage('pending-jobs')}
+              className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium py-2 hover:bg-blue-50 rounded transition-colors"
+            >
               View All Pending Jobs →
             </button>
           </div>
@@ -428,23 +448,35 @@ export default function AdminDashboardContent() {
           System Administration
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Users className="h-8 w-8 text-indigo-600 mb-2" />
+          <button 
+            onClick={() => navigateToPage('users')}
+            className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-400 transition-colors group"
+          >
+            <Users className="h-8 w-8 text-indigo-600 mb-2 group-hover:text-indigo-700" />
             <span className="text-sm font-medium text-gray-900">Manage Users</span>
             <span className="text-xs text-gray-500">{stats.users.inactive} inactive</span>
           </button>
-          <button className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Building2 className="h-8 w-8 text-blue-600 mb-2" />
+          <button 
+            onClick={() => navigateToPage('companies')}
+            className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-400 transition-colors group"
+          >
+            <Building2 className="h-8 w-8 text-blue-600 mb-2 group-hover:text-blue-700" />
             <span className="text-sm font-medium text-gray-900">Company Reviews</span>
             <span className="text-xs text-gray-500">{stats.companies.pending_verification} pending</span>
           </button>
-          <button className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <MessageSquare className="h-8 w-8 text-green-600 mb-2" />
+          <button 
+            onClick={() => navigateToPage('contacts')}
+            className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-green-400 transition-colors group"
+          >
+            <MessageSquare className="h-8 w-8 text-green-600 mb-2 group-hover:text-green-700" />
             <span className="text-sm font-medium text-gray-900">Contact Messages</span>
             <span className="text-xs text-gray-500">12 unread</span>
           </button>
-          <button className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <TrendingUp className="h-8 w-8 text-purple-600 mb-2" />
+          <button 
+            onClick={() => navigateToPage('analytics')}
+            className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-purple-400 transition-colors group"
+          >
+            <TrendingUp className="h-8 w-8 text-purple-600 mb-2 group-hover:text-purple-700" />
             <span className="text-sm font-medium text-gray-900">Platform Analytics</span>
             <span className="text-xs text-gray-500">View reports</span>
           </button>

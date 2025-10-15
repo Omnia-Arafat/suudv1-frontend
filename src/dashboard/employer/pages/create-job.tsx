@@ -18,11 +18,11 @@ interface JobFormData {
   requirements: string;
   location: string;
   job_type: "full-time" | "part-time" | "contract" | "internship";
-  salary_min?: number;
-  salary_max?: number;
-  category: string;
+  salary_min?: string | null;
+  salary_max?: string | null;
+  category?: string | null;
   experience_level: string;
-  deadline?: string;
+  deadline?: string | null;
   remote_allowed?: boolean;
 }
 
@@ -32,7 +32,6 @@ function CreateJobPageContent() {
   const [submitting, setSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isDraft, setIsDraft] = useState(false);
 
@@ -42,7 +41,7 @@ function CreateJobPageContent() {
     handleSubmit,
     formState: { errors, isValid },
     watch,
-  } = useForm<JobFormData>({
+  } = useForm({
     resolver: yupResolver(validationSchema),
     mode: "onChange",
   });
@@ -66,11 +65,11 @@ function CreateJobPageContent() {
         requirements: data.requirements,
         location: data.location,
         job_type: data.job_type,
-        salary_min: data.salary_min,
-        salary_max: data.salary_max,
+        salary_min: data.salary_min ? parseInt(data.salary_min) : undefined,
+        salary_max: data.salary_max ? parseInt(data.salary_max) : undefined,
         experience_level: data.experience_level,
-        category: data.category,
-        application_deadline: data.deadline,
+        category: data.category || undefined,
+        application_deadline: data.deadline || undefined,
         remote_allowed: data.remote_allowed || false,
         status: asDraft ? ("draft" as const) : ("pending" as const),
       };
@@ -87,15 +86,6 @@ function CreateJobPageContent() {
       // Check if response has success property or if it's a successful response
       if (response.success || response.data || response.id) {
         console.log("Success condition met, showing success dialog");
-        setSuccessMessage(
-          language === "en"
-            ? asDraft
-              ? "Job saved as draft successfully"
-              : "Job created successfully"
-            : asDraft
-            ? "تم حفظ الوظيفة كمسودة بنجاح"
-            : "تم إنشاء الوظيفة بنجاح"
-        );
         setShowSuccessModal(true);
       } else {
         console.log("Success condition NOT met, showing error dialog");
@@ -103,19 +93,26 @@ function CreateJobPageContent() {
         setErrorMessage(response.message || "Failed to create job");
         setShowErrorModal(true);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to create job:", error);
 
       let errorMsg = "Failed to create job. Please try again.";
 
-      if (error.response?.data?.message) {
-        errorMsg = error.response.data.message;
-      } else if (error.response?.data?.errors) {
-        const errors = error.response.data.errors;
-        const errorMessages = Object.values(errors).flat();
-        errorMsg = errorMessages.join(", ");
-      } else if (error.message) {
-        errorMsg = error.message;
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: {
+            data?: { message?: string; errors?: Record<string, string[]> };
+          };
+        };
+        if (axiosError.response?.data?.message) {
+          errorMsg = axiosError.response.data.message;
+        } else if (axiosError.response?.data?.errors) {
+          const errors = axiosError.response.data.errors;
+          const errorMessages = Object.values(errors).flat();
+          errorMsg = errorMessages.join(", ");
+        }
+      } else if (error && typeof error === "object" && "message" in error) {
+        errorMsg = (error as Error).message;
       }
 
       setErrorMessage(errorMsg);
@@ -176,7 +173,7 @@ function CreateJobPageContent() {
                 console.log("Form onSubmit event triggered");
                 handleSubmit((data) => {
                   console.log("Form handleSubmit called with data:", data);
-                  onSubmit(data, false);
+                  onSubmit(data as unknown as JobFormData, false);
                 })();
               }}
               className="space-y-6"
@@ -340,6 +337,7 @@ function CreateJobPageContent() {
                   <input
                     type="date"
                     {...register("deadline")}
+                    min={new Date().toISOString().split("T")[0]}
                     className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   {errors.deadline && (
@@ -421,7 +419,7 @@ function CreateJobPageContent() {
                   variant="primary"
                   loading={submitting}
                   className="flex items-center gap-2 cursor-pointer"
-                  onClick={(e) => {
+                  onClick={() => {
                     console.log("Publish Job button clicked");
                     console.log("Form errors:", errors);
                     console.log("Form is valid:", isValid);
@@ -436,7 +434,7 @@ function CreateJobPageContent() {
                           "Manual handleSubmit called with data:",
                           data
                         );
-                        onSubmit(data, false);
+                        onSubmit(data as unknown as JobFormData, false);
                       })();
                     } else {
                       console.log("Form is invalid, preventing submission");
@@ -450,7 +448,9 @@ function CreateJobPageContent() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={handleSubmit((data) => onSubmit(data, true))}
+                  onClick={handleSubmit((data) =>
+                    onSubmit(data as unknown as JobFormData, true)
+                  )}
                   loading={submitting}
                   className="cursor-pointer"
                 >

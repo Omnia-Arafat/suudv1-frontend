@@ -72,15 +72,26 @@ class AdminService {
   }
 
   /**
-   * Approve or reject job posting
+   * Get job details for admin review
    */
-  async moderateJob(
-    jobId: number,
-    status: "approved" | "rejected",
-    reason?: string
-  ): Promise<any> {
-    const response = await apiClient.patch(`/admin/jobs/${jobId}/moderate`, {
-      status,
+  async getJobDetails(jobId: number): Promise<any> {
+    const response = await apiClient.get(`/admin/jobs/${jobId}/details`);
+    return response;
+  }
+
+  /**
+   * Approve job posting
+   */
+  async approveJob(jobId: number): Promise<any> {
+    const response = await apiClient.patch(`/admin/jobs/${jobId}/approve`);
+    return response;
+  }
+
+  /**
+   * Decline job posting
+   */
+  async declineJob(jobId: number, reason: string): Promise<any> {
+    const response = await apiClient.patch(`/admin/jobs/${jobId}/decline`, {
       reason,
     });
     return response;

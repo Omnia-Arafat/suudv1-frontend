@@ -57,7 +57,7 @@ export default function EmployerLayout({
     {
       name: t("navigation.applicationsNav"),
       href: "/employer/applications",
-      icon: "pi pi-file-edit",
+      icon: "pi pi-file",
     },
     {
       name: t("navigation.messagesNav"),
@@ -132,7 +132,7 @@ export default function EmployerLayout({
   // Render navigation item
   const renderNavItem = (item: NavItem, isMobile = false) => {
     const isActive = isActiveRoute(item.href);
-    const baseClasses = `group flex items-center px-2 py-2 font-medium rounded-md transition-all duration-200 ${
+    const baseClasses = `group flex items-center px-4 py-4 font-medium rounded-md transition-all duration-200 ${
       isMobile ? "text-base" : "text-sm hover:scale-[1.02] active:scale-98"
     }`;
 
@@ -303,7 +303,7 @@ export default function EmployerLayout({
           </div>
 
           {/* Navigation */}
-          <nav className="mt-5 px-2 space-y-1">
+          <nav className="mt-5 px-3 space-y-2">
             {navigation.map((item) => renderNavItem(item, true))}
           </nav>
 
@@ -315,18 +315,20 @@ export default function EmployerLayout({
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
         <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 bg-white">
-          {/* Logo */}
-          <div className="flex items-center flex-shrink-0 px-4 pt-4">
-            {renderLogo()}
+          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+            {/* Logo */}
+            <div className="flex items-center flex-shrink-0 px-4 pt-4">
+              {renderLogo()}
+            </div>
+
+            {/* Navigation */}
+            <nav className="mt-5 flex-1 px-3 bg-white space-y-2">
+              {navigation.map((item) => renderNavItem(item, false))}
+            </nav>
+
+            {/* User profile */}
+            {renderUserProfile(false)}
           </div>
-
-          {/* Navigation */}
-          <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
-            {navigation.map((item) => renderNavItem(item, false))}
-          </nav>
-
-          {/* User profile */}
-          {renderUserProfile(false)}
         </div>
       </div>
 

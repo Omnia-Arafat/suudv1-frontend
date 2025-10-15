@@ -127,14 +127,14 @@ export default function AdminLayout({
                 </span>
               </button>
             </div>
-            <nav className="mt-5 px-2 space-y-1">
+            <nav className="mt-5 px-2 space-y-2">
               {navigation.map((item) => {
                 const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md transition-all duration-200 ${
+                    className={`group flex items-center px-4 py-4 text-base font-medium rounded-md transition-all duration-200 ${
                       isActive
                         ? "bg-indigo-50 text-indigo-600 border-r-4 border-indigo-600 shadow-sm font-semibold"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-r-4 border-transparent"
@@ -201,14 +201,14 @@ export default function AdminLayout({
                 </span>
               </button>
             </div>
-            <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
+            <nav className="mt-5 flex-1 px-2 bg-white space-y-2">
               {navigation.map((item) => {
                 const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-98 ${
+                    className={`group flex items-center px-4 py-4 text-sm font-medium rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-98 ${
                       isActive
                         ? "bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600 shadow-sm font-semibold"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm border-l-4 border-transparent"

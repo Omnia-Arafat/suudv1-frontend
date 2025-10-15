@@ -13,26 +13,36 @@ class AuthService {
    */
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     try {
+      console.log('🔐 Attempting login with credentials:', { email: credentials.email, password: '***' });
+      
       const response = await apiClient.post<AuthResponse>(
         "/auth/login",
         credentials
       );
+      
+      console.log('🔐 Login API response:', response);
 
       if (response.success && response.data) {
+        console.log('✅ Login successful, storing auth data');
         // Store token and user data
         apiClient.setToken(response.data.token);
         this.setUser(response.data.user);
         return response.data;
       }
 
+      console.error('❌ Login API returned unsuccessful response:', response);
       throw new Error(response.message || "Login failed");
     } catch (error: any) {
+      console.error('🚨 Login error caught:', error);
+      console.error('🚨 Error details:', { message: error.message, status: error.status, response: error.response });
+      
       // Fallback to mock authentication if API is not available
       if (
         error.status === 500 ||
         error.message?.includes("Network Error") ||
         error.message?.includes("ECONNREFUSED")
       ) {
+        console.log('🔄 Falling back to mock login due to API error');
         return this.mockLogin(credentials);
       }
       throw error;

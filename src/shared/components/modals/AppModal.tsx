@@ -1,8 +1,7 @@
 import React from "react";
-import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { useI18n } from "@/shared/contexts";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface BaseModalProps {
   visible: boolean;
@@ -43,22 +42,35 @@ type ModalProps =
   | ConfirmModalProps;
 
 export function AppModal(props: ModalProps) {
-  const { language, t } = useI18n();
+  const { t } = useI18n();
 
   const getIcon = () => {
-    if (props.icon) return props.icon;
-
     switch (props.type) {
       case "success":
-        return "✅";
+        return <i className="pi pi-check-circle text-6xl"></i>;
       case "error":
-        return "❌";
+        return <i className="pi pi-times-circle text-6xl"></i>;
       case "delete":
-        return "🗑️";
+        return <i className="pi pi-exclamation-triangle text-6xl"></i>;
       case "confirm":
-        return "❓";
+        return <i className="pi pi-question-circle text-6xl"></i>;
       default:
-        return "ℹ️";
+        return <i className="pi pi-info-circle text-6xl"></i>;
+    }
+  };
+
+  const getIconColor = () => {
+    switch (props.type) {
+      case "success":
+        return "text-green-500";
+      case "error":
+        return "text-red-500";
+      case "delete":
+        return "text-red-500";
+      case "confirm":
+        return "text-blue-500";
+      default:
+        return "text-gray-500";
     }
   };
 
@@ -85,28 +97,26 @@ export function AppModal(props: ModalProps) {
     return defaultTexts[props.type] || defaultTexts.success;
   };
 
-  const getFooter = () => {
+  const getActionButtons = () => {
     const { confirmText, cancelText } = getDefaultTexts();
 
     return (
-      <div className="flex justify-end gap-3 px-6 py-5 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 rounded-b-lg">
+      <div className="flex justify-center gap-4 mt-8">
         {props.type === "delete" || props.type === "confirm" ? (
           <>
             <Button
               label={cancelText}
-              icon="pi pi-times"
               onClick={props.onCancel || props.onHide}
-              className="px-6 py-2.5 text-gray-600 bg-transparent border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
+              className="px-6 py-3 text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-md transition-all duration-200 font-medium text-sm"
               disabled={props.loading}
             />
             <Button
               label={confirmText}
-              icon="pi pi-check"
               onClick={props.onConfirm}
-              className={`px-6 py-2.5 rounded-xl transition-all duration-200 font-medium ${
+              className={`px-6 py-3 rounded-xl transition-all duration-200 font-medium text-sm ${
                 props.type === "delete"
-                  ? "text-white bg-gradient-to-r from-red-600 to-red-700 border-0 hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl"
-                  : "text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border-0 hover:from-indigo-700 hover:to-indigo-800 shadow-lg hover:shadow-xl"
+                  ? "text-white bg-gradient-to-r from-red-500 to-red-600 border-0 hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl hover:scale-105"
+                  : "text-white bg-gradient-to-r from-indigo-500 to-indigo-600 border-0 hover:from-indigo-600 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105"
               }`}
               loading={props.loading}
             />
@@ -114,9 +124,8 @@ export function AppModal(props: ModalProps) {
         ) : (
           <Button
             label={confirmText}
-            icon="pi pi-check"
             onClick={props.onConfirm || props.onHide}
-            className="px-6 py-2.5 text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border-0 rounded-xl hover:from-indigo-700 hover:to-indigo-800 shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
+            className="px-6 py-3 text-white bg-gradient-to-r from-indigo-500 to-indigo-600 border-0 rounded-xl hover:from-indigo-600 hover:to-indigo-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 font-medium text-sm"
             loading={props.loading}
           />
         )}
@@ -127,51 +136,59 @@ export function AppModal(props: ModalProps) {
   return (
     <AnimatePresence>
       {props.visible && (
-        <Dialog
-          header={
-            <div className="flex items-center gap-4 px-6 py-5">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-2xl">{getIcon()}</span>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {props.title}
-                </h2>
-              </div>
-            </div>
-          }
-          visible={props.visible}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{
-            width: "500px",
-            borderRadius: "16px",
-            boxShadow:
-              "0 32px 64px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+            background: "rgba(0, 0, 0, 0.4)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
           }}
-          footer={getFooter()}
-          onHide={props.onHide}
-          className="p-fluid"
-          contentStyle={{
-            padding: "0",
-            borderRadius: "0 0 16px 16px",
-          }}
-          headerStyle={{
-            background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-            border: "none",
-            borderRadius: "16px 16px 0 0",
-            borderBottom: "1px solid #e5e7eb",
-          }}
+          onClick={props.onHide}
         >
-          <div className="px-6 py-8">
-            <div className="flex items-start gap-4">
-              <div className="text-4xl flex-shrink-0">{getIcon()}</div>
-              <div className="flex-1">
-                <p className="text-gray-700 leading-relaxed text-base">
-                  {props.message}
-                </p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+            style={{
+              boxShadow:
+                "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            {/* Body */}
+            <div className="px-8 py-8 text-center">
+              {/* Icon */}
+              <div className="flex justify-center mb-6">
+                <div
+                  className={`w-20 h-20 rounded-full flex items-center justify-center ${getIconColor()}`}
+                >
+                  {getIcon()}
+                </div>
               </div>
+
+              {/* Description */}
+              <p
+                className={`text-base leading-relaxed mb-8 ${
+                  props.type === "error" || props.type === "delete"
+                    ? "text-red-700"
+                    : "text-gray-700"
+                }`}
+                style={{ lineHeight: "1.5" }}
+              >
+                {props.message}
+              </p>
+
+              {/* Buttons */}
+              {getActionButtons()}
             </div>
-          </div>
-        </Dialog>
+          </motion.div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
@@ -193,16 +210,3 @@ export function DeleteModal(props: Omit<DeleteModalProps, "type">) {
 export function ConfirmModal(props: Omit<ConfirmModalProps, "type">) {
   return <AppModal {...props} type="confirm" />;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -30,19 +30,44 @@ class ApiClient {
     // Request interceptor - add auth token
     this.client.interceptors.request.use(
       (config) => {
+        console.log('📡 API Request:', {
+          method: config.method?.toUpperCase(),
+          url: config.baseURL + config.url,
+          headers: config.headers,
+          data: config.data
+        });
+        
         const token = this.getStoredToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => {
+        console.error('📡 Request interceptor error:', error);
+        return Promise.reject(error);
+      }
     );
 
     // Response interceptor - handle errors
     this.client.interceptors.response.use(
-      (response: AxiosResponse<ApiResponse>) => response,
+      (response: AxiosResponse<ApiResponse>) => {
+        console.log('📡 API Response Success:', {
+          status: response.status,
+          url: response.config.url,
+          data: response.data
+        });
+        return response;
+      },
       (error) => {
+        console.error('📡 API Response Error:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          url: error.config?.url,
+          data: error.response?.data,
+          message: error.message
+        });
+        
         const apiError: ApiError = {
           message:
             error.response?.data?.message ||

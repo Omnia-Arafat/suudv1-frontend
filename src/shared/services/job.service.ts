@@ -11,47 +11,33 @@ class JobService {
   /**
    * Get all jobs with pagination and filters
    */
-  async getJobs(
-    params?: JobSearchParams
-  ): Promise<PaginatedResponse<JobListing>> {
-    const response = await apiClient.get<PaginatedResponse<JobListing>>(
-      "/jobs",
-      {
-        params,
-      }
-    );
-
-    if (response.success && response.data) {
-      return response.data;
-    }
-
-    throw new Error(response.message || "Failed to fetch jobs");
+  async getJobs(params?: JobSearchParams): Promise<any> {
+    const response = await apiClient.get("/jobs", { params });
+    return response;
   }
 
   /**
    * Get job by ID or slug
    */
-  async getJob(id: string | number): Promise<JobListing> {
-    const response = await apiClient.get<JobListing>(`/jobs/${id}`);
+  async getJob(id: string | number): Promise<any> {
+    const response = await apiClient.get(`/jobs/${id}`);
+    return response;
+  }
 
-    if (response.success && response.data) {
-      return response.data;
-    }
-
-    throw new Error(response.message || "Job not found");
+  /**
+   * Get available filter options
+   */
+  async getFilters(): Promise<any> {
+    const response = await apiClient.get("/jobs/filters");
+    return response;
   }
 
   /**
    * Create new job listing (for employers)
    */
-  async createJob(jobData: CreateJobListingRequest): Promise<JobListing> {
-    const response = await apiClient.post<JobListing>("/jobs", jobData);
-
-    if (response.success && response.data) {
-      return response.data;
-    }
-
-    throw new Error(response.message || "Failed to create job");
+  async createJob(jobData: CreateJobListingRequest): Promise<any> {
+    const response = await apiClient.post("/jobs", jobData);
+    return response;
   }
 
   /**
@@ -131,16 +117,19 @@ class JobService {
   /**
    * Get recent jobs
    */
-  async getRecentJobs(limit = 10): Promise<JobListing[]> {
-    const response = await apiClient.get<JobListing[]>("/jobs/recent", {
+  async getRecentJobs(limit = 10): Promise<any> {
+    const response = await apiClient.get("/jobs/recent", {
       params: { limit },
     });
+    return response;
+  }
 
-    if (response.success && response.data) {
-      return response.data;
-    }
-
-    throw new Error(response.message || "Failed to fetch recent jobs");
+  /**
+   * Get job statistics
+   */
+  async getJobStats(): Promise<any> {
+    const response = await apiClient.get("/jobs/stats");
+    return response;
   }
 }
 

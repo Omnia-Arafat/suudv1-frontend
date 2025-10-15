@@ -29,7 +29,7 @@ export const useJobValidationSchema = () => {
       .min(2, t("job.locationMinLength"))
       .max(255, t("job.locationMaxLength")),
 
-    type: yup
+    job_type: yup
       .string()
       .required(t("job.typeRequired"))
       .oneOf(
@@ -39,6 +39,8 @@ export const useJobValidationSchema = () => {
 
     salary_min: yup
       .string()
+      .nullable()
+      .optional()
       .test("is-number", t("job.salaryMinValidNumber"), (value) => {
         if (!value) return true; // Optional field
         const num = parseInt(value);
@@ -52,6 +54,8 @@ export const useJobValidationSchema = () => {
 
     salary_max: yup
       .string()
+      .nullable()
+      .optional()
       .test("is-number", t("job.salaryMaxValidNumber"), (value) => {
         if (!value) return true; // Optional field
         const num = parseInt(value);
@@ -76,7 +80,8 @@ export const useJobValidationSchema = () => {
 
     category: yup
       .string()
-      .required(t("job.categoryRequired"))
+      .nullable()
+      .optional()
       .min(2, t("job.categoryMinLength"))
       .max(100, t("job.categoryMaxLength")),
 
@@ -88,8 +93,10 @@ export const useJobValidationSchema = () => {
         t("job.invalidExperienceLevel")
       ),
 
-    expires_at: yup
+    deadline: yup
       .string()
+      .nullable()
+      .optional()
       .test("is-future-date", t("job.deadlineFutureDate"), (value) => {
         if (!value) return true; // Optional field
         const date = new Date(value);
