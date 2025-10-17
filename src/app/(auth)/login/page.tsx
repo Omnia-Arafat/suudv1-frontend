@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Button,
@@ -18,11 +18,15 @@ export default function LoginPage() {
   const { login, isLoading } = useAuth();
   const { t, direction, language } = useI18n();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState<LoginRequest>({
     email: "",
     password: "",
   });
   const [error, setError] = useState("");
+
+  // Get redirect URL from query parameters
+  const redirectUrl = searchParams.get("redirect") || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,9 +34,9 @@ export default function LoginPage() {
 
     try {
       await login(formData);
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+      router.push(redirectUrl);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Login failed");
     }
   };
 
@@ -59,8 +63,7 @@ export default function LoginPage() {
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
                 className="text-3xl font-bold text-indigo-600 mb-2"
-              >
-                SU'UD - صعود
+              >                SU&apos;UD - صعود
               </motion.h1>
               <CardTitle>{t("auth.login")}</CardTitle>
             </CardHeader>
@@ -144,7 +147,7 @@ export default function LoginPage() {
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
                   {language === "en"
-                    ? "Don't have an account?"
+                    ? "Don&apos;t have an account?"
                     : "ليس لديك حساب؟"}{" "}
                   <button
                     onClick={() => router.push("/register")}

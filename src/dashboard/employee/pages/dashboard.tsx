@@ -29,9 +29,35 @@ interface EmployeeDashboardData {
       avatar_uploaded: boolean;
     };
   };
-  recent_applications: any[];
-  recommended_jobs: any[];
-  latest_jobs: any[];
+  recent_applications: Array<{
+    id: string;
+    job_title: string;
+    company_name: string;
+    applied_date: string;
+    status: string;
+  }>;
+  recommended_jobs: Array<{
+    id: string;
+    title: string;
+    company?: { name: string };
+    company_name?: string;
+    location: string;
+    salary: string;
+    posted_date: string;
+    type: string;
+    created_at?: string;
+  }>;
+  latest_jobs: Array<{
+    id: string;
+    title: string;
+    company?: { name: string };
+    company_name?: string;
+    location: string;
+    salary: string;
+    posted_date: string;
+    type: string;
+    created_at?: string;
+  }>;
   profile?: {
     name: string;
     email: string;
@@ -126,7 +152,6 @@ const JobCard = ({ job }: { job: any }) => (
 
 export default function EmployeeDashboardContent() {
   const { user } = useAuth();
-  const { language } = useI18n();
   const [dashboardData, setDashboardData] =
     useState<EmployeeDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
