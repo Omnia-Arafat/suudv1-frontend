@@ -88,11 +88,15 @@ const JobCard = ({ job }: { job: any }) => (
   <div className="bg-white p-4 rounded-lg shadow border hover:shadow-md transition-shadow">
     <div className="flex justify-between items-start mb-2">
       <h4 className="text-lg font-medium text-gray-900">{job.title}</h4>
-      <span className="text-sm text-gray-500">{job.posted_date}</span>
+      <span className="text-sm text-gray-500">
+        {job.created_at
+          ? new Date(job.created_at).toLocaleDateString()
+          : "Recently"}
+      </span>
     </div>
     <div className="flex items-center text-sm text-gray-600 mb-2">
       <Building2 className="h-4 w-4 mr-1" />
-      <span>{job.company}</span>
+      <span>{job.company?.name || job.company_name || "Unknown Company"}</span>
       <MapPin className="h-4 w-4 ml-4 mr-1" />
       <span>{job.location}</span>
     </div>
@@ -100,10 +104,14 @@ const JobCard = ({ job }: { job: any }) => (
     <div className="flex justify-between items-center">
       <div className="flex items-center space-x-2">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          {job.type}
+          {job.job_type || job.type || "Full-time"}
         </span>
         <span className="text-sm text-green-600 font-medium">
-          ${job.salary}
+          {job.salary_min
+            ? `${job.salary_min}-${job.salary_max || job.salary_min} ${
+                job.salary_currency || "SAR"
+              }`
+            : job.salary || "Salary not specified"}
         </span>
       </div>
       <Link
@@ -343,13 +351,22 @@ export default function EmployeeDashboardContent() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h4 className="text-sm font-medium text-gray-900">
-                          {application.job}
+                          {application.job_listing?.title ||
+                            application.job ||
+                            "Unknown Job"}
                         </h4>
                         <p className="text-xs text-gray-600">
-                          {application.company}
+                          {application.job_listing?.company?.name ||
+                            application.company_name ||
+                            "Unknown Company"}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          Applied {application.applied_date}
+                          Applied{" "}
+                          {application.created_at
+                            ? new Date(
+                                application.created_at
+                              ).toLocaleDateString()
+                            : "Recently"}
                         </p>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -427,13 +444,19 @@ export default function EmployeeDashboardContent() {
                         </h4>
                         <div className="flex items-center text-sm text-gray-600 mt-1">
                           <Building2 className="h-4 w-4 mr-1" />
-                          <span>{job.company}</span>
+                          <span>
+                            {job.company?.name ||
+                              job.company_name ||
+                              "Unknown Company"}
+                          </span>
                           <MapPin className="h-4 w-4 ml-4 mr-1" />
                           <span>{job.location}</span>
                         </div>
                       </div>
                       <span className="text-sm text-gray-500">
-                        {job.posted_date}
+                        {job.created_at
+                          ? new Date(job.created_at).toLocaleDateString()
+                          : "Recently"}
                       </span>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">
@@ -442,10 +465,14 @@ export default function EmployeeDashboardContent() {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {job.type}
+                          {job.job_type || job.type || "Full-time"}
                         </span>
                         <span className="text-sm text-green-600 font-medium">
-                          {job.salary}
+                          {job.salary_min
+                            ? `${job.salary_min}-${
+                                job.salary_max || job.salary_min
+                              } ${job.salary_currency || "SAR"}`
+                            : job.salary || "Salary not specified"}
                         </span>
                       </div>
                       <div className="flex space-x-2">

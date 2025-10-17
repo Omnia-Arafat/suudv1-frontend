@@ -8,17 +8,24 @@ import { Button } from "@/shared/components/ui";
 import { Navbar, Footer, PageSkeleton } from "@/shared/components";
 import { useAuth, useI18n } from "@/shared/contexts";
 import { generatePageMetadata } from "@/shared/config/metadata";
-import { jobService } from "@/shared/services";
+import {
+  mockJobs,
+  mockCompanies,
+  simulateApiDelay,
+} from "@/shared/data/mockData";
 
 export default function Home() {
   const { isLoading } = useAuth();
   const { language } = useI18n();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("Riyadh, Saudi Arabia");
+  const [selectedLocation, setSelectedLocation] = useState(
+    "Riyadh, Saudi Arabia"
+  );
   const [jobStats, setJobStats] = useState({
     total_active_jobs: 0,
-    total_companies: 0
+    total_companies: 0,
+    total_job_seekers: 0,
   });
   const [recentJobs, setRecentJobs] = useState([]);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -30,52 +37,40 @@ export default function Home() {
   const loadJobData = async () => {
     try {
       setLoadingStats(true);
-      
-      // Load job statistics with fallback
-      try {
-        const statsResponse = await jobService.getJobStats();
-        console.log('Stats response:', statsResponse); // Debug log
-        if (statsResponse?.success && statsResponse.data) {
-          setJobStats(statsResponse.data);
-        } else {
-          console.warn('Stats API returned unsuccessful response:', statsResponse);
-          // Use fallback data
-          setJobStats({
-            total_active_jobs: 150,
-            total_companies: 45
-          });
-        }
-      } catch (statsError) {
-        console.error('Failed to load job stats:', statsError);
-        // Use fallback data when API fails
-        setJobStats({
-          total_active_jobs: 150,
-          total_companies: 45
-        });
-      }
-      
-      // Load recent jobs with fallback
-      try {
-        const recentJobsResponse = await jobService.getRecentJobs(4);
-        console.log('Recent jobs response:', recentJobsResponse); // Debug log
-        if (recentJobsResponse?.success && recentJobsResponse.data?.jobs) {
-          setRecentJobs(recentJobsResponse.data.jobs);
-        } else {
-          console.warn('Recent jobs API returned unsuccessful response:', recentJobsResponse);
-          // Use fallback data
-          setRecentJobs([]);
-        }
-      } catch (recentJobsError) {
-        console.error('Failed to load recent jobs:', recentJobsError);
-        // Use empty array as fallback
-        setRecentJobs([]);
-      }
-    } catch (error) {
-      console.error('Failed to load job data:', error);
-      // Set fallback data for all
+
+      // Simulate API delay for realistic loading experience
+      await simulateApiDelay(800);
+
+      // Calculate mock statistics from our mock data
+      const activeJobs = mockJobs.filter(
+        (job) => job.status === "active"
+      ).length;
+      const totalCompanies = mockCompanies.length;
+
+      // Set mock statistics
       setJobStats({
-        total_active_jobs: 150,
-        total_companies: 45
+        total_active_jobs: activeJobs,
+        total_companies: totalCompanies,
+        total_job_seekers: 1250, // Mock number of job seekers
+      });
+
+      // Get recent active jobs (limit to 4)
+      const recentActiveJobs = mockJobs
+        .filter((job) => job.status === "active")
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+        .slice(0, 4);
+
+      setRecentJobs(recentActiveJobs);
+    } catch (error) {
+      console.error("Failed to load job data:", error);
+      // Set fallback data
+      setJobStats({
+        total_active_jobs: 4,
+        total_companies: 3,
+        total_job_seekers: 1250,
       });
       setRecentJobs([]);
     } finally {
@@ -89,7 +84,7 @@ export default function Home() {
 
   const handleSearch = () => {
     const searchParams = new URLSearchParams();
-                    if (searchTerm) searchParams.append("search", searchTerm);
+    if (searchTerm) searchParams.append("search", searchTerm);
     if (selectedLocation && selectedLocation !== "Riyadh, Saudi Arabia") {
       searchParams.append("location", selectedLocation);
     }
@@ -138,7 +133,7 @@ export default function Home() {
                       more than
                       <br />
                       <span className="text-indigo-600 relative">
-                        {loadingStats ? '...' : `${jobStats.total_active_jobs}+`} Jobs
+                        600+ Jobs
                         <svg
                           className="absolute -bottom-2 left-0 w-full h-3 text-indigo-600"
                           viewBox="0 0 200 12"
@@ -160,7 +155,7 @@ export default function Home() {
                       أكثر من
                       <br />
                       <span className="text-indigo-600 relative">
-                        {loadingStats ? '...' : `${jobStats.total_active_jobs}+`} وظيفة
+                        600+ وظيفة
                         <svg
                           className={`absolute -bottom-2 w-full h-3 text-indigo-600 ${
                             language === "ar" ? "right-0" : "left-0"
@@ -368,49 +363,25 @@ export default function Home() {
             </p>
 
             {/* Companies Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 items-center">
-              {[
-                {
-                  name: "Vodafone",
-                  logo: "📱",
-                  description: "Telecommunications",
-                },
-                {
-                  name: "Intel",
-                  logo: "🔧",
-                  description: "Technology",
-                },
-                {
-                  name: "Tesla",
-                  logo: "⚡",
-                  description: "Automotive",
-                },
-                {
-                  name: "AMD",
-                  logo: "🔥",
-                  description: "Semiconductors",
-                },
-                {
-                  name: "Talkit",
-                  logo: "💬",
-                  description: "Communication",
-                },
-              ].map((company, index) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 items-center">
+              {mockCompanies.map((company, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 * index }}
-                  className="group flex flex-col items-center p-6 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
+                  className="group flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-indigo-200"
                 >
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-indigo-50 transition-colors">
-                    {company.logo}
+                  <div className="w-14 h-14 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-full flex items-center justify-center mb-3 group-hover:from-indigo-100 group-hover:to-purple-100 transition-colors">
+                    <span className="text-2xl">
+                      {(company as any).icon || company.name?.charAt(0) || "C"}
+                    </span>
                   </div>
-                  <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-1 text-center">
                     {company.name}
                   </h3>
-                  <p className="text-sm text-gray-500 text-center">
-                    {company.description}
+                  <p className="text-xs text-gray-500 text-center leading-tight">
+                    {company.industry || company.description}
                   </p>
                 </motion.div>
               ))}
@@ -420,7 +391,7 @@ export default function Home() {
             <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="text-4xl font-bold text-indigo-600 mb-2">
-                  {loadingStats ? '...' : `${jobStats.total_active_jobs}+`}
+                  {loadingStats ? "..." : `${jobStats.total_active_jobs}+`}
                 </div>
                 <div className="text-gray-600">
                   {language === "en" ? "Active Jobs" : "وظائف نشطة"}
@@ -428,7 +399,7 @@ export default function Home() {
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-indigo-600 mb-2">
-                  {loadingStats ? '...' : `${jobStats.total_companies}+`}
+                  {loadingStats ? "..." : `${jobStats.total_companies}+`}
                 </div>
                 <div className="text-gray-600">
                   {language === "en" ? "Companies" : "شركة"}
@@ -436,7 +407,9 @@ export default function Home() {
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-indigo-600 mb-2">
-                  50K+
+                  {loadingStats
+                    ? "..."
+                    : `${jobStats.total_job_seekers.toLocaleString()}+`}
                 </div>
                 <div className="text-gray-600">
                   {language === "en" ? "Job Seekers" : "باحث عن عمل"}
@@ -461,7 +434,7 @@ export default function Home() {
                 ? "At et rebus premium liberiect amet locus et element eleginit"
                 : "في موقع وعنصر متميز للحرية والمكان والعنصر"}
             </p>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => router.push("/jobs")}>
               {language === "en" ? "View all" : "عرض الكل"}
             </Button>
           </div>
@@ -481,43 +454,91 @@ export default function Home() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-start space-x-4">
                       <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z" />
-                        </svg>
+                        <span className="text-2xl">
+                          {(job as any).icon || "💼"}
+                        </span>
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
                           {job.title}
                         </h3>
                         <p className="text-gray-600 text-sm mb-2">
-                          {job.company?.company_name || 'Company Name'}
+                          {job.company?.name ||
+                            job.company?.company_name ||
+                            "Company Name"}
                         </p>
                         <div className="flex items-center space-x-6 text-sm text-gray-500">
                           {job.category && (
                             <span className="flex items-center space-x-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z" />
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"
+                                />
                               </svg>
                               <span>{job.category}</span>
                             </span>
                           )}
                           <span className="flex items-center space-x-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
                             </svg>
-                            <span>{job.job_type?.replace('-', ' ') || 'Full time'}</span>
+                            <span>
+                              {job.job_type?.replace("-", " ") || "Full time"}
+                            </span>
                           </span>
                           {job.salary_min && job.salary_max && (
                             <span className="flex items-center space-x-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                                />
                               </svg>
-                              <span>{job.salary_currency || 'SAR'} {job.salary_min?.toLocaleString()}-{job.salary_max?.toLocaleString()}</span>
+                              <span>
+                                {job.salary_currency || "SAR"}{" "}
+                                {job.salary_min?.toLocaleString()}-
+                                {job.salary_max?.toLocaleString()}
+                              </span>
                             </span>
                           )}
                           <span className="flex items-center space-x-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                              />
                             </svg>
                             <span>{job.location}</span>
                           </span>
@@ -531,7 +552,7 @@ export default function Home() {
                         className="text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push('/jobs');
+                          router.push("/jobs");
                         }}
                       >
                         {language === "en" ? "Apply Now" : "قدم الآن"}
@@ -544,7 +565,10 @@ export default function Home() {
               // Loading or empty state
               <div className="space-y-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-6 animate-pulse">
+                  <div
+                    key={i}
+                    className="bg-white border border-gray-200 rounded-xl p-6 animate-pulse"
+                  >
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
                       <div className="flex-1 space-y-2">

@@ -1,4 +1,3 @@
-import { apiClient } from "./api";
 import type {
   JobListing,
   CreateJobListingRequest,
@@ -6,130 +5,274 @@ import type {
   JobSearchParams,
   PaginatedResponse,
 } from "@/shared/types";
+import {
+  mockJobs,
+  mockFilters,
+  simulateApiDelay,
+  getPaginatedData,
+} from "@/shared/data/mockData";
 
 class JobService {
   /**
-   * Get all jobs with pagination and filters
+   * Get all jobs with pagination and filters - Mock implementation
    */
   async getJobs(params?: JobSearchParams): Promise<any> {
-    const response = await apiClient.get("/jobs", { params });
-    return response;
+    console.log("📋 Mock getJobs with params:", params);
+    await simulateApiDelay(800);
+
+    let filteredJobs = [...mockJobs];
+
+    // Apply filters
+    if (params?.query) {
+      const searchTerm = params.query.toLowerCase();
+      filteredJobs = filteredJobs.filter(
+        (job) =>
+          job.title.toLowerCase().includes(searchTerm) ||
+          job.description.toLowerCase().includes(searchTerm) ||
+          job.company?.name?.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    if (params?.location) {
+      filteredJobs = filteredJobs.filter(
+        (job) => job.location === params.location
+      );
+    }
+
+    if (params?.job_type) {
+      filteredJobs = filteredJobs.filter(
+        (job) => job.job_type === params.job_type
+      );
+    }
+
+    if (params?.category) {
+      filteredJobs = filteredJobs.filter(
+        (job) => job.category === params.category
+      );
+    }
+
+    if (params?.experience_level) {
+      filteredJobs = filteredJobs.filter(
+        (job) => job.experience_level === params.experience_level
+      );
+    }
+
+    // Only return active jobs for public view
+    filteredJobs = filteredJobs.filter((job) => job.status === "active");
+
+    const paginatedData = getPaginatedData(
+      filteredJobs,
+      params?.page || 1,
+      params?.per_page || 12
+    );
+
+    return {
+      success: true,
+      data: paginatedData,
+      message: "Jobs retrieved successfully",
+    };
   }
 
   /**
-   * Get job by ID or slug
+   * Get job by ID or slug - Mock implementation
    */
   async getJob(id: string | number): Promise<any> {
-    const response = await apiClient.get(`/jobs/${id}`);
-    return response;
+    console.log("📋 Mock getJob with id:", id);
+    await simulateApiDelay(500);
+
+    const job = mockJobs.find((j) => j.id === Number(id));
+    if (!job) {
+      throw new Error("Job not found");
+    }
+
+    return {
+      success: true,
+      data: job,
+      message: "Job retrieved successfully",
+    };
   }
 
   /**
-   * Get available filter options
+   * Get available filter options - Mock implementation
    */
   async getFilters(): Promise<any> {
-    const response = await apiClient.get("/jobs/filters");
-    return response;
+    console.log("📋 Mock getFilters");
+    await simulateApiDelay(300);
+
+    return {
+      success: true,
+      data: mockFilters,
+      message: "Filters retrieved successfully",
+    };
   }
 
   /**
-   * Create new job listing (for employers)
+   * Create new job listing (for employers) - Mock implementation
    */
   async createJob(jobData: CreateJobListingRequest): Promise<any> {
-    const response = await apiClient.post("/jobs", jobData);
-    return response;
+    console.log("📋 Mock createJob with data:", jobData);
+    await simulateApiDelay(1000);
+
+    const newJob: JobListing = {
+      id: mockJobs.length + 1,
+      ...jobData,
+      status: "draft",
+      views_count: 0,
+      applications_count: 0,
+      company_id: 1, // Mock company ID
+      company: mockJobs[0].company,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      slug: `job-${mockJobs.length + 1}`,
+    };
+
+    mockJobs.push(newJob);
+
+    return {
+      success: true,
+      data: newJob,
+      message: "Job created successfully",
+    };
   }
 
   /**
-   * Update job listing (for employers)
+   * Update job listing (for employers) - Mock implementation
    */
   async updateJob(
     id: number,
     jobData: UpdateJobListingRequest
   ): Promise<JobListing> {
-    const response = await apiClient.put<JobListing>(`/jobs/${id}`, jobData);
+    console.log("📋 Mock updateJob with id:", id, "data:", jobData);
+    await simulateApiDelay(800);
 
-    if (response.success && response.data) {
-      return response.data;
+    const jobIndex = mockJobs.findIndex((job) => job.id === id);
+    if (jobIndex === -1) {
+      throw new Error("Job not found");
     }
 
-    throw new Error(response.message || "Failed to update job");
+    mockJobs[jobIndex] = {
+      ...mockJobs[jobIndex],
+      ...jobData,
+      updated_at: new Date().toISOString(),
+    };
+
+    return mockJobs[jobIndex];
   }
 
   /**
-   * Delete job listing (for employers)
+   * Delete job listing (for employers) - Mock implementation
    */
   async deleteJob(id: number): Promise<void> {
-    const response = await apiClient.delete(`/jobs/${id}`);
+    console.log("📋 Mock deleteJob with id:", id);
+    await simulateApiDelay(500);
 
-    if (!response.success) {
-      throw new Error(response.message || "Failed to delete job");
+    const jobIndex = mockJobs.findIndex((job) => job.id === id);
+    if (jobIndex === -1) {
+      throw new Error("Job not found");
     }
+
+    mockJobs.splice(jobIndex, 1);
   }
 
   /**
-   * Get jobs posted by current employer's company
+   * Get jobs posted by current employer's company - Mock implementation
    */
   async getMyJobs(
     params?: JobSearchParams
   ): Promise<PaginatedResponse<JobListing>> {
-    const response = await apiClient.get<PaginatedResponse<JobListing>>(
-      "/jobs/my-jobs",
-      {
-        params,
-      }
-    );
+    console.log("📋 Mock getMyJobs with params:", params);
+    await simulateApiDelay(600);
 
-    if (response.success && response.data) {
-      return response.data;
+    // Filter jobs by company (assuming current user is company 1)
+    let myJobs = mockJobs.filter((job) => job.company_id === 1);
+
+    // Apply filters
+    if (params?.query) {
+      const searchTerm = params.query.toLowerCase();
+      myJobs = myJobs.filter(
+        (job) =>
+          job.title.toLowerCase().includes(searchTerm) ||
+          job.description.toLowerCase().includes(searchTerm)
+      );
     }
 
-    throw new Error(response.message || "Failed to fetch your jobs");
+    return getPaginatedData(myJobs, params?.page || 1, params?.per_page || 10);
   }
 
   /**
-   * Increment view count for a job
+   * Increment view count for a job - Mock implementation
    */
   async viewJob(id: number): Promise<void> {
-    try {
-      await apiClient.post(`/jobs/${id}/view`);
-    } catch (error) {
-      // Don't throw error for view tracking failure
-      console.warn("Failed to track job view:", error);
+    console.log("📋 Mock viewJob with id:", id);
+    await simulateApiDelay(200);
+
+    const job = mockJobs.find((j) => j.id === id);
+    if (job) {
+      job.views_count = (job.views_count || 0) + 1;
     }
   }
 
   /**
-   * Get popular/trending jobs
+   * Get popular/trending jobs - Mock implementation
    */
   async getPopularJobs(limit = 10): Promise<JobListing[]> {
-    const response = await apiClient.get<JobListing[]>("/jobs/popular", {
-      params: { limit },
-    });
+    console.log("📋 Mock getPopularJobs with limit:", limit);
+    await simulateApiDelay(400);
 
-    if (response.success && response.data) {
-      return response.data;
-    }
-
-    throw new Error(response.message || "Failed to fetch popular jobs");
+    return mockJobs
+      .filter((job) => job.status === "active")
+      .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+      .slice(0, limit);
   }
 
   /**
-   * Get recent jobs
+   * Get recent jobs - Mock implementation
    */
   async getRecentJobs(limit = 10): Promise<any> {
-    const response = await apiClient.get("/jobs/recent", {
-      params: { limit },
-    });
-    return response;
+    console.log("📋 Mock getRecentJobs with limit:", limit);
+    await simulateApiDelay(400);
+
+    const recentJobs = mockJobs
+      .filter((job) => job.status === "active")
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+      .slice(0, limit);
+
+    return {
+      success: true,
+      data: recentJobs,
+      message: "Recent jobs retrieved successfully",
+    };
   }
 
   /**
-   * Get job statistics
+   * Get job statistics - Mock implementation
    */
   async getJobStats(): Promise<any> {
-    const response = await apiClient.get("/jobs/stats");
-    return response;
+    console.log("📋 Mock getJobStats");
+    await simulateApiDelay(300);
+
+    const stats = {
+      total_jobs: mockJobs.length,
+      active_jobs: mockJobs.filter((job) => job.status === "active").length,
+      pending_jobs: mockJobs.filter((job) => job.status === "draft").length,
+      total_applications: mockJobs.reduce(
+        (sum, job) => sum + (job.applications_count || 0),
+        0
+      ),
+      total_views: mockJobs.reduce(
+        (sum, job) => sum + (job.views_count || 0),
+        0
+      ),
+    };
+
+    return {
+      success: true,
+      data: stats,
+      message: "Job statistics retrieved successfully",
+    };
   }
 }
 

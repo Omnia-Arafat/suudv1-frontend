@@ -5,6 +5,7 @@ import { useAuth } from "@/shared/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, LogOut, Bell } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -119,12 +120,16 @@ export default function AdminLayout({
                 onClick={() => router.push("/")}
                 className="flex items-center hover:opacity-80 transition-all duration-200 cursor-pointer group"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform duration-200">
-                  ص
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24">
+                  <Image
+                    src="/images/logo.png"
+                    alt="SU'UD Logo"
+                    width={98}
+                    height={98}
+                    className="object-contain group-hover:scale-105 transition-transform duration-200"
+                    priority
+                  />
                 </div>
-                <span className="ml-2 text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
-                  SU&apos;UD
-                </span>
               </button>
             </div>
             <nav className="mt-5 px-2 space-y-2">
@@ -193,12 +198,16 @@ export default function AdminLayout({
                 onClick={() => router.push("/")}
                 className="flex items-center hover:opacity-80 transition-all duration-200 cursor-pointer group"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform duration-200">
-                  ص
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24">
+                  <Image
+                    src="/images/logo.png"
+                    alt="SU'UD Logo"
+                    width={98}
+                    height={98}
+                    className="object-contain group-hover:scale-105 transition-transform duration-200"
+                    priority
+                  />
                 </div>
-                <span className="ml-2 text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
-                  SU&apos;UD
-                </span>
               </button>
             </div>
             <nav className="mt-5 flex-1 px-2 bg-white space-y-2">

@@ -1,17 +1,30 @@
-import { apiClient } from "./api";
-import type { ApiResponse } from "@/shared/types";
+import {
+  mockAdminDashboardData,
+  mockUsers,
+  mockJobs,
+  mockApplications,
+  mockCompanies,
+  simulateApiDelay,
+  getPaginatedData,
+} from "@/shared/data/mockData";
 
 class AdminService {
   /**
-   * Get admin dashboard data
+   * Get admin dashboard data - Mock implementation
    */
   async getDashboardData(): Promise<any> {
-    const response = await apiClient.get("/admin/dashboard");
-    return response;
+    console.log("👑 Mock getDashboardData");
+    await simulateApiDelay(800);
+
+    return {
+      success: true,
+      data: mockAdminDashboardData,
+      message: "Dashboard data retrieved successfully",
+    };
   }
 
   /**
-   * Get all users with filters and pagination
+   * Get all users with filters and pagination - Mock implementation
    */
   async getUsers(params?: {
     page?: number;
@@ -20,8 +33,122 @@ class AdminService {
     status?: string;
     search?: string;
   }): Promise<any> {
-    const response = await apiClient.get("/admin/users", { params });
-    return response;
+    console.log("👑 Mock getUsers with params:", params);
+    await simulateApiDelay(600);
+
+    let users = [...mockUsers];
+
+    if (params?.role) {
+      users = users.filter((user) => user.role === params.role);
+    }
+
+    if (params?.status) {
+      const isActive = params.status === "active";
+      users = users.filter((user) => user.is_active === isActive);
+    }
+
+    if (params?.search) {
+      const searchTerm = params.search.toLowerCase();
+      users = users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm) ||
+          user.email.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    const paginatedData = getPaginatedData(
+      users,
+      params?.page || 1,
+      params?.per_page || 10
+    );
+
+    return {
+      success: true,
+      data: paginatedData,
+      message: "Users retrieved successfully",
+    };
+  }
+
+  /**
+   * Get all job postings for moderation - Mock implementation
+   */
+  async getJobs(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    search?: string;
+  }): Promise<any> {
+    console.log("👑 Mock getJobs with params:", params);
+    await simulateApiDelay(600);
+
+    let jobs = [...mockJobs];
+
+    if (params?.status) {
+      jobs = jobs.filter((job) => job.status === params.status);
+    }
+
+    if (params?.search) {
+      const searchTerm = params.search.toLowerCase();
+      jobs = jobs.filter(
+        (job) =>
+          job.title.toLowerCase().includes(searchTerm) ||
+          job.description.toLowerCase().includes(searchTerm) ||
+          job.company?.name.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    const paginatedData = getPaginatedData(
+      jobs,
+      params?.page || 1,
+      params?.per_page || 10
+    );
+
+    return {
+      success: true,
+      data: paginatedData,
+      message: "Jobs retrieved successfully",
+    };
+  }
+
+  /**
+   * Get all applications for oversight - Mock implementation
+   */
+  async getApplications(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    search?: string;
+  }): Promise<any> {
+    console.log("👑 Mock getApplications with params:", params);
+    await simulateApiDelay(600);
+
+    let applications = [...mockApplications];
+
+    if (params?.status) {
+      applications = applications.filter((app) => app.status === params.status);
+    }
+
+    if (params?.search) {
+      const searchTerm = params.search.toLowerCase();
+      applications = applications.filter(
+        (app) =>
+          app.user?.name.toLowerCase().includes(searchTerm) ||
+          app.job_listing?.title.toLowerCase().includes(searchTerm) ||
+          app.job_listing?.company?.name.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    const paginatedData = getPaginatedData(
+      applications,
+      params?.page || 1,
+      params?.per_page || 10
+    );
+
+    return {
+      success: true,
+      data: paginatedData,
+      message: "Applications retrieved successfully",
+    };
   }
 
   /**

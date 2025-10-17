@@ -1,122 +1,66 @@
-import { apiClient } from "./api";
 import type {
   User,
   LoginRequest,
   RegisterRequest,
   AuthResponse,
-  ApiResponse,
 } from "@/shared/types";
+import { mockUsers, simulateApiDelay } from "@/shared/data/mockData";
 
 class AuthService {
   /**
-   * Login user
+   * Login user - Mock implementation only
    */
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    try {
-      console.log('🔐 Attempting login with credentials:', { email: credentials.email, password: '***' });
-      
-      const response = await apiClient.post<AuthResponse>(
-        "/auth/login",
-        credentials
-      );
-      
-      console.log('🔐 Login API response:', response);
+    console.log("🔐 Mock login with credentials:", {
+      email: credentials.email,
+      password: "***",
+    });
 
-      if (response.success && response.data) {
-        console.log('✅ Login successful, storing auth data');
-        // Store token and user data
-        apiClient.setToken(response.data.token);
-        this.setUser(response.data.user);
-        return response.data;
-      }
+    // Simulate API delay
+    await simulateApiDelay(1000);
 
-      console.error('❌ Login API returned unsuccessful response:', response);
-      throw new Error(response.message || "Login failed");
-    } catch (error: any) {
-      console.error('🚨 Login error caught:', error);
-      console.error('🚨 Error details:', { message: error.message, status: error.status, response: error.response });
-      
-      // Fallback to mock authentication if API is not available
-      if (
-        error.status === 500 ||
-        error.message?.includes("Network Error") ||
-        error.message?.includes("ECONNREFUSED")
-      ) {
-        console.log('🔄 Falling back to mock login due to API error');
-        return this.mockLogin(credentials);
-      }
-      throw error;
-    }
+    return this.mockLogin(credentials);
   }
 
   /**
-   * Register new user
+   * Register new user - Mock implementation only
    */
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    try {
-      const response = await apiClient.post<AuthResponse>(
-        "/auth/register",
-        userData
-      );
+    console.log("🔐 Mock register with user data:", {
+      email: userData.email,
+      role: userData.role,
+    });
 
-      if (response.success && response.data) {
-        // Store token and user data
-        apiClient.setToken(response.data.token);
-        this.setUser(response.data.user);
-        return response.data;
-      }
+    // Simulate API delay
+    await simulateApiDelay(1000);
 
-      throw new Error(response.message || "Registration failed");
-    } catch (error: any) {
-      // Fallback to mock authentication if API is not available
-      if (
-        error.status === 500 ||
-        error.message?.includes("Network Error") ||
-        error.message?.includes("ECONNREFUSED")
-      ) {
-        return this.mockRegister(userData);
-      }
-      throw error;
-    }
+    return this.mockRegister(userData);
   }
 
   /**
-   * Logout user
+   * Logout user - Mock implementation only
    */
   async logout(): Promise<void> {
-    try {
-      await apiClient.post("/auth/logout");
-    } catch (error) {
-      // Even if logout fails on server, clear local data
-      console.warn("Logout request failed:", error);
-    } finally {
-      this.clearAuthData();
-    }
+    console.log("🔐 Mock logout");
+    // Simulate API delay
+    await simulateApiDelay(500);
+    this.clearAuthData();
   }
 
   /**
-   * Get current user from server
+   * Get current user - Mock implementation only
    */
   async getCurrentUser(): Promise<User> {
-    const response = await apiClient.get<User>("/auth/me");
+    console.log("🔐 Mock getCurrentUser");
+    // Simulate API delay
+    await simulateApiDelay(300);
 
-    if (response.success && response.data) {
-      // Validate that we have essential user data
-      if (!response.data.name || !response.data.name.trim()) {
-        console.warn("Server returned user without name:", response.data);
-        // Try to get name from stored data if available
-        const storedUser = this.getStoredUser();
-        if (storedUser && storedUser.name && storedUser.name.trim()) {
-          response.data.name = storedUser.name;
-          console.log("Used stored name for user:", response.data.name);
-        }
-      }
-      
-      this.setUser(response.data);
-      return response.data;
+    const storedUser = this.getStoredUser();
+    if (storedUser) {
+      return storedUser;
     }
 
-    throw new Error(response.message || "Failed to get user data");
+    throw new Error("No user found");
   }
 
   /**
@@ -137,6 +81,30 @@ class AuthService {
   }
 
   /**
+   * Get redirect URL based on user role
+   */
+  private getRedirectUrl(role: string): string {
+    switch (role) {
+      case "admin":
+        return "/admin/dashboard";
+      case "employer":
+        return "/employer/dashboard";
+      case "employee":
+        return "/employee/dashboard";
+      default:
+        return "/dashboard";
+    }
+  }
+
+  /**
+   * Set token in localStorage
+   */
+  private setToken(token: string): void {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("auth_token", token);
+  }
+
+  /**
    * Store user data locally
    */
   private setUser(user: User): void {
@@ -154,91 +122,57 @@ class AuthService {
   }
 
   /**
-   * Refresh authentication token
+   * Refresh authentication token - Mock implementation only
    */
   async refreshToken(): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>("/auth/refresh");
+    console.log("🔐 Mock refreshToken");
+    // Simulate API delay
+    await simulateApiDelay(500);
 
-    if (response.success && response.data) {
-      apiClient.setToken(response.data.token);
-      this.setUser(response.data.user);
-      return response.data;
+    const storedUser = this.getStoredUser();
+    if (!storedUser) {
+      throw new Error("No user found");
     }
 
-    throw new Error(response.message || "Token refresh failed");
+    const mockToken = "mock_token_" + Date.now();
+    const authResponse: AuthResponse = {
+      user: storedUser,
+      token: mockToken,
+      token_type: "Bearer",
+      expires_in: 3600,
+      redirect_url: this.getRedirectUrl(storedUser.role),
+    };
+
+    // Store token and user data
+    this.setToken(mockToken);
+    this.setUser(storedUser);
+
+    return authResponse;
   }
 
   /**
-   * Mock login for development when API is not available
+   * Mock login with predefined accounts
    */
   private async mockLogin(credentials: LoginRequest): Promise<AuthResponse> {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Find user by email
+    const mockUser = mockUsers.find((user) => user.email === credentials.email);
 
-    // Mock user data based on email
-    let mockUser: User;
-    let redirectUrl: string;
-    const isAdmin =
-      credentials.email.includes("admin") ||
-      credentials.email === "admin@suud.com";
-    const isEmployer =
-      credentials.email.includes("employer") ||
-      credentials.email.includes("company");
-
-    if (isAdmin) {
-      mockUser = {
-        id: 0,
-        name: "System Administrator",
-        email: credentials.email,
-        role: "admin",
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        phone: "+966500000000",
-        location: "الرياض، السعودية",
-      };
-      redirectUrl = "/admin/dashboard";
-    } else if (isEmployer) {
-      mockUser = {
-        id: 1,
-        name: "أحمد الرشيد", // Ahmed Al-Rashid in Arabic
-        email: credentials.email,
-        role: "employer",
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        phone: "+966501234567",
-        location: "الرياض، السعودية",
-      };
-      redirectUrl = "/employer/dashboard";
-    } else {
-      mockUser = {
-        id: 2,
-        name: "فاطمة العلي", // Fatima Al-Ali in Arabic
-        email: credentials.email,
-        role: "employee",
-        specialization: "مطور برمجيات",
-        university: "جامعة الملك سعود",
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        phone: "+966507654321",
-        location: "جدة، السعودية",
-      };
-      redirectUrl = "/employee/dashboard";
+    if (!mockUser) {
+      throw new Error("Invalid email or password");
     }
 
+    // For demo purposes, accept any password for predefined accounts
     const mockToken = "mock_token_" + Date.now();
     const authResponse: AuthResponse = {
       user: mockUser,
       token: mockToken,
       token_type: "Bearer",
       expires_in: 3600,
-      redirect_url: redirectUrl,
+      redirect_url: this.getRedirectUrl(mockUser.role),
     };
 
     // Store token and user data
-    apiClient.setToken(mockToken);
+    this.setToken(mockToken);
     this.setUser(mockUser);
 
     return authResponse;
@@ -266,11 +200,12 @@ class AuthService {
     };
 
     // Determine redirect URL based on role
-    const redirectUrl = {
-      admin: "/admin/dashboard",
-      employer: "/employer/dashboard",
-      employee: "/employee/dashboard"
-    }[userData.role] || "/dashboard";
+    const redirectUrl =
+      {
+        admin: "/admin/dashboard",
+        employer: "/employer/dashboard",
+        employee: "/employee/dashboard",
+      }[userData.role] || "/dashboard";
 
     const mockToken = "mock_token_" + Date.now();
     const authResponse: AuthResponse = {
@@ -282,7 +217,7 @@ class AuthService {
     };
 
     // Store token and user data
-    apiClient.setToken(mockToken);
+    this.setToken(mockToken);
     this.setUser(mockUser);
 
     return authResponse;

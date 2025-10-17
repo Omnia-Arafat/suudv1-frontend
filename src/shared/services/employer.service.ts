@@ -1,17 +1,30 @@
-import { apiClient } from "./api";
-import type { ApiResponse } from "@/shared/types";
+import {
+  mockEmployerDashboardData,
+  mockJobs,
+  mockApplications,
+  mockUsers,
+  mockCompanies,
+  simulateApiDelay,
+  getPaginatedData,
+} from "@/shared/data/mockData";
 
 class EmployerService {
   /**
-   * Get employer dashboard data
+   * Get employer dashboard data - Mock implementation
    */
   async getDashboardData(): Promise<any> {
-    const response = await apiClient.get("/employer/dashboard");
-    return response;
+    console.log("🏢 Mock getDashboardData");
+    await simulateApiDelay(800);
+
+    return {
+      success: true,
+      data: mockEmployerDashboardData,
+      message: "Dashboard data retrieved successfully",
+    };
   }
 
   /**
-   * Get employer's job postings
+   * Get employer's job postings - Mock implementation
    */
   async getMyJobs(params?: {
     page?: number;
@@ -19,8 +32,105 @@ class EmployerService {
     status?: string;
     search?: string;
   }): Promise<any> {
-    const response = await apiClient.get("/employer/jobs", { params });
-    return response;
+    console.log("🏢 Mock getMyJobs with params:", params);
+    await simulateApiDelay(600);
+
+    // Filter jobs by company (assuming current user is company 1)
+    let myJobs = mockJobs.filter((job) => job.company_id === 1);
+
+    if (params?.status) {
+      myJobs = myJobs.filter((job) => job.status === params.status);
+    }
+
+    if (params?.search) {
+      const searchTerm = params.search.toLowerCase();
+      myJobs = myJobs.filter(
+        (job) =>
+          job.title.toLowerCase().includes(searchTerm) ||
+          job.description.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    const paginatedData = getPaginatedData(
+      myJobs,
+      params?.page || 1,
+      params?.per_page || 10
+    );
+
+    return {
+      success: true,
+      data: paginatedData,
+      message: "Jobs retrieved successfully",
+    };
+  }
+
+  /**
+   * Get applications for employer's jobs - Mock implementation
+   */
+  async getJobApplications(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    job_id?: string;
+    search?: string;
+  }): Promise<any> {
+    console.log("🏢 Mock getJobApplications with params:", params);
+    await simulateApiDelay(600);
+
+    // Filter applications for jobs belonging to current company
+    let applications = mockApplications.filter(
+      (app) => app.job_listing?.company_id === 1
+    );
+
+    if (params?.job_id) {
+      applications = applications.filter(
+        (app) => app.job_listing_id === Number(params.job_id)
+      );
+    }
+
+    if (params?.status) {
+      applications = applications.filter((app) => app.status === params.status);
+    }
+
+    if (params?.search) {
+      const searchTerm = params.search.toLowerCase();
+      applications = applications.filter(
+        (app) =>
+          app.user?.name.toLowerCase().includes(searchTerm) ||
+          app.job_listing?.title.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    const paginatedData = getPaginatedData(
+      applications,
+      params?.page || 1,
+      params?.per_page || 10
+    );
+
+    return {
+      success: true,
+      data: paginatedData,
+      message: "Applications retrieved successfully",
+    };
+  }
+
+  /**
+   * Get company profile - Mock implementation
+   */
+  async getCompany(): Promise<any> {
+    console.log("🏢 Mock getCompany");
+    await simulateApiDelay(400);
+
+    const company = mockCompanies.find((c) => c.id === 1);
+    if (!company) {
+      throw new Error("Company not found");
+    }
+
+    return {
+      success: true,
+      data: company,
+      message: "Company profile retrieved successfully",
+    };
   }
 
   /**

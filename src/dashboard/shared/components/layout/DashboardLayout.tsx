@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useI18n } from '@/shared/contexts';
-import Sidebar from './Sidebar';
+import { useState } from "react";
+import Link from "next/link";
+import { useI18n } from "@/shared/contexts";
+import Sidebar from "./Sidebar";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,11 +12,11 @@ interface DashboardLayoutProps {
   actions?: React.ReactNode;
 }
 
-export default function DashboardLayout({ 
-  children, 
-  title, 
-  subtitle, 
-  actions 
+export default function DashboardLayout({
+  children,
+  title,
+  subtitle,
+  actions,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { language } = useI18n();
@@ -25,8 +25,11 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         {/* Sidebar */}
-        <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-        
+        <Sidebar
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
+
         {/* Main Content Area */}
         <div className="flex-1 lg:ml-64 min-h-screen">
           {/* Mobile Header */}
@@ -36,11 +39,24 @@ export default function DashboardLayout({
                 onClick={() => setSidebarOpen(true)}
                 className="p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               </button>
-              <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <Link
+                href="/"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
                 <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
                   ص
                 </div>
@@ -65,15 +81,13 @@ export default function DashboardLayout({
                     </h1>
                   )}
                   {subtitle && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      {subtitle}
-                    </p>
+                    <p className="text-sm text-gray-600 mt-1">{subtitle}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
                   {actions}
                   <button className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                    {language === 'en' ? 'العربية' : 'English'}
+                    {language === "en" ? "العربية" : "English"}
                   </button>
                   <button className="relative p-2 text-gray-600 hover:text-gray-800 transition-colors">
                     🔔
@@ -83,7 +97,7 @@ export default function DashboardLayout({
               </div>
             </header>
           )}
-          
+
           {/* Main Content */}
           <main className="min-h-screen p-4 lg:p-6">
             <div className="opacity-0 animate-[fadeIn_0.3s_ease-in-out_forwards]">

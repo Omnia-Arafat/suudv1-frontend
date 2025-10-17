@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth, useI18n } from "@/shared/contexts";
@@ -86,16 +87,18 @@ export default function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
-              ص
-            </div>
-            <div className="font-bold">
-              <span className="text-gray-900">SU&apos;UD</span>
-              <span className="text-gray-500 text-sm mx-1">|</span>
-              <span className="text-gray-600 text-sm">صعود</span>
+          <Link href="/" className="flex items-center">
+            <div className="relative w-24 h-24">
+              <Image
+                src="/images/logo.png"
+                alt="SU'UD Logo"
+                width={96}
+                height={96}
+                className="object-contain"
+                priority
+              />
             </div>
           </Link>
 
