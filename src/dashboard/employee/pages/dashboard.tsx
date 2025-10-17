@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth, useI18n } from "@/shared/contexts";
+import { useAuth } from "@/shared/contexts";
 import { employeeService } from "@/shared/services/employee.service";
 import Link from "next/link";
 import { XCircle, Star, MapPin, Building2 } from "lucide-react";
@@ -30,32 +30,47 @@ interface EmployeeDashboardData {
     };
   };
   recent_applications: Array<{
-    id: string;
-    job_title: string;
-    company_name: string;
-    applied_date: string;
+    id: string | number;
+    job_listing?: {
+      title: string;
+      company?: { name: string };
+    };
+    job?: string;
+    company_name?: string;
+    applied_date?: string;
+    created_at?: string;
     status: string;
   }>;
   recommended_jobs: Array<{
-    id: string;
+    id: string | number;
     title: string;
+    description?: string;
     company?: { name: string };
     company_name?: string;
     location: string;
-    salary: string;
-    posted_date: string;
-    type: string;
+    salary?: string;
+    salary_min?: number;
+    salary_max?: number;
+    salary_currency?: string;
+    job_type?: string;
+    posted_date?: string;
+    type?: string;
     created_at?: string;
   }>;
   latest_jobs: Array<{
-    id: string;
+    id: string | number;
     title: string;
+    description?: string;
     company?: { name: string };
     company_name?: string;
     location: string;
-    salary: string;
-    posted_date: string;
-    type: string;
+    salary?: string;
+    salary_min?: number;
+    salary_max?: number;
+    salary_currency?: string;
+    job_type?: string;
+    posted_date?: string;
+    type?: string;
     created_at?: string;
   }>;
   profile?: {
@@ -110,7 +125,26 @@ const StatCard = ({
   </div>
 );
 
-const JobCard = ({ job }: { job: any }) => (
+const JobCard = ({
+  job,
+}: {
+  job: {
+    id: string | number;
+    title: string;
+    description?: string;
+    company?: { name: string };
+    company_name?: string;
+    location: string;
+    salary?: string;
+    salary_min?: number;
+    salary_max?: number;
+    salary_currency?: string;
+    job_type?: string;
+    posted_date?: string;
+    type?: string;
+    created_at?: string;
+  };
+}) => (
   <div className="bg-white p-4 rounded-lg shadow border hover:shadow-md transition-shadow">
     <div className="flex justify-between items-start mb-2">
       <h4 className="text-lg font-medium text-gray-900">{job.title}</h4>
@@ -133,8 +167,8 @@ const JobCard = ({ job }: { job: any }) => (
           {job.job_type || job.type || "Full-time"}
         </span>
         <span className="text-sm text-green-600 font-medium">
-          {job.salary_min
-            ? `${job.salary_min}-${job.salary_max || job.salary_min} ${
+          {job.salary_min && job.salary_max
+            ? `${job.salary_min}-${job.salary_max} ${
                 job.salary_currency || "SAR"
               }`
             : job.salary || "Salary not specified"}
@@ -171,7 +205,7 @@ export default function EmployeeDashboardContent() {
       } else {
         throw new Error("Invalid response structure");
       }
-    } catch (error) {
+    } catch {
       // Only log detailed errors in development
       if (process.env.NODE_ENV === "development") {
         console.info(
@@ -218,7 +252,7 @@ export default function EmployeeDashboardContent() {
       await employeeService.applyForJob(jobId, {});
       // Refresh dashboard data to update application counts
       await fetchDashboardData();
-    } catch (error) {
+    } catch {
       // Only log detailed errors in development
       if (process.env.NODE_ENV === "development") {
         console.info(
@@ -405,7 +439,7 @@ export default function EmployeeDashboardContent() {
                         {application.status === "pending" && (
                           <button
                             onClick={() =>
-                              handleWithdrawApplication(application.id)
+                              handleWithdrawApplication(Number(application.id))
                             }
                             className="text-xs text-red-600 hover:text-red-800 font-medium"
                             title="Withdraw Application"
@@ -485,7 +519,7 @@ export default function EmployeeDashboardContent() {
                       </span>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">
-                      {job.description}
+                      {job.description || "Job description not available"}
                     </p>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
@@ -493,20 +527,22 @@ export default function EmployeeDashboardContent() {
                           {job.job_type || job.type || "Full-time"}
                         </span>
                         <span className="text-sm text-green-600 font-medium">
-                          {job.salary_min
-                            ? `${job.salary_min}-${
-                                job.salary_max || job.salary_min
-                              } ${job.salary_currency || "SAR"}`
+                          {job.salary_min && job.salary_max
+                            ? `${job.salary_min}-${job.salary_max} ${
+                                job.salary_currency || "SAR"
+                              }`
                             : job.salary || "Salary not specified"}
                         </span>
                       </div>
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => handleApplyForJob(job.id)}
-                          disabled={applying === job.id}
+                          onClick={() => handleApplyForJob(Number(job.id))}
+                          disabled={applying === Number(job.id)}
                           className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors"
                         >
-                          {applying === job.id ? "Applying..." : "Quick Apply"}
+                          {applying === Number(job.id)
+                            ? "Applying..."
+                            : "Quick Apply"}
                         </button>
                         <Link
                           href={`/employee/jobs/${job.id}`}
