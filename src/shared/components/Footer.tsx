@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/shared/contexts";
 import { useAuth } from "@/shared/contexts/AuthContext";
@@ -121,13 +122,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Logo and Description */}
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
-                ص
-              </div>
-              <div className="font-bold">
-                <span className="text-gray-900">SU'UD</span>
-                <div className="text-gray-600 text-sm">صعود</div>
+            <Link href="/" className="flex items-start mb-4">
+              <div className="relative w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20">
+                <Image
+                  src="/images/logo.png"
+                  alt="SU'UD Logo"
+                  width={80}
+                  height={80}
+                  className="object-contain"
+                  priority
+                />
               </div>
             </Link>
             <p className="text-gray-600 text-sm mb-4">

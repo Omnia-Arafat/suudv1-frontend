@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import { useAuth, useI18n } from "@/shared/contexts";
 import type { TranslationKeys } from "@/shared/types";
 import { useState, useEffect } from "react";
@@ -160,14 +161,15 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 router.push("/");
               }}
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-sm group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
-                ص
-              </div>
-              <div className={language === "ar" ? "text-right" : "text-left"}>
-                <h2 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors duration-200">
-                  SU&apos;UD
-                </h2>
-                <p className="text-xs text-gray-500 font-medium">صعود</p>
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28">
+                <Image
+                  src="/images/logo.png"
+                  alt="SU'UD Logo"
+                  width={112}
+                  height={112}
+                  className="object-contain group-hover:scale-105 transition-transform duration-200"
+                  priority
+                />
               </div>
             </div>
             <button

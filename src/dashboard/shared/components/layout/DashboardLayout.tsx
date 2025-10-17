@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useI18n } from "@/shared/contexts";
 import Sidebar from "./Sidebar";
 
@@ -55,15 +56,17 @@ export default function DashboardLayout({
               </button>
               <Link
                 href="/"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                className="flex items-center hover:opacity-80 transition-opacity"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
-                  ص
-                </div>
-                <div className="font-bold">
-                  <span className="text-gray-900">SU'UD</span>
-                  <span className="text-gray-500 text-sm mx-1">|</span>
-                  <span className="text-gray-600 text-sm">صعود</span>
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28">
+                  <Image
+                    src="/images/logo.png"
+                    alt="SU'UD Logo"
+                    width={112}
+                    height={112}
+                    className="object-contain"
+                    priority
+                  />
                 </div>
               </Link>
               <div className="w-6"></div>
