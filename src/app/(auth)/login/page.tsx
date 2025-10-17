@@ -25,17 +25,16 @@ export default function LoginPage() {
   });
   const [error, setError] = useState("");
 
-  // Get redirect URL from query parameters
-  const redirectUrl = searchParams.get("redirect") || "/dashboard";
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      await login(formData);
-      router.push(redirectUrl);
+      const redirectUrl = await login(formData);
+      console.log("Login successful, redirecting to:", redirectUrl);
+      router.push(redirectUrl || "/dashboard");
     } catch (err: unknown) {
+      console.error("Login failed:", err);
       setError(err instanceof Error ? err.message : "Login failed");
     }
   };
@@ -63,7 +62,9 @@ export default function LoginPage() {
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
                 className="text-3xl font-bold text-indigo-600 mb-2"
-              >                SU&apos;UD - صعود
+              >
+                {" "}
+                SU&apos;UD - صعود
               </motion.h1>
               <CardTitle>{t("auth.login")}</CardTitle>
             </CardHeader>

@@ -51,7 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setUser(currentUser);
               console.log("Updated user from server:", currentUser);
             } else {
-              console.warn("Server returned user without name, keeping stored data:", { currentUser, storedUser });
+              console.warn(
+                "Server returned user without name, keeping stored data:",
+                { currentUser, storedUser }
+              );
               // Keep using stored user data if server data is incomplete
             }
           } catch (error) {
@@ -117,11 +120,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginRequest): Promise<string> => {
     try {
       setIsLoading(true);
+      console.log("AuthContext: Starting login process");
       const authResponse = await authService.login(credentials);
+      console.log("AuthContext: Login successful, user:", authResponse.user);
+      console.log("AuthContext: Redirect URL:", authResponse.redirect_url);
       setUser(authResponse.user);
       return authResponse.redirect_url;
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("AuthContext: Login failed:", error);
       throw error;
     } finally {
       setIsLoading(false);

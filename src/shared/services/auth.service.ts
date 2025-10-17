@@ -97,28 +97,38 @@ class AuthService {
   }
 
   /**
-   * Set token in localStorage
+   * Set token in localStorage and cookies
    */
   private setToken(token: string): void {
     if (typeof window === "undefined") return;
     localStorage.setItem("auth_token", token);
+    // Also set as cookie for middleware
+    document.cookie = `auth_token=${token}; path=/; max-age=3600; secure; samesite=strict`;
   }
 
   /**
-   * Store user data locally
+   * Store user data locally and in cookies
    */
   private setUser(user: User): void {
     if (typeof window === "undefined") return;
     localStorage.setItem("user", JSON.stringify(user));
+    // Also set as cookie for middleware
+    document.cookie = `user=${JSON.stringify(
+      user
+    )}; path=/; max-age=3600; secure; samesite=strict`;
   }
 
   /**
-   * Clear authentication data
+   * Clear authentication data from localStorage and cookies
    */
   private clearAuthData(): void {
     if (typeof window === "undefined") return;
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
+    // Clear cookies
+    document.cookie =
+      "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
 
   /**
